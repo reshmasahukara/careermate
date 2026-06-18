@@ -82,13 +82,20 @@ export default function Navbar() {
                 <Link
                   key={link.name}
                   href={link.href}
-                  className={`text-sm font-medium transition-colors py-1.5 px-1 hover:text-primary ${
+                  className={`text-sm font-medium transition-colors py-1.5 px-1 relative ${
                     isActive
-                      ? "text-primary font-semibold"
-                      : "text-brand-muted"
+                      ? "text-[#0F172A] font-semibold"
+                      : "text-[#475569] hover:text-[#0F172A]"
                   }`}
                 >
                   {link.name}
+                  {isActive && (
+                    <motion.div
+                      layoutId="navUnderline"
+                      className="absolute bottom-0 left-0 right-0 h-[2px] bg-[#10B981] rounded-full"
+                      transition={{ type: "spring", stiffness: 380, damping: 30 }}
+                    />
+                  )}
                 </Link>
               );
             })}
@@ -102,9 +109,9 @@ export default function Navbar() {
               <div className="flex items-center gap-4">
                 <Link
                   href="/dashboard"
-                  className="flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wider text-slate-700 hover:text-primary transition-colors"
+                  className="flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wider text-slate-700 hover:text-[#0F172A] transition-colors"
                 >
-                  <LayoutDashboard className="w-4 h-4 text-primary" />
+                  <LayoutDashboard className="w-4 h-4 text-[#1E293B]" />
                   Dashboard
                 </Link>
                 <div className="w-px h-4 bg-brand-border" />
@@ -117,16 +124,16 @@ export default function Navbar() {
                 </button>
               </div>
             ) : (
-              <div className="flex items-center gap-4">
+              <div className="flex items-center gap-5">
                 <Link
                   href="/login"
-                  className="border border-[#E2E8F0] hover:border-primary hover:bg-slate-50 text-slate-700 hover:text-primary px-4.5 py-2 rounded-btn text-sm font-semibold transition-all cursor-pointer"
+                  className="text-[#475569] hover:text-[#0F172A] text-sm font-semibold transition-colors cursor-pointer"
                 >
                   Login
                 </Link>
                 <Link
                   href="/signup"
-                  className="bg-primary hover:bg-blue-800 text-white text-xs font-bold uppercase tracking-wider px-5 py-2.5 rounded-btn shadow-sm transition-colors flex items-center gap-1 cursor-pointer"
+                  className="bg-[#0F172A] hover:bg-[#1E293B] text-white text-xs font-bold uppercase tracking-wider px-5 py-2.5 rounded-btn shadow-sm transition-all flex items-center gap-1 cursor-pointer"
                 >
                   Sign Up
                   <ChevronRight className="w-3.5 h-3.5" />
@@ -190,7 +197,7 @@ export default function Navbar() {
                     href="/dashboard"
                     className="flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-semibold text-slate-700 hover:bg-slate-50"
                   >
-                    <LayoutDashboard className="w-4.5 h-4.5 text-primary" />
+                    <LayoutDashboard className="w-4.5 h-4.5 text-[#1E293B]" />
                     Dashboard
                   </Link>
                   <button
@@ -205,13 +212,13 @@ export default function Navbar() {
                 <div className="grid grid-cols-2 gap-3 px-4">
                   <Link
                     href="/login"
-                    className="flex items-center justify-center py-2.5 rounded-btn border border-brand-border text-xs font-bold uppercase tracking-wider text-slate-700 hover:bg-slate-50"
+                    className="flex items-center justify-center py-2.5 rounded-btn border border-[#E5E7EB] text-xs font-bold uppercase tracking-wider text-[#475569] hover:bg-slate-50"
                   >
                     Login
                   </Link>
                   <Link
                     href="/signup"
-                    className="flex items-center justify-center py-2.5 rounded-btn bg-primary text-white text-xs font-bold uppercase tracking-wider hover:bg-blue-700"
+                    className="flex items-center justify-center py-2.5 rounded-btn bg-[#0F172A] text-white text-xs font-bold uppercase tracking-wider hover:bg-[#1E293B]"
                   >
                     Sign Up
                   </Link>

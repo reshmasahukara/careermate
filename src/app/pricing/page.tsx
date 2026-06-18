@@ -63,7 +63,7 @@ export default function PricingPage() {
       buttonText: "Register Account",
       badge: "Sandbox",
       actionPlan: "Free",
-      color: "border-slate-200"
+      color: "border-[#E5E7EB]"
     },
     {
       name: "Pro",
@@ -97,7 +97,7 @@ export default function PricingPage() {
       buttonText: "Get Premium",
       badge: "Deep Study",
       actionPlan: "Premium",
-      color: "border-slate-200"
+      color: "border-[#E5E7EB]"
     },
     {
       name: "Enterprise",
@@ -114,7 +114,7 @@ export default function PricingPage() {
       buttonText: "Contact Sales",
       badge: "Scale Growth",
       actionPlan: "Enterprise",
-      color: "border-slate-200"
+      color: "border-[#E5E7EB]"
     }
   ] as const;
 
@@ -200,8 +200,8 @@ export default function PricingPage() {
                         isCurrent
                           ? "bg-slate-100 text-slate-400 cursor-not-allowed border border-slate-200"
                           : isPro
-                          ? "bg-primary hover:bg-blue-700 text-white shadow-md shadow-primary/15"
-                          : "bg-slate-900 hover:bg-slate-800 text-white"
+                          ? "bg-[#0F172A] hover:bg-[#1E293B] text-white shadow-md shadow-[#0F172A]/10"
+                          : "bg-white hover:bg-slate-50 border border-[#E5E7EB] text-slate-700"
                       }`}
                     >
                       {isCurrent ? "Active Plan" : card.buttonText}
@@ -211,8 +211,8 @@ export default function PricingPage() {
                       href="/signup"
                       className={`w-full py-3 rounded-xl text-xs font-bold uppercase tracking-wider text-center block transition-all cursor-pointer ${
                         isPro
-                          ? "bg-primary hover:bg-blue-700 text-white shadow-md"
-                          : "bg-slate-900 hover:bg-slate-800 text-white"
+                          ? "bg-[#0F172A] hover:bg-[#1E293B] text-white shadow-md shadow-[#0F172A]/10"
+                          : "bg-white hover:bg-slate-50 border border-[#E5E7EB] text-slate-700"
                       }`}
                     >
                       {card.buttonText}
@@ -229,7 +229,7 @@ export default function PricingPage() {
           <h2 className="text-2xl font-extrabold text-center text-slate-900">Pricing Questions</h2>
           <div className="space-y-4">
             {faqs.map((faq, idx) => (
-              <div key={idx} className="border border-slate-200 rounded-2xl bg-white overflow-hidden shadow-sm">
+              <div key={idx} className="border border-[#E5E7EB] rounded-2xl bg-white overflow-hidden shadow-sm">
                 <button
                   onClick={() => setOpenFaq(openFaq === idx ? null : idx)}
                   className="w-full flex justify-between items-center p-5 font-bold text-slate-800 text-left cursor-pointer"

@@ -118,7 +118,7 @@ export default function SignupPage() {
   };
 
   return (
-    <div className="flex-1 min-h-screen flex items-center justify-center py-16 px-4 bg-[#F8FAFC]">
+    <div className="flex-1 min-h-screen flex items-center justify-center py-16 px-4 bg-[#FAFBFC]">
       <div className="w-full max-w-[480px] space-y-6">
         {/* Header */}
         <div className="text-center">
@@ -132,7 +132,7 @@ export default function SignupPage() {
             Already have an account?{" "}
             <Link
               href="/login"
-              className="font-medium text-[#2563EB] hover:text-[#1D4ED8] transition-colors underline underline-offset-4"
+              className="font-medium text-[#10B981] hover:text-[#059669] transition-colors underline underline-offset-4"
             >
               Sign in
             </Link>
@@ -140,12 +140,12 @@ export default function SignupPage() {
         </div>
 
         {/* Card wrapper */}
-        <div className="bg-white border border-[#E2E8F0] p-8 rounded-[20px] shadow-sm space-y-6">
+        <div className="bg-white border border-[#E5E7EB] p-8 rounded-[20px] shadow-sm space-y-6">
           {/* Social Sign-In */}
           <button
             onClick={() => handleOAuthLogin("google")}
             disabled={isLoading}
-            className="w-full flex items-center justify-center gap-3 bg-white hover:bg-[#F8FAFC] text-[#0F172A] font-semibold py-3 px-4 border border-[#E2E8F0] rounded-[12px] shadow-sm transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer text-sm"
+            className="w-full flex items-center justify-center gap-3 bg-white hover:bg-[#FAFBFC] text-[#0F172A] font-semibold py-3 px-4 border border-[#E5E7EB] rounded-[12px] shadow-sm transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer text-sm"
           >
             <svg className="w-5 h-5" viewBox="0 0 24 24">
               <path
@@ -169,7 +169,7 @@ export default function SignupPage() {
           </button>
 
           <div className="relative flex items-center justify-center">
-            <div className="absolute inset-x-0 h-px bg-[#E2E8F0]" />
+            <div className="absolute inset-x-0 h-px bg-[#E5E7EB]" />
             <span className="relative px-3 bg-white text-xs text-[#64748B] font-semibold uppercase tracking-wider">
               Or fill in your details
             </span>
@@ -186,7 +186,7 @@ export default function SignupPage() {
                   type="text"
                   {...register("name")}
                   placeholder="Alex Morgan"
-                  className="w-full bg-[#F8FAFC] border border-[#E2E8F0] rounded-[12px] py-3 px-4 text-sm focus:outline-none focus:border-[#2563EB] focus:bg-white transition-colors pl-10"
+                  className="w-full bg-[#FAFBFC] border border-[#E5E7EB] rounded-[12px] py-3 px-4 text-sm focus:outline-none focus:border-[#1E293B] focus:bg-white transition-colors pl-10"
                 />
                 <User className="absolute left-3 top-3.5 w-4 h-4 text-[#64748B]" />
               </div>
@@ -206,7 +206,7 @@ export default function SignupPage() {
                   type="email"
                   {...register("email")}
                   placeholder="alex@example.com"
-                  className="w-full bg-[#F8FAFC] border border-[#E2E8F0] rounded-[12px] py-3 px-4 text-sm focus:outline-none focus:border-[#2563EB] focus:bg-white transition-colors pl-10"
+                  className="w-full bg-[#FAFBFC] border border-[#E5E7EB] rounded-[12px] py-3 px-4 text-sm focus:outline-none focus:border-[#1E293B] focus:bg-white transition-colors pl-10"
                 />
                 <Mail className="absolute left-3 top-3.5 w-4 h-4 text-[#64748B]" />
               </div>
@@ -226,7 +226,7 @@ export default function SignupPage() {
                   type={showPassword ? "text" : "password"}
                   {...register("password")}
                   placeholder="••••••••"
-                  className="w-full bg-[#F8FAFC] border border-[#E2E8F0] rounded-[12px] py-3 px-4 text-sm focus:outline-none focus:border-[#2563EB] focus:bg-white transition-colors pl-10 pr-10"
+                  className="w-full bg-[#FAFBFC] border border-[#E5E7EB] rounded-[12px] py-3 px-4 text-sm focus:outline-none focus:border-[#1E293B] focus:bg-white transition-colors pl-10 pr-10"
                 />
                 <Lock className="absolute left-3 top-3.5 w-4 h-4 text-[#64748B]" />
                 <button
@@ -274,7 +274,7 @@ export default function SignupPage() {
                   type={showPassword ? "text" : "password"}
                   {...register("confirmPassword")}
                   placeholder="••••••••"
-                  className="w-full bg-[#F8FAFC] border border-[#E2E8F0] rounded-[12px] py-3 px-4 text-sm focus:outline-none focus:border-[#2563EB] focus:bg-white transition-colors pl-10"
+                  className="w-full bg-[#FAFBFC] border border-[#E5E7EB] rounded-[12px] py-3 px-4 text-sm focus:outline-none focus:border-[#1E293B] focus:bg-white transition-colors pl-10"
                 />
                 <ShieldCheck className="absolute left-3 top-3.5 w-4 h-4 text-[#64748B]" />
               </div>
@@ -288,7 +288,7 @@ export default function SignupPage() {
             <button
               type="submit"
               disabled={isLoading}
-              className="w-full flex items-center justify-center gap-2 bg-[#2563EB] hover:bg-[#1D4ED8] text-white font-bold py-3 px-4 rounded-[12px] shadow-sm hover:shadow-md transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer text-sm"
+              className="w-full flex items-center justify-center gap-2 bg-[#0F172A] hover:bg-[#1E293B] text-white font-bold py-3 px-4 rounded-[12px] shadow-sm hover:shadow-md transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer text-sm"
             >
               {isLoading ? (
                 <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />

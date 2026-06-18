@@ -2,14 +2,14 @@
 
 @theme {
   --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
-  --color-primary: #1E40AF;
-  --color-secondary: #0F172A;
-  --color-accent: #14B8A6;
-  --color-brand-bg: #F8FAFC;
+  --color-primary: #1E293B;
+  --color-secondary: #475569;
+  --color-accent: #10B981;
+  --color-brand-bg: #FAFBFC;
   --color-brand-text: #0F172A;
   --color-brand-muted: #64748B;
   --color-brand-surface: #FFFFFF;
-  --color-brand-border: #E2E8F0;
+  --color-brand-border: #E5E7EB;
   
   --radius-card: 20px;
   --radius-btn: 12px;
@@ -20,8 +20,8 @@
 }
 
 :root {
-  --background: 210 40% 98%; /* Slate 50 (#F8FAFC) */
-  --foreground: 222.2 84% 4.9%; /* Slate 950 (#020617) */
+  --background: 210 20% 98.4%; /* Off White (#FAFBFC) */
+  --foreground: 222.2 84% 4.9%;
 
   --card: 0 0% 100%;
   --card-foreground: 222.2 84% 4.9%;
@@ -29,35 +29,35 @@
   --popover: 0 0% 100%;
   --popover-foreground: 222.2 84% 4.9%;
 
-  --primary: 224 76% 40%; /* Blue 700 (#1E40AF) */
+  --primary: 215 25% 17.2%; /* Midnight Navy (#1E293B) */
   --primary-foreground: 210 40% 98%;
 
-  --secondary: 222.2 47.4% 11.2%; /* Slate 900 (#0F172A) */
+  --secondary: 215 16% 34%; /* Slate Gray (#475569) */
   --secondary-foreground: 210 40% 98%;
 
   --muted: 210 40% 96.1%;
   --muted-foreground: 215.4 16.3% 46.9%;
 
-  --accent: 173 80% 40%; /* Teal 500 (#14B8A6) */
+  --accent: 161 84% 40%; /* Emerald (#10B981) */
   --accent-foreground: 210 40% 98%;
 
   --destructive: 0 84.2% 60.2%;
   --destructive-foreground: 210 40% 98%;
 
-  --border: 214.3 31.8% 91.4%; /* Slate 200 (#E2E8F0) */
-  --input: 214.3 31.8% 91.4%;
-  --ring: 224 76% 40%;
+  --border: 220 14% 91%; /* Border (#E5E7EB) */
+  --input: 220 14% 91%;
+  --ring: 215 25% 17.2%;
 
   --radius: 20px;
 }
 
 * {
-  border-color: #E2E8F0;
+  border-color: #E5E7EB;
   box-sizing: border-box;
 }
 
 html, body {
-  background-color: #F8FAFC;
+  background-color: #FAFBFC;
   color: #0F172A;
   font-family: var(--font-sans);
   scroll-behavior: smooth;
@@ -66,7 +66,7 @@ html, body {
 /* Premium clean SaaS surface styles */
 .premium-card {
   background-color: #FFFFFF;
-  border: 1px solid #E2E8F0;
+  border: 1px solid #E5E7EB;
   box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.05), 0 1px 2px -1px rgba(0, 0, 0, 0.05);
   transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
 }
@@ -80,7 +80,7 @@ html, body {
   background-color: rgba(255, 255, 255, 0.95);
   backdrop-filter: blur(8px);
   -webkit-backdrop-filter: blur(8px);
-  border-bottom: 1px solid #E2E8F0;
+  border-bottom: 1px solid #E5E7EB;
 }
 
 /* Redesign section padding variables */
