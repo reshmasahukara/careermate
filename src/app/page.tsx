@@ -374,221 +374,223 @@ export default function HomePage() {
   ];
 
   return (
-    <div className="max-w-[1280px] mx-auto px-4 sm:px-6 lg:px-8 pt-[72px]">
+    <div className="w-full bg-white pt-[72px]">
       
       {/* 2. HERO SECTION */}
-      <section className="section-padding flex flex-col items-center text-center space-y-6 max-w-4xl mx-auto">
-        <div className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-slate-100 border border-brand-border text-slate-700 text-xs font-semibold">
-          <Star className="w-3.5 h-3.5 text-amber-500 fill-amber-500" />
-          Trusted by 10,000+ professionals
-        </div>
+      <section className="w-full bg-gradient-to-b from-[#F5F9FF] to-[#FFFFFF] relative overflow-hidden">
+        {/* Subtle blurred color blobs at 5% opacity */}
+        <div className="absolute top-1/4 left-1/4 -translate-x-1/2 -translate-y-1/2 w-96 h-96 rounded-full bg-primary/[0.05] blur-3xl pointer-events-none" />
+        <div className="absolute bottom-1/4 right-1/4 translate-x-1/2 translate-y-1/2 w-96 h-96 rounded-full bg-accent/[0.05] blur-3xl pointer-events-none" />
+        
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 section-padding flex flex-col items-center text-center space-y-6 relative z-10">
+          <div className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-white border border-brand-border text-slate-700 text-xs font-semibold shadow-xs">
+            <Star className="w-3.5 h-3.5 text-amber-500 fill-amber-500" />
+            Trusted by 10,000+ professionals
+          </div>
 
-        <h1 className="text-4xl sm:text-5xl md:text-[56px] md:leading-[64px] font-bold text-brand-text tracking-tight max-w-3xl">
-          Build a Smarter Career Path with CareerMate
-        </h1>
+          <h1 className="text-4xl sm:text-5xl md:text-[56px] md:leading-[64px] font-bold text-brand-text tracking-tight max-w-3xl">
+            Build a Smarter Career Path with CareerMate
+          </h1>
 
-        <p className="text-base sm:text-lg text-brand-muted leading-relaxed max-w-2xl mx-auto font-medium">
-          Upload your resume, optimize your ATS score, discover relevant jobs, and identify skill gaps with AI-powered career guidance.
-        </p>
+          <p className="text-base sm:text-lg text-brand-muted leading-relaxed max-w-2xl mx-auto font-medium">
+            Upload your resume, optimize your ATS score, discover relevant jobs, and identify skill gaps with AI-powered career guidance.
+          </p>
 
-        {/* CTA Row */}
-        <div className="flex flex-col sm:flex-row items-center justify-center gap-3.5 pt-4 w-full sm:w-auto">
-          <Link
-            href="/signup"
-            className="w-full sm:w-auto bg-primary hover:bg-blue-800 text-white font-bold text-sm px-8 py-3.5 rounded-btn shadow-sm transition-colors text-center cursor-pointer"
-          >
-            Get Started
-          </Link>
-          <Link
-            href="/resume-upload"
-            className="w-full sm:w-auto bg-white hover:bg-slate-50 border border-brand-border text-slate-700 font-bold text-sm px-8 py-3.5 rounded-btn shadow-sm transition-colors text-center cursor-pointer"
-          >
-            Upload Resume
-          </Link>
-        </div>
+          {/* CTA Row */}
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-3.5 pt-4 w-full sm:w-auto">
+            <Link
+              href="/signup"
+              className="w-full sm:w-auto bg-primary hover:bg-blue-800 text-white font-bold text-sm px-8 py-3.5 rounded-btn shadow-sm transition-colors text-center cursor-pointer"
+            >
+              Get Started
+            </Link>
+            <Link
+              href="/resume-upload"
+              className="w-full sm:w-auto bg-white hover:bg-slate-50 border border-brand-border text-slate-700 font-bold text-sm px-8 py-3.5 rounded-btn shadow-sm transition-colors text-center cursor-pointer"
+            >
+              Upload Resume
+            </Link>
+          </div>
 
-        {/* Trust Row */}
-        <div className="flex flex-wrap items-center justify-center gap-x-6 gap-y-2.5 pt-6 text-xs font-semibold text-brand-muted">
-          <span className="flex items-center gap-1.5">
-            <Check className="w-4 h-4 text-emerald-500" />
-            No credit card required
-          </span>
-          <span className="flex items-center gap-1.5">
-            <Check className="w-4 h-4 text-emerald-500" />
-            Free ATS scan
-          </span>
-          <span className="flex items-center gap-1.5">
-            <Check className="w-4 h-4 text-emerald-500" />
-            Secure data handling
-          </span>
+          {/* Trust Row */}
+          <div className="flex flex-wrap items-center justify-center gap-x-6 gap-y-2.5 pt-6 text-xs font-semibold text-brand-muted">
+            <span className="flex items-center gap-1.5">
+              <Check className="w-4 h-4 text-emerald-500 animate-pulse" />
+              No credit card required
+            </span>
+            <span className="flex items-center gap-1.5">
+              <Check className="w-4 h-4 text-emerald-500 animate-pulse" />
+              Free ATS scan
+            </span>
+            <span className="flex items-center gap-1.5">
+              <Check className="w-4 h-4 text-emerald-500 animate-pulse" />
+              Secure data handling
+            </span>
+          </div>
         </div>
       </section>
 
       {/* 3. FEATURE CARDS */}
-      <section className="section-padding grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 border-t border-brand-border">
-        {featureCards.map((card) => (
-          <Link
-            key={card.title}
-            href={card.href}
-            className="premium-card p-6 rounded-card bg-brand-surface flex flex-col justify-between"
-          >
-            <div className="space-y-4">
-              <div className="w-10 h-10 rounded-lg bg-slate-50 border border-brand-border flex items-center justify-center text-primary">
-                {card.icon}
+      <section className="w-full bg-[#FFFFFF] border-t border-[#E2E8F0]/40">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 section-padding grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+          {featureCards.map((card) => (
+            <Link
+              key={card.title}
+              href={card.href}
+              className="premium-card p-6 rounded-card bg-white border border-[#E2E8F0] shadow-sm hover:shadow-md transition-all flex flex-col justify-between"
+            >
+              <div className="space-y-4">
+                <div className="w-10 h-10 rounded-lg bg-slate-50 border border-brand-border flex items-center justify-center text-primary">
+                  {card.icon}
+                </div>
+                <h3 className="font-bold text-slate-900 text-sm tracking-tight">{card.title}</h3>
+                <p className="text-xs text-slate-500 leading-relaxed font-semibold">{card.description}</p>
               </div>
-              <h3 className="font-bold text-slate-900 text-sm tracking-tight">{card.title}</h3>
-              <p className="text-xs text-slate-500 leading-relaxed font-semibold">{card.description}</p>
-            </div>
-            <span className="mt-6 text-xs font-bold text-primary flex items-center gap-1 group cursor-pointer self-start">
-              Open Module
-              <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform" />
-            </span>
-          </Link>
-        ))}
+              <span className="mt-6 text-xs font-bold text-primary flex items-center gap-1 group cursor-pointer self-start">
+                Open Module
+                <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform" />
+              </span>
+            </Link>
+          ))}
+        </div>
       </section>
 
       {/* 4. HOW CAREERMATE WORKS SECTION */}
-      <section className="section-padding space-y-12 border-t border-brand-border">
-        <div className="text-center space-y-3">
-          <h2 className="text-2xl sm:text-3xl font-bold tracking-tight text-brand-text">
-            How CareerMate Works
-          </h2>
-          <p className="text-slate-500 text-xs sm:text-sm font-semibold max-w-md mx-auto">
-            A precise, logical flow designed to help candidates optimize CV matching. Click each step to preview.
-          </p>
-        </div>
-
-        {/* Symmetrical horizontal steps connected by progress line */}
-        <div className="relative pt-6 max-w-4xl mx-auto">
-          {/* Progress bar line */}
-          <div className="absolute top-[38px] left-[12%] right-[12%] h-[2px] bg-slate-200 -z-10">
-            <div 
-              className="h-full bg-primary transition-all duration-300"
-              style={{ width: `${(activeStep / (steps.length - 1)) * 100}%` }}
-            />
-          </div>
-
-          <div className="grid grid-cols-1 sm:grid-cols-4 gap-6 items-stretch text-center">
-            {steps.map((step, idx) => (
-              <button 
-                key={idx} 
-                onClick={() => setActiveStep(idx)}
-                className="group flex flex-col items-center space-y-4 text-center cursor-pointer focus:outline-none"
-              >
-                <div className={`w-10 h-10 rounded-full border-2 mx-auto flex items-center justify-center font-bold text-xs relative shadow-sm transition-all duration-300 ${
-                  activeStep >= idx 
-                    ? "bg-primary border-primary text-white scale-110" 
-                    : "bg-white border-brand-border text-slate-400"
-                }`}>
-                  {step.num}
-                </div>
-                <div className="space-y-1.5">
-                  <h4 className={`font-bold text-sm transition-colors duration-300 ${
-                    activeStep === idx ? "text-primary font-extrabold" : "text-slate-900"
-                  }`}>{step.title}</h4>
-                  <p className="text-xs text-slate-500 leading-normal font-semibold max-w-[180px] mx-auto">
-                    {step.desc}
-                  </p>
-                </div>
-              </button>
-            ))}
-          </div>
-        </div>
-
-        {/* Active Step Details */}
-        <div className="mt-8 max-w-2xl mx-auto premium-card p-6 rounded-card bg-white flex flex-col md:flex-row items-center gap-6">
-          <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center text-primary shrink-0">
-            {activeStep === 0 && <FileText className="w-6 h-6" />}
-            {activeStep === 1 && <FileCheck className="w-6 h-6" />}
-            {activeStep === 2 && <Compass className="w-6 h-6" />}
-            {activeStep === 3 && <Briefcase className="w-6 h-6" />}
-          </div>
-          <div className="space-y-2 text-left flex-1">
-            <h4 className="font-bold text-base text-slate-900">
-              {activeStep === 0 && "Step 1: Upload Your Profile Resume"}
-              {activeStep === 1 && "Step 2: Interactive ATS Scoring Analysis"}
-              {activeStep === 2 && "Step 3: Analyze & Close Skill Gaps"}
-              {activeStep === 3 && "Step 4: Unlock Jobs & Custom Roadmaps"}
-            </h4>
-            <p className="text-xs text-slate-500 font-semibold leading-relaxed">
-              {activeStep === 0 && "Simply upload your PDF or Word resume. Our secure parsing engine extracts work experience, educational history, credentials, and listed skills without selling your data."}
-              {activeStep === 1 && "We run your resume content through modern ATS parser rules to benchmark scores. We identify missing keywords, readability flags, and formatting suggestions to improve match rate."}
-              {activeStep === 2 && "Compare your parsed credentials directly against standard market requirements. Get a transparent visualization of exact technical tools, frameworks, and workflows you lack."}
-              {activeStep === 3 && "Receive curated job listings based on your skill matching percentage. Access structured week-by-week learning courses to upgrade skills and transition profiles smoothly."}
+      <section className="w-full bg-[#F8FAFC] border-t border-[#E2E8F0]/40">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 section-padding space-y-12">
+          <div className="text-center space-y-3">
+            <h2 className="text-2xl sm:text-3xl font-bold tracking-tight text-brand-text">
+              How CareerMate Works
+            </h2>
+            <p className="text-slate-500 text-xs sm:text-sm font-semibold max-w-md mx-auto">
+              A precise, logical flow designed to help candidates optimize CV matching. Click each step to preview.
             </p>
+          </div>
+
+          {/* Symmetrical horizontal steps connected by progress line */}
+          <div className="relative pt-6 max-w-4xl mx-auto">
+            {/* Progress bar line */}
+            <div className="absolute top-[38px] left-[12%] right-[12%] h-[2px] bg-slate-200 -z-10">
+              <div 
+                className="h-full bg-primary transition-all duration-300"
+                style={{ width: `${(activeStep / (steps.length - 1)) * 100}%` }}
+              />
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-4 gap-6 items-stretch text-center">
+              {steps.map((step, idx) => (
+                <button 
+                  key={idx} 
+                  onClick={() => setActiveStep(idx)}
+                  className="group flex flex-col items-center space-y-4 text-center cursor-pointer focus:outline-none"
+                >
+                  <div className={`w-10 h-10 rounded-full border-2 mx-auto flex items-center justify-center font-bold text-xs relative shadow-sm transition-all duration-300 ${
+                    activeStep >= idx 
+                      ? "bg-primary border-primary text-white scale-110" 
+                      : "bg-white border-brand-border text-slate-400"
+                  }`}>
+                    {step.num}
+                  </div>
+                  <div className="space-y-1.5">
+                    <h4 className={`font-bold text-sm transition-colors duration-300 ${
+                      activeStep === idx ? "text-primary font-extrabold" : "text-slate-900"
+                    }`}>{step.title}</h4>
+                    <p className="text-xs text-slate-500 leading-normal font-semibold max-w-[180px] mx-auto">
+                      {step.desc}
+                    </p>
+                  </div>
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Active Step Details */}
+          <div className="mt-8 max-w-2xl mx-auto premium-card p-6 rounded-card bg-white flex flex-col md:flex-row items-center gap-6">
+            <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center text-primary shrink-0">
+              {activeStep === 0 && <FileText className="w-6 h-6" />}
+              {activeStep === 1 && <FileCheck className="w-6 h-6" />}
+              {activeStep === 2 && <Compass className="w-6 h-6" />}
+              {activeStep === 3 && <Briefcase className="w-6 h-6" />}
+            </div>
+            <div className="space-y-2 text-left flex-1">
+              <h4 className="font-bold text-base text-slate-900">
+                {activeStep === 0 && "Step 1: Upload Your Profile Resume"}
+                {activeStep === 1 && "Step 2: Interactive ATS Scoring Analysis"}
+                {activeStep === 2 && "Step 3: Analyze & Close Skill Gaps"}
+                {activeStep === 3 && "Step 4: Unlock Jobs & Custom Roadmaps"}
+              </h4>
+              <p className="text-xs text-slate-500 font-semibold leading-relaxed">
+                {activeStep === 0 && "Simply upload your PDF or Word resume. Our secure parsing engine extracts work experience, educational history, credentials, and listed skills without selling your data."}
+                {activeStep === 1 && "We run your resume content through modern ATS parser rules to benchmark scores. We identify missing keywords, readability flags, and formatting suggestions to improve match rate."}
+                {activeStep === 2 && "Compare your parsed credentials directly against standard market requirements. Get a transparent visualization of exact technical tools, frameworks, and workflows you lack."}
+                {activeStep === 3 && "Receive curated job listings based on your skill matching percentage. Access structured week-by-week learning courses to upgrade skills and transition profiles smoothly."}
+              </p>
+            </div>
           </div>
         </div>
       </section>
 
       {/* 5. CORE FEATURES SECTION */}
-      <section id="features" className="section-padding grid grid-cols-1 lg:grid-cols-12 gap-12 items-center scroll-mt-24 border-t border-brand-border">
-        
-        {/* Left column - descriptions (col 6) */}
-        <div className="lg:col-span-6 space-y-6">
-          <div className="space-y-3">
+      <section id="features" className="w-full bg-[#FFFFFF] border-t border-[#E2E8F0]/40 scroll-mt-24">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 section-padding space-y-12">
+          <div className="text-center space-y-3">
             <h2 className="text-2xl sm:text-3xl font-bold text-brand-text tracking-tight">
               Enterprise features built for growth
             </h2>
-            <p className="text-slate-500 text-xs sm:text-sm font-semibold">
-              Select an item below to see the corresponding module display previews.
+            <p className="text-slate-500 text-xs sm:text-sm font-semibold max-w-lg mx-auto">
+              Our advanced tool suite is engineered to streamline your job applications and accelerate career outcomes.
             </p>
           </div>
 
-          <div className="space-y-3">
-            {featuresList.map((feature, i) => {
-              const isActive = activeFeature === i;
-              return (
-                <button
-                  key={feature.title}
-                  onClick={() => setActiveFeature(i)}
-                  className={`w-full text-left p-4 rounded-xl border transition-all text-xs flex gap-3.5 items-start cursor-pointer ${
-                    isActive
-                      ? "bg-white border-primary shadow-sm"
-                      : "bg-transparent border-transparent hover:bg-slate-50"
-                  }`}
-                >
-                  <div className={`w-7 h-7 rounded-lg flex items-center justify-center font-bold text-xs shrink-0 ${
-                    isActive ? "bg-primary text-white" : "bg-slate-100 text-slate-500"
-                  }`}>
-                    {i + 1}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {featuresList.map((feature, idx) => (
+              <div 
+                key={feature.title}
+                className="premium-card rounded-card bg-white shadow-sm hover:shadow-md border border-[#E2E8F0] overflow-hidden flex flex-col justify-between min-h-[460px] transition-all"
+              >
+                {/* Text Content */}
+                <div className="p-6 space-y-3">
+                  <div className="flex items-center gap-3">
+                    <span className="w-6.5 h-6.5 rounded-lg bg-primary/10 text-primary flex items-center justify-center font-bold text-xs shrink-0">
+                      {idx + 1}
+                    </span>
+                    <h4 className="font-bold text-sm text-slate-900 tracking-tight">{feature.title}</h4>
                   </div>
-                  <div className="space-y-1">
-                    <h4 className="font-bold text-slate-900">{feature.title}</h4>
-                    <p className="text-slate-500 font-semibold leading-relaxed">
-                      {feature.desc}
-                    </p>
-                  </div>
-                </button>
-              );
-            })}
-          </div>
-        </div>
+                  <p className="text-xs text-slate-500 font-semibold leading-relaxed">
+                    {feature.desc}
+                  </p>
+                </div>
 
-        {/* Right column - product preview mockups with browser terminal wrap */}
-        <div className="lg:col-span-6 bg-white border border-brand-border rounded-card shadow-sm overflow-hidden flex flex-col min-h-[360px]">
-          <div className="bg-slate-50/80 px-4 py-3 border-b border-brand-border flex items-center justify-between shrink-0">
-            <div className="flex items-center gap-1.5">
-              <div className="w-2.5 h-2.5 rounded-full bg-rose-400" />
-              <div className="w-2.5 h-2.5 rounded-full bg-amber-400" />
-              <div className="w-2.5 h-2.5 rounded-full bg-emerald-400" />
-            </div>
-            <span className="text-[10px] font-bold text-brand-muted uppercase tracking-widest">
-              careermate_console.tsx
-            </span>
-            <div className="w-10" />
-          </div>
-          
-          <div className="p-6 sm:p-8 flex-1 flex flex-col justify-center bg-white">
-            <div className="w-full space-y-4">
-              {featuresList[activeFeature].preview}
-            </div>
+                {/* Styled Console/Browser Preview inside the card */}
+                <div className="mx-6 mb-6 mt-2 flex-1 bg-slate-50 border border-brand-border rounded-xl shadow-inner overflow-hidden flex flex-col min-h-[220px]">
+                  {/* Browser Bar */}
+                  <div className="bg-slate-100 px-3.5 py-2 border-b border-brand-border flex items-center justify-between shrink-0">
+                    <div className="flex items-center gap-1.5">
+                      <div className="w-1.5 h-1.5 rounded-full bg-rose-400" />
+                      <div className="w-1.5 h-1.5 rounded-full bg-amber-400" />
+                      <div className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
+                    </div>
+                    <span className="text-[8px] font-bold text-slate-400 uppercase tracking-widest">
+                      preview_console
+                    </span>
+                    <div className="w-6" />
+                  </div>
+                  {/* Preview Container */}
+                  <div className="p-4 flex-1 flex flex-col justify-center bg-white text-left">
+                    <div className="w-full">
+                      {feature.preview}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            ))}
           </div>
         </div>
       </section>
 
       {/* 6. DASHBOARD PREVIEW SECTION */}
-      <section className="section-padding bg-slate-50/50 border-y border-brand-border -mx-4 sm:-mx-6 lg:-mx-8 px-4 sm:px-6 lg:px-8">
-        <div className="max-w-[1280px] mx-auto space-y-12">
+      <section className="w-full bg-[#F5F9FF] border-t border-[#E2E8F0]/40">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 section-padding space-y-12">
           
           <div className="text-center space-y-3">
             <span className="text-[10px] font-bold text-primary uppercase tracking-widest bg-primary/10 px-2.5 py-1 rounded-full">
@@ -602,11 +604,12 @@ export default function HomePage() {
             </p>
           </div>
 
-          {/* High-Fidelity Mockup Container */}
-          <div className="premium-card rounded-card bg-white shadow-md overflow-hidden flex flex-col border border-brand-border max-w-5xl mx-auto">
+          {/* High-Fidelity Mockup Container with rounded container and subtle gradient overlay */}
+          <div className="premium-card rounded-[24px] bg-white shadow-xl overflow-hidden flex flex-col border border-brand-border max-w-5xl mx-auto relative">
+            <div className="absolute inset-0 bg-gradient-to-b from-[#FFFFFF] to-[#F5F9FF]/20 pointer-events-none" />
             
             {/* Mock Dashboard Topbar Header */}
-            <div className="bg-slate-50 px-6 py-4 border-b border-brand-border flex items-center justify-between">
+            <div className="bg-slate-50 px-6 py-4 border-b border-brand-border flex items-center justify-between relative z-10">
               <div className="flex items-center gap-3">
                 <div className="flex gap-1.5">
                   <div className="w-2.5 h-2.5 rounded-full bg-rose-400" />
@@ -624,7 +627,7 @@ export default function HomePage() {
             </div>
 
             {/* Dashboard Content Grid */}
-            <div className="p-6 sm:p-8 bg-slate-50/30 grid grid-cols-1 md:grid-cols-12 gap-6 items-stretch">
+            <div className="p-6 sm:p-8 bg-transparent grid grid-cols-1 md:grid-cols-12 gap-6 items-stretch relative z-10">
               
               {/* Left Column widgets (col-8) */}
               <div className="md:col-span-8 space-y-6">
@@ -644,7 +647,7 @@ export default function HomePage() {
                     </div>
                   </div>
 
-                  {/* Resume Match Score Widget */}
+                  {/* Role Match Score Widget */}
                   <div className="p-5 bg-white border border-brand-border rounded-xl flex items-center gap-5 shadow-sm">
                     <div className="w-16 h-16 rounded-full border-[5px] border-primary border-t-transparent flex items-center justify-center font-black text-slate-800 text-base shadow-sm shrink-0">
                       88%
@@ -750,216 +753,246 @@ export default function HomePage() {
       </section>
 
       {/* 7. PRICING SECTION */}
-      <section className="section-padding space-y-12">
-        <div className="text-center space-y-3">
-          <h2 className="text-2xl sm:text-3xl font-bold tracking-tight text-brand-text">
-            Choose the Plan That Matches Your Goals
-          </h2>
-          <p className="text-slate-500 text-xs sm:text-sm font-semibold">
-            Start free and upgrade as your career journey evolves.
-          </p>
-        </div>
+      <section className="w-full bg-[#FFFFFF] border-t border-[#E2E8F0]/40">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 section-padding space-y-12">
+          <div className="text-center space-y-3">
+            <h2 className="text-2xl sm:text-3xl font-bold tracking-tight text-brand-text">
+              Choose the Plan That Matches Your Goals
+            </h2>
+            <p className="text-slate-500 text-xs sm:text-sm font-semibold">
+              Start free and upgrade as your career journey evolves.
+            </p>
+          </div>
 
-        {/* 4 pricing columns */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 items-stretch">
-          {pricingPlans.map((plan) => {
-            return (
-              <div
-                key={plan.name}
-                className={`premium-card p-6 rounded-card bg-brand-surface flex flex-col justify-between ${
-                  plan.highlight 
-                    ? "border-primary ring-2 ring-primary/5 shadow-md shadow-primary/5 bg-primary/[0.005]" 
-                    : "border-brand-border"
-                }`}
-              >
-                <div className="space-y-6">
-                  <div className="flex justify-between items-center">
-                    <span className={`text-[10px] font-bold uppercase tracking-widest px-2.5 py-0.5 rounded-full ${
-                      plan.highlight ? "bg-primary/10 text-primary" : "bg-slate-100 text-slate-500"
-                    }`}>
-                      {plan.name}
-                    </span>
-                  </div>
-
-                  <div className="space-y-2">
-                    <div className="flex items-baseline">
-                      <span className="text-3xl font-black text-slate-900">{plan.price}</span>
-                      {plan.period && (
-                        <span className="text-slate-400 font-semibold text-xs ml-1">{plan.period}</span>
-                      )}
-                    </div>
-                    <p className="text-slate-500 text-xs leading-normal font-semibold">{plan.description}</p>
-                  </div>
-
-                  <hr className="border-slate-100" />
-
-                  {/* Checklist */}
-                  <ul className="space-y-2.5">
-                    {plan.features.map((feat) => (
-                      <li key={feat} className="flex items-start gap-2 text-xs text-slate-600 font-semibold leading-relaxed">
-                        <Check className="w-4 h-4 text-emerald-500 shrink-0 mt-0.5" />
-                        <span>{feat}</span>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-
-                <div className="pt-8">
-                  <Link
-                    href="/pricing"
-                    className={`w-full py-2.5 rounded-btn text-xs font-bold uppercase tracking-wider text-center block transition-all cursor-pointer ${
-                      plan.highlight
-                        ? "bg-primary hover:bg-blue-800 text-white shadow-sm"
-                        : "bg-slate-900 hover:bg-slate-800 text-white"
-                    }`}
-                  >
-                    {plan.cta}
-                  </Link>
-                </div>
-              </div>
-            );
-          })}
-        </div>
-      </section>
-
-      {/* 8. TESTIMONIALS SECTION */}
-      <section className="section-padding space-y-12 border-t border-brand-border">
-        <div className="text-center space-y-3">
-          <h2 className="text-2xl sm:text-3xl font-bold tracking-tight text-brand-text">
-            Career Journeys Powered by CareerMate
-          </h2>
-          <p className="text-slate-500 text-xs sm:text-sm font-semibold max-w-sm mx-auto">
-            Benchmark comparisons and keyword checks that drove candidate wins.
-          </p>
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          {testimonials.map((test) => (
-            <div
-              key={test.name}
-              className="premium-card p-6 rounded-card bg-brand-surface flex flex-col justify-between"
-            >
-              <div className="space-y-4">
-                <div className="flex items-center gap-0.5">
-                  {[...Array(test.rating)].map((_, i) => (
-                    <Star key={i} className="w-3.5 h-3.5 fill-amber-400 text-amber-400" />
-                  ))}
-                </div>
-                <p className="text-slate-600 text-xs sm:text-sm italic leading-relaxed font-semibold">
-                  "{test.story}"
-                </p>
-              </div>
-
-              <div className="flex items-center gap-3 pt-6 mt-6 border-t border-slate-100">
-                <img
-                  src={test.image}
-                  alt={test.name}
-                  className="w-9 h-9 rounded-full object-cover"
-                />
-                <div>
-                  <h4 className="font-bold text-xs text-slate-900 leading-tight">{test.name}</h4>
-                  <p className="text-[10px] text-slate-500 font-semibold">{test.role}</p>
-                </div>
-              </div>
-            </div>
-          ))}
-        </div>
-      </section>
-
-      {/* 9. FAQ SECTION */}
-      <section className="section-padding max-w-[800px] mx-auto space-y-12 border-t border-brand-border">
-        <div className="text-center space-y-3">
-          <h2 className="text-2xl sm:text-3xl font-bold tracking-tight text-brand-text">
-            Frequently Asked Questions
-          </h2>
-          <p className="text-slate-500 text-xs sm:text-sm font-semibold">
-            Common answers regarding matching algorithms and formatting parameters.
-          </p>
-        </div>
-
-        <div className="space-y-4">
-          {faqs.map((faq, idx) => (
-            <div
-              key={idx}
-              className="border border-brand-border rounded-xl overflow-hidden bg-white shadow-sm"
-            >
-              <button
-                onClick={() => setOpenFaq(openFaq === idx ? null : idx)}
-                className="w-full flex justify-between items-center p-4.5 font-bold text-slate-800 text-left focus:outline-none cursor-pointer"
-              >
-                <span className="flex items-center gap-2.5 text-xs sm:text-sm uppercase tracking-wide">
-                  <HelpCircle className="w-4 h-4 text-slate-400 shrink-0" />
-                  {faq.question}
-                </span>
-                <ChevronDown
-                  className={`w-4 h-4 text-slate-500 transition-transform duration-200 ${
-                    openFaq === idx ? "rotate-180" : ""
+          {/* 4 pricing columns */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 items-stretch">
+            {pricingPlans.map((plan) => {
+              return (
+                <div
+                  key={plan.name}
+                  className={`premium-card p-6 rounded-card bg-white flex flex-col justify-between ${
+                    plan.highlight 
+                      ? "border-primary ring-2 ring-primary/5 shadow-md shadow-primary/5 bg-primary/[0.005]" 
+                      : "border-brand-border"
                   }`}
-                />
-              </button>
-              <AnimatePresence initial={false}>
-                {openFaq === idx && (
-                  <motion.div
-                    initial={{ height: 0, opacity: 0 }}
-                    animate={{ height: "auto", opacity: 1 }}
-                    exit={{ height: 0, opacity: 0 }}
-                    transition={{ duration: 0.2, ease: "easeInOut" }}
-                    className="overflow-hidden"
-                  >
-                    <div className="px-5 pb-5 pt-1.5 text-slate-500 text-xs sm:text-sm border-t border-slate-100 leading-relaxed font-semibold bg-slate-50/40">
-                      {faq.answer}
+                >
+                  <div className="space-y-6">
+                    <div className="flex justify-between items-center">
+                      <span className={`text-[10px] font-bold uppercase tracking-widest px-2.5 py-0.5 rounded-full ${
+                        plan.highlight ? "bg-primary/10 text-primary" : "bg-slate-100 text-slate-500"
+                      }`}>
+                        {plan.name}
+                      </span>
                     </div>
-                  </motion.div>
-                )}
-              </AnimatePresence>
-            </div>
-          ))}
+
+                    <div className="space-y-2">
+                      <div className="flex items-baseline">
+                        <span className="text-3xl font-black text-slate-900">{plan.price}</span>
+                        {plan.period && (
+                          <span className="text-slate-400 font-semibold text-xs ml-1">{plan.period}</span>
+                        )}
+                      </div>
+                      <p className="text-slate-500 text-xs leading-normal font-semibold">{plan.description}</p>
+                    </div>
+
+                    <hr className="border-slate-100" />
+
+                    {/* Checklist */}
+                    <ul className="space-y-2.5">
+                      {plan.features.map((feat) => (
+                        <li key={feat} className="flex items-start gap-2 text-xs text-slate-600 font-semibold leading-relaxed">
+                          <Check className="w-4 h-4 text-emerald-500 shrink-0 mt-0.5" />
+                          <span>{feat}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+
+                  <div className="pt-8">
+                    <Link
+                      href="/pricing"
+                      className={`w-full py-2.5 rounded-btn text-xs font-bold uppercase tracking-wider text-center block transition-all cursor-pointer ${
+                        plan.highlight
+                          ? "bg-primary hover:bg-blue-800 text-white shadow-sm"
+                          : "bg-slate-900 hover:bg-slate-800 text-white"
+                      }`}
+                    >
+                      {plan.cta}
+                    </Link>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      </section>
+
+      {/* 8. FAQ SECTION */}
+      <section className="w-full bg-[#F8FAFC] border-t border-[#E2E8F0]/40">
+        <div className="max-w-[800px] mx-auto px-4 sm:px-6 lg:px-8 section-padding space-y-12">
+          <div className="text-center space-y-3">
+            <h2 className="text-2xl sm:text-3xl font-bold tracking-tight text-brand-text">
+              Frequently Asked Questions
+            </h2>
+            <p className="text-slate-500 text-xs sm:text-sm font-semibold">
+              Common answers regarding matching algorithms and formatting parameters.
+            </p>
+          </div>
+
+          <div className="space-y-4">
+            {faqs.map((faq, idx) => (
+              <div
+                key={idx}
+                className="border border-[#E2E8F0] rounded-xl overflow-hidden bg-white shadow-sm"
+              >
+                <button
+                  onClick={() => setOpenFaq(openFaq === idx ? null : idx)}
+                  className="w-full flex justify-between items-center p-4.5 font-bold text-slate-800 text-left focus:outline-none cursor-pointer"
+                >
+                  <span className="flex items-center gap-2.5 text-xs sm:text-sm uppercase tracking-wide">
+                    <HelpCircle className="w-4 h-4 text-slate-400 shrink-0" />
+                    {faq.question}
+                  </span>
+                  <ChevronDown
+                    className={`w-4 h-4 text-slate-500 transition-transform duration-200 ${
+                      openFaq === idx ? "rotate-180" : ""
+                    }`}
+                  />
+                </button>
+                <AnimatePresence initial={false}>
+                  {openFaq === idx && (
+                    <motion.div
+                      initial={{ height: 0, opacity: 0 }}
+                      animate={{ height: "auto", opacity: 1 }}
+                      exit={{ height: 0, opacity: 0 }}
+                      transition={{ duration: 0.2, ease: "easeInOut" }}
+                      className="overflow-hidden"
+                    >
+                      <div className="px-5 pb-5 pt-1.5 text-slate-500 text-xs sm:text-sm border-t border-slate-100 leading-relaxed font-semibold bg-white">
+                        {faq.answer}
+                      </div>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* 9. TESTIMONIALS SECTION */}
+      <section className="w-full bg-[#FFFFFF] border-t border-[#E2E8F0]/40">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 section-padding space-y-12">
+          <div className="text-center space-y-3">
+            <h2 className="text-2xl sm:text-3xl font-bold tracking-tight text-brand-text">
+              Career Journeys Powered by CareerMate
+            </h2>
+            <p className="text-slate-500 text-xs sm:text-sm font-semibold max-w-sm mx-auto">
+              Benchmark comparisons and keyword checks that drove candidate wins.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {testimonials.map((test) => (
+              <div
+                key={test.name}
+                className="premium-card p-6 rounded-card bg-white border border-[#E2E8F0] shadow-sm hover:shadow-md transition-all flex flex-col justify-between"
+              >
+                <div className="space-y-4">
+                  <div className="flex items-center gap-0.5">
+                    {[...Array(test.rating)].map((_, i) => (
+                      <Star key={i} className="w-3.5 h-3.5 fill-amber-400 text-amber-400" />
+                    ))}
+                  </div>
+                  <p className="text-slate-600 text-xs sm:text-sm italic leading-relaxed font-semibold">
+                    "{test.story}"
+                  </p>
+                </div>
+
+                <div className="flex items-center gap-3 pt-6 mt-6 border-t border-slate-100">
+                  <img
+                    src={test.image}
+                    alt={test.name}
+                    className="w-9 h-9 rounded-full object-cover"
+                  />
+                  <div>
+                    <h4 className="font-bold text-xs text-slate-900 leading-tight">{test.name}</h4>
+                    <p className="text-[10px] text-slate-500 font-semibold">{test.role}</p>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
         </div>
       </section>
 
       {/* 10. STATISTICS SECTION */}
-      <section className="section-padding border-t border-brand-border space-y-12">
-        <div className="text-center space-y-3">
-          <h2 className="text-2xl sm:text-3xl font-bold tracking-tight text-brand-text">
-            Growing Careers Worldwide
-          </h2>
-          <p className="text-slate-500 text-xs sm:text-sm font-semibold max-w-md mx-auto">
-            Empowering professionals globally with quantitative credentials and opportunities.
-          </p>
-        </div>
+      <section className="w-full bg-[#F5F9FF] border-t border-[#E2E8F0]/40">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 section-padding space-y-12">
+          <div className="text-center space-y-3">
+            <h2 className="text-2xl sm:text-3xl font-bold tracking-tight text-brand-text">
+              Growing Careers Worldwide
+            </h2>
+            <p className="text-slate-500 text-xs sm:text-sm font-semibold max-w-md mx-auto">
+              Empowering professionals globally with quantitative credentials and opportunities.
+            </p>
+          </div>
 
-        <div className="premium-card py-10 bg-white rounded-card">
-          <div className="max-w-5xl mx-auto grid grid-cols-1 md:grid-cols-3 divide-y md:divide-y-0 md:divide-x divide-slate-100 text-center">
-            <div className="py-4 md:py-0 space-y-1.5">
-              <div className="text-3xl sm:text-4xl font-black text-brand-text">
-                <Counter value={10000} suffix="+" />
+          <div className="premium-card py-12 px-6 bg-white rounded-3xl border border-[#E2E8F0] shadow-md max-w-5xl mx-auto">
+            <div className="grid grid-cols-1 md:grid-cols-3 divide-y md:divide-y-0 md:divide-x divide-slate-100 text-center">
+              
+              {/* Stat 1 */}
+              <div className="py-6 md:py-0 flex flex-col items-center space-y-3">
+                <div className="w-10 h-10 rounded-full bg-blue-50 flex items-center justify-center text-primary">
+                  <Users className="w-5 h-5" />
+                </div>
+                <div className="space-y-1">
+                  <div className="text-3xl sm:text-4xl font-black text-brand-text">
+                    <Counter value={10000} suffix="+" />
+                  </div>
+                  <p className="text-[10px] sm:text-xs font-bold uppercase tracking-widest text-brand-muted">Active Professionals</p>
+                </div>
               </div>
-              <p className="text-[10px] sm:text-xs font-bold uppercase tracking-widest text-brand-muted">Active Professionals</p>
-            </div>
-            <div className="py-4 md:py-0 space-y-1.5">
-              <div className="text-3xl sm:text-4xl font-black text-brand-text">
-                <Counter value={50000} suffix="+" />
+
+              {/* Stat 2 */}
+              <div className="py-6 md:py-0 flex flex-col items-center space-y-3">
+                <div className="w-10 h-10 rounded-full bg-teal-50 flex items-center justify-center text-accent">
+                  <FileCheck className="w-5 h-5" />
+                </div>
+                <div className="space-y-1">
+                  <div className="text-3xl sm:text-4xl font-black text-brand-text">
+                    <Counter value={50000} suffix="+" />
+                  </div>
+                  <p className="text-[10px] sm:text-xs font-bold uppercase tracking-widest text-brand-muted">Resumes Optimized</p>
+                </div>
               </div>
-              <p className="text-[10px] sm:text-xs font-bold uppercase tracking-widest text-brand-muted">Resumes Optimized</p>
-            </div>
-            <div className="py-4 md:py-0 space-y-1.5">
-              <div className="text-3xl sm:text-4xl font-black text-brand-text">
-                <Counter value={5000} suffix="+" />
+
+              {/* Stat 3 */}
+              <div className="py-6 md:py-0 flex flex-col items-center space-y-3">
+                <div className="w-10 h-10 rounded-full bg-emerald-50 flex items-center justify-center text-[#14B8A6]">
+                  <Compass className="w-5 h-5" />
+                </div>
+                <div className="space-y-1">
+                  <div className="text-3xl sm:text-4xl font-black text-brand-text">
+                    <Counter value={5000} suffix="+" />
+                  </div>
+                  <p className="text-[10px] sm:text-xs font-bold uppercase tracking-widest text-brand-muted">Opportunities Discovered</p>
+                </div>
               </div>
-              <p className="text-[10px] sm:text-xs font-bold uppercase tracking-widest text-brand-muted">Opportunities Discovered</p>
+
             </div>
           </div>
         </div>
       </section>
 
       {/* 11. FINAL CTA SECTION */}
-      <section className="section-padding border-t border-brand-border">
-        <div className="max-w-[960px] mx-auto bg-white border border-brand-border rounded-[32px] p-8 sm:p-12 text-center shadow-lg relative overflow-hidden bg-gradient-to-tr from-slate-50 to-blue-50/30">
-          <div className="relative space-y-6 max-w-xl mx-auto">
-            <h2 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-slate-900 leading-tight">
+      <section className="w-full bg-gradient-to-br from-[#0F172A] to-[#1E293B] border-t border-slate-800">
+        <div className="max-w-[960px] mx-auto px-4 sm:px-6 lg:px-8 section-padding text-center">
+          <div className="space-y-6 max-w-2xl mx-auto">
+            <h2 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-white leading-tight">
               Take the Next Step Toward Your Career Goals
             </h2>
-            <p className="text-slate-500 text-xs sm:text-sm leading-relaxed font-semibold">
+            <p className="text-slate-300 text-xs sm:text-sm leading-relaxed font-semibold">
               Join thousands of professionals using CareerMate to optimize resumes, discover opportunities, and build future-ready skills.
             </p>
             <div className="pt-2 flex flex-col sm:flex-row justify-center items-center gap-3.5">
@@ -971,7 +1004,7 @@ export default function HomePage() {
               </Link>
               <Link
                 href="/resume-upload"
-                className="w-full sm:w-auto bg-white hover:bg-slate-50 text-slate-700 border border-brand-border font-bold px-8 py-3.5 rounded-btn transition-colors text-xs uppercase tracking-wider text-center cursor-pointer shadow-sm"
+                className="w-full sm:w-auto bg-slate-800 hover:bg-slate-700 text-white border border-slate-700 font-bold px-8 py-3.5 rounded-btn transition-colors text-xs uppercase tracking-wider text-center cursor-pointer shadow-sm"
               >
                 Upload Resume
               </Link>
