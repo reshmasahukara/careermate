@@ -190,7 +190,7 @@ export default function HomePage() {
       </section>
 
       {/* 3. CORE FEATURES */}
-      <section id="features" className="w-full bg-[#FFFFFF] border-b border-[#E5E7EB]/70 scroll-mt-24">
+      <section id="features" className="w-full bg-[#F1F5F9] border-b border-[#E5E7EB]/70 scroll-mt-24">
         <div className="max-w-[1280px] px-6 mx-auto w-full py-[96px] md:py-[72px] py-[56px] space-y-12">
           
           <div className="text-center space-y-3">
@@ -211,7 +211,7 @@ export default function HomePage() {
               <Link
                 key={`feature-${card.title}-${index}`}
                 href={card.href}
-                className="premium-card p-5 rounded-[20px] bg-white border border-[#E5E7EB] shadow-xs hover:shadow-md hover:-translate-y-1 transition-all flex flex-col justify-between text-left"
+                className="premium-card p-5 rounded-[20px] bg-[#FCFDFE] border border-[#E5EAF1] shadow-[0_8px_24px_rgba(15,23,42,0.05)] hover:shadow-md hover:-translate-y-1 transition-all flex flex-col justify-between text-left"
               >
                 <div className="space-y-4">
                   <div className="w-9 h-9 rounded-lg bg-slate-50 border border-[#E5E7EB] flex items-center justify-center">

@@ -23,22 +23,22 @@ export async function POST(req: NextRequest) {
     isDbConfigured();
 
     const existingUser = await prisma.user.findUnique({
-      where: { email },
+      where: { email: email.toLowerCase() },
     });
 
     if (existingUser) {
       return NextResponse.json(
-        { error: "Email already exists." },
+        { error: "An account with this email already exists." },
         { status: 409 }
       );
     }
 
-    const hashedPassword = await bcrypt.hash(password, 10);
+    const hashedPassword = await bcrypt.hash(password, 12);
 
     const user = await prisma.user.create({
       data: {
         name,
-        email,
+        email: email.toLowerCase(),
         password: hashedPassword,
       },
     });
