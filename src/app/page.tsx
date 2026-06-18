@@ -313,7 +313,7 @@ export default function HomePage() {
       name: "Enterprise",
       price: "Custom",
       period: "",
-      description: "For universities, coding camps, & groups.",
+      description: "Custom solutions for universities, career centers, and organizations.",
       features: [
         "Multi-user seat management",
         "University bulk licenses",
@@ -338,12 +338,14 @@ export default function HomePage() {
       name: "David Chen",
       role: "Data Analyst at Stripe",
       image: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150",
+      rating: 5,
       story: "The skill gap analyzer mapped out exactly what SQL and dashboard metrics I was missing for Senior roles. The suggested courses filled the gap perfectly."
     },
     {
       name: "Elena Rostova",
       role: "Product Designer at Figma",
       image: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150",
+      rating: 5,
       story: "I loved the clean SaaS design and instant suggestions. Uploading my resume gave me highly detailed critiques of my experience metrics. Highly recommended!"
     }
   ];
@@ -372,125 +374,58 @@ export default function HomePage() {
   ];
 
   return (
-    <div className="space-y-24 pb-24 max-w-[1280px] mx-auto px-4 sm:px-6 lg:px-8 pt-[72px]">
+    <div className="max-w-[1280px] mx-auto px-4 sm:px-6 lg:px-8 pt-[72px]">
       
-      {/* 1. HERO SECTION */}
-      <section className="py-12 md:py-24 grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
-        
-        {/* Left Side (60% width) */}
-        <div className="lg:col-span-7 space-y-6 text-left">
-          <div className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-slate-100 border border-brand-border text-slate-700 text-xs font-semibold">
-            <Star className="w-3.5 h-3.5 text-amber-500 fill-amber-500" />
-            Trusted by 10,000+ professionals
-          </div>
-
-          <h1 className="text-4xl sm:text-5xl md:text-[56px] md:leading-[64px] font-bold text-brand-text tracking-tight">
-            Accelerate Your Career with CareerMate
-          </h1>
-
-          <p className="text-base sm:text-lg text-brand-muted leading-relaxed max-w-xl">
-            Upload your resume, optimize your ATS score, discover relevant jobs, and identify skill gaps with AI-powered career guidance.
-          </p>
-
-          {/* CTA Row */}
-          <div className="flex flex-col sm:flex-row items-center gap-3.5 pt-2">
-            <Link
-              href="/signup"
-              className="w-full sm:w-auto bg-primary hover:bg-blue-700 text-white font-bold text-sm px-6 py-3 rounded-btn shadow-sm transition-colors text-center cursor-pointer"
-            >
-              Get Started
-            </Link>
-            <Link
-              href="/resume-upload"
-              className="w-full sm:w-auto bg-white hover:bg-slate-50 border border-brand-border text-slate-700 font-bold text-sm px-6 py-3 rounded-btn shadow-sm transition-colors text-center cursor-pointer"
-            >
-              Upload Resume
-            </Link>
-          </div>
-
-          {/* Trust Row */}
-          <div className="flex flex-wrap items-center gap-x-6 gap-y-2.5 pt-4 text-xs font-semibold text-brand-muted">
-            <span className="flex items-center gap-1.5">
-              <Check className="w-4 h-4 text-emerald-500" />
-              No credit card required
-            </span>
-            <span className="flex items-center gap-1.5">
-              <Check className="w-4 h-4 text-emerald-500" />
-              Free ATS scan
-            </span>
-            <span className="flex items-center gap-1.5">
-              <Check className="w-4 h-4 text-emerald-500" />
-              Secure data handling
-            </span>
-          </div>
+      {/* 2. HERO SECTION */}
+      <section className="section-padding flex flex-col items-center text-center space-y-6 max-w-4xl mx-auto">
+        <div className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-slate-100 border border-brand-border text-slate-700 text-xs font-semibold">
+          <Star className="w-3.5 h-3.5 text-amber-500 fill-amber-500" />
+          Trusted by 10,000+ professionals
         </div>
 
-        {/* Right Side (40% width) - Interactive Dashboard Preview */}
-        <div className="lg:col-span-5 bg-white border border-brand-border rounded-card p-6 shadow-sm space-y-5">
-          <div className="flex justify-between items-center pb-3 border-b border-slate-100">
-            <span className="text-xs font-bold text-brand-text uppercase tracking-wider flex items-center gap-1.5">
-              <TrendingUp className="w-4 h-4 text-primary" />
-              Workspace Audit Preview
-            </span>
-            <span className="text-[10px] text-brand-muted font-semibold uppercase">Live demo</span>
-          </div>
+        <h1 className="text-4xl sm:text-5xl md:text-[56px] md:leading-[64px] font-bold text-brand-text tracking-tight max-w-3xl">
+          Build a Smarter Career Path with CareerMate
+        </h1>
 
-          {/* Grid Preview Cards */}
-          <div className="grid grid-cols-2 gap-4">
-            
-            {/* ATS circular mockup */}
-            <div className="p-4 bg-slate-50 border border-brand-border rounded-xl flex flex-col items-center justify-center text-center space-y-1.5">
-              <div className="w-14 h-14 rounded-full border-4 border-emerald-500 border-t-transparent flex items-center justify-center font-bold text-sm text-slate-800">
-                85%
-              </div>
-              <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">ATS Score</span>
-            </div>
+        <p className="text-base sm:text-lg text-brand-muted leading-relaxed max-w-2xl mx-auto font-medium">
+          Upload your resume, optimize your ATS score, discover relevant jobs, and identify skill gaps with AI-powered career guidance.
+        </p>
 
-            {/* Gap status bar */}
-            <div className="p-4 bg-slate-50 border border-brand-border rounded-xl space-y-2 flex flex-col justify-center">
-              <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest block">Next.js Gap</span>
-              <div className="h-2 w-full bg-slate-200 rounded-full overflow-hidden">
-                <div className="h-full bg-primary rounded-full w-[80%]" />
-              </div>
-              <span className="text-[9px] text-primary font-bold">Goal: Expert Level</span>
-            </div>
-
-          </div>
-
-          {/* Mini Line Chart */}
-          <div className="p-4 bg-slate-50 border border-brand-border rounded-xl">
-            <div className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-3">Score History</div>
-            <div className="h-24 w-full">
-              {isMounted ? (
-                <ResponsiveContainer width="100%" height="100%">
-                  <LineChart data={previewChartData} margin={{ top: 2, right: 2, left: -40, bottom: 2 }}>
-                    <XAxis dataKey="name" tick={{ fontSize: 8, fill: "#94a3b8" }} />
-                    <YAxis tick={{ fontSize: 8, fill: "#94a3b8" }} />
-                    <Line type="monotone" dataKey="score" stroke="#2563EB" strokeWidth={2.5} dot={{ r: 3 }} />
-                  </LineChart>
-                </ResponsiveContainer>
-              ) : (
-                <div className="h-full bg-slate-100 animate-pulse rounded-lg" />
-              )}
-            </div>
-          </div>
-
-          {/* Job Recommendation Item */}
-          <div className="p-4 bg-slate-50 border border-brand-border rounded-xl flex items-center justify-between gap-3 text-xs">
-            <div>
-              <h4 className="font-bold text-slate-800">Software Engineer (Next.js)</h4>
-              <p className="text-[10px] text-slate-400 font-semibold">GitHub • Remote • $130k</p>
-            </div>
-            <span className="bg-emerald-50 text-emerald-700 font-bold px-2 py-0.5 rounded text-[9px] uppercase">
-              Matched
-            </span>
-          </div>
+        {/* CTA Row */}
+        <div className="flex flex-col sm:flex-row items-center justify-center gap-3.5 pt-4 w-full sm:w-auto">
+          <Link
+            href="/signup"
+            className="w-full sm:w-auto bg-primary hover:bg-blue-800 text-white font-bold text-sm px-8 py-3.5 rounded-btn shadow-sm transition-colors text-center cursor-pointer"
+          >
+            Get Started
+          </Link>
+          <Link
+            href="/resume-upload"
+            className="w-full sm:w-auto bg-white hover:bg-slate-50 border border-brand-border text-slate-700 font-bold text-sm px-8 py-3.5 rounded-btn shadow-sm transition-colors text-center cursor-pointer"
+          >
+            Upload Resume
+          </Link>
         </div>
 
+        {/* Trust Row */}
+        <div className="flex flex-wrap items-center justify-center gap-x-6 gap-y-2.5 pt-6 text-xs font-semibold text-brand-muted">
+          <span className="flex items-center gap-1.5">
+            <Check className="w-4 h-4 text-emerald-500" />
+            No credit card required
+          </span>
+          <span className="flex items-center gap-1.5">
+            <Check className="w-4 h-4 text-emerald-500" />
+            Free ATS scan
+          </span>
+          <span className="flex items-center gap-1.5">
+            <Check className="w-4 h-4 text-emerald-500" />
+            Secure data handling
+          </span>
+        </div>
       </section>
 
-      {/* 2. HERO FEATURE CARDS */}
-      <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 pt-4 border-t border-brand-border">
+      {/* 3. FEATURE CARDS */}
+      <section className="section-padding grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 border-t border-brand-border">
         {featureCards.map((card) => (
           <Link
             key={card.title}
@@ -512,32 +447,8 @@ export default function HomePage() {
         ))}
       </section>
 
-      {/* 3. STATISTICS SECTION */}
-      <section className="premium-card py-10 bg-white rounded-card">
-        <div className="max-w-5xl mx-auto grid grid-cols-1 md:grid-cols-3 divide-y md:divide-y-0 md:divide-x divide-slate-100 text-center">
-          <div className="py-4 md:py-0 space-y-1.5">
-            <div className="text-3xl sm:text-4xl font-black text-brand-text">
-              <Counter value={10000} suffix="+" />
-            </div>
-            <p className="text-[10px] sm:text-xs font-bold uppercase tracking-widest text-brand-muted">Active Professionals</p>
-          </div>
-          <div className="py-4 md:py-0 space-y-1.5">
-            <div className="text-3xl sm:text-4xl font-black text-brand-text">
-              <Counter value={50000} suffix="+" />
-            </div>
-            <p className="text-[10px] sm:text-xs font-bold uppercase tracking-widest text-brand-muted">Resumes Evaluated</p>
-          </div>
-          <div className="py-4 md:py-0 space-y-1.5">
-            <div className="text-3xl sm:text-4xl font-black text-brand-text">
-              <Counter value={5000} suffix="+" />
-            </div>
-            <p className="text-[10px] sm:text-xs font-bold uppercase tracking-widest text-brand-muted">Recommended Jobs Listed</p>
-          </div>
-        </div>
-      </section>
-
       {/* 4. HOW CAREERMATE WORKS SECTION */}
-      <section className="space-y-12">
+      <section className="section-padding space-y-12 border-t border-brand-border">
         <div className="text-center space-y-3">
           <h2 className="text-2xl sm:text-3xl font-bold tracking-tight text-brand-text">
             How CareerMate Works
@@ -609,8 +520,8 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* 5. FEATURES SECTION */}
-      <section id="features" className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center scroll-mt-24">
+      {/* 5. CORE FEATURES SECTION */}
+      <section id="features" className="section-padding grid grid-cols-1 lg:grid-cols-12 gap-12 items-center scroll-mt-24 border-t border-brand-border">
         
         {/* Left column - descriptions (col 6) */}
         <div className="lg:col-span-6 space-y-6">
@@ -673,17 +584,179 @@ export default function HomePage() {
             </div>
           </div>
         </div>
-
       </section>
 
-      {/* 6. PRICING SECTION */}
-      <section className="space-y-12">
+      {/* 6. DASHBOARD PREVIEW SECTION */}
+      <section className="section-padding bg-slate-50/50 border-y border-brand-border -mx-4 sm:-mx-6 lg:-mx-8 px-4 sm:px-6 lg:px-8">
+        <div className="max-w-[1280px] mx-auto space-y-12">
+          
+          <div className="text-center space-y-3">
+            <span className="text-[10px] font-bold text-primary uppercase tracking-widest bg-primary/10 px-2.5 py-1 rounded-full">
+              Platform Preview
+            </span>
+            <h2 className="text-2xl sm:text-3xl font-bold tracking-tight text-brand-text">
+              Career Insights Dashboard
+            </h2>
+            <p className="text-slate-500 text-xs sm:text-sm font-semibold max-w-lg mx-auto">
+              Real-time career optimization metrics, recommendations, and roadmap tracking at your fingertips.
+            </p>
+          </div>
+
+          {/* High-Fidelity Mockup Container */}
+          <div className="premium-card rounded-card bg-white shadow-md overflow-hidden flex flex-col border border-brand-border max-w-5xl mx-auto">
+            
+            {/* Mock Dashboard Topbar Header */}
+            <div className="bg-slate-50 px-6 py-4 border-b border-brand-border flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <div className="flex gap-1.5">
+                  <div className="w-2.5 h-2.5 rounded-full bg-rose-400" />
+                  <div className="w-2.5 h-2.5 rounded-full bg-amber-400" />
+                  <div className="w-2.5 h-2.5 rounded-full bg-emerald-400" />
+                </div>
+                <span className="text-[10px] text-slate-400 font-extrabold uppercase tracking-widest pl-2">
+                  app.careermate.io/dashboard
+                </span>
+              </div>
+              <div className="flex items-center gap-3">
+                <div className="w-32 h-6 bg-slate-200/60 rounded-full animate-pulse" />
+                <div className="w-6 h-6 rounded-full bg-slate-200" />
+              </div>
+            </div>
+
+            {/* Dashboard Content Grid */}
+            <div className="p-6 sm:p-8 bg-slate-50/30 grid grid-cols-1 md:grid-cols-12 gap-6 items-stretch">
+              
+              {/* Left Column widgets (col-8) */}
+              <div className="md:col-span-8 space-y-6">
+                
+                {/* Score cards & Match Grid */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                  
+                  {/* ATS Score widget */}
+                  <div className="p-5 bg-white border border-brand-border rounded-xl flex items-center gap-5 shadow-sm">
+                    <div className="w-16 h-16 rounded-full border-[5px] border-emerald-500 border-t-transparent flex items-center justify-center font-black text-slate-800 text-base shadow-sm shrink-0">
+                      92%
+                    </div>
+                    <div className="space-y-0.5">
+                      <h4 className="font-extrabold text-xs text-slate-500 uppercase tracking-wider">ATS Score</h4>
+                      <p className="text-xs text-emerald-600 font-bold">Excellent match strength</p>
+                      <p className="text-[10px] text-slate-400 font-semibold leading-normal">Ready for enterprise review gates</p>
+                    </div>
+                  </div>
+
+                  {/* Resume Match Score Widget */}
+                  <div className="p-5 bg-white border border-brand-border rounded-xl flex items-center gap-5 shadow-sm">
+                    <div className="w-16 h-16 rounded-full border-[5px] border-primary border-t-transparent flex items-center justify-center font-black text-slate-800 text-base shadow-sm shrink-0">
+                      88%
+                    </div>
+                    <div className="space-y-0.5">
+                      <h4 className="font-extrabold text-xs text-slate-500 uppercase tracking-wider">Role Match Score</h4>
+                      <p className="text-xs text-primary font-bold">Senior Frontend Engineer</p>
+                      <p className="text-[10px] text-slate-400 font-semibold leading-normal">Matched with target Stripe vacancy</p>
+                    </div>
+                  </div>
+
+                </div>
+
+                {/* Skill Gap Progress Widget */}
+                <div className="p-5 bg-white border border-brand-border rounded-xl shadow-sm space-y-4">
+                  <div className="flex justify-between items-center pb-2 border-b border-slate-100">
+                    <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Skill Gap Progress</span>
+                    <span className="text-[10px] text-primary font-bold uppercase">Stripe Target profile</span>
+                  </div>
+                  
+                  <div className="space-y-3.5">
+                    <div>
+                      <div className="flex justify-between text-xs font-semibold mb-1 text-slate-700">
+                        <span>TypeScript</span>
+                        <span>90% Yours / 100% Target</span>
+                      </div>
+                      <div className="h-2 w-full bg-slate-100 rounded-full overflow-hidden">
+                        <div className="h-full bg-primary rounded-full w-[90%]" />
+                      </div>
+                    </div>
+                    <div>
+                      <div className="flex justify-between text-xs font-semibold mb-1 text-slate-700">
+                        <span>Next.js Framework</span>
+                        <span>95% Yours / 90% Target</span>
+                      </div>
+                      <div className="h-2 w-full bg-slate-100 rounded-full overflow-hidden">
+                        <div className="h-full bg-primary rounded-full w-[95%]" />
+                      </div>
+                    </div>
+                    <div>
+                      <div className="flex justify-between text-xs font-semibold mb-1 text-slate-700">
+                        <span>Docker Containers</span>
+                        <span>60% Yours / 80% Target</span>
+                      </div>
+                      <div className="h-2 w-full bg-slate-100 rounded-full overflow-hidden">
+                        <div className="h-full bg-amber-500 rounded-full w-[60%]" />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+              </div>
+
+              {/* Right Column widgets (col-4) */}
+              <div className="md:col-span-4 space-y-6">
+                
+                {/* Recommended Jobs Widget */}
+                <div className="p-5 bg-white border border-brand-border rounded-xl shadow-sm space-y-4 flex flex-col justify-between h-full">
+                  <div className="space-y-3">
+                    <div className="flex justify-between items-center pb-2 border-b border-slate-100">
+                      <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Recommended Jobs</span>
+                    </div>
+                    
+                    <div className="space-y-2.5">
+                      <div className="p-2.5 bg-slate-50 border border-brand-border rounded-lg space-y-1">
+                        <div className="flex justify-between items-start">
+                          <h5 className="font-extrabold text-[11px] text-slate-800">Senior React Dev</h5>
+                          <span className="bg-primary/10 text-primary font-bold px-1.5 py-0.5 rounded text-[8px] uppercase">92%</span>
+                        </div>
+                        <p className="text-[9px] text-slate-400 font-semibold">Stripe • Remote • $140k</p>
+                      </div>
+
+                      <div className="p-2.5 bg-slate-50 border border-brand-border rounded-lg space-y-1">
+                        <div className="flex justify-between items-start">
+                          <h5 className="font-extrabold text-[11px] text-slate-800">Full-Stack Architect</h5>
+                          <span className="bg-emerald-50 text-emerald-700 font-bold px-1.5 py-0.5 rounded text-[8px] uppercase">88%</span>
+                        </div>
+                        <p className="text-[9px] text-slate-400 font-semibold">Vercel • San Francisco • $160k</p>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Learning Roadmap Progress Widget */}
+                  <div className="pt-4 border-t border-slate-100 space-y-2.5">
+                    <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Roadmap Status</span>
+                    <div className="p-3 bg-teal-50 border border-teal-100 rounded-lg text-slate-800 space-y-1.5">
+                      <div className="font-extrabold text-[10px] text-teal-800 flex justify-between">
+                        <span>Milestone 3 of 5</span>
+                        <span>65% Done</span>
+                      </div>
+                      <p className="text-[9px] text-slate-500 font-medium">Currently: Deploying Docker containers to AWS ECS</p>
+                    </div>
+                  </div>
+                </div>
+
+              </div>
+
+            </div>
+
+          </div>
+
+        </div>
+      </section>
+
+      {/* 7. PRICING SECTION */}
+      <section className="section-padding space-y-12">
         <div className="text-center space-y-3">
           <h2 className="text-2xl sm:text-3xl font-bold tracking-tight text-brand-text">
-            Simple, Transparent Plans
+            Choose the Plan That Matches Your Goals
           </h2>
           <p className="text-slate-500 text-xs sm:text-sm font-semibold">
-            Cancel, upgrade, or downgrade parameters instantly.
+            Start free and upgrade as your career journey evolves.
           </p>
         </div>
 
@@ -736,7 +809,7 @@ export default function HomePage() {
                     href="/pricing"
                     className={`w-full py-2.5 rounded-btn text-xs font-bold uppercase tracking-wider text-center block transition-all cursor-pointer ${
                       plan.highlight
-                        ? "bg-primary hover:bg-blue-700 text-white shadow-sm"
+                        ? "bg-primary hover:bg-blue-800 text-white shadow-sm"
                         : "bg-slate-900 hover:bg-slate-800 text-white"
                     }`}
                   >
@@ -749,11 +822,11 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* 7. TESTIMONIALS SECTION */}
-      <section className="space-y-12">
+      {/* 8. TESTIMONIALS SECTION */}
+      <section className="section-padding space-y-12 border-t border-brand-border">
         <div className="text-center space-y-3">
           <h2 className="text-2xl sm:text-3xl font-bold tracking-tight text-brand-text">
-            Success Stories
+            Career Journeys Powered by CareerMate
           </h2>
           <p className="text-slate-500 text-xs sm:text-sm font-semibold max-w-sm mx-auto">
             Benchmark comparisons and keyword checks that drove candidate wins.
@@ -768,7 +841,7 @@ export default function HomePage() {
             >
               <div className="space-y-4">
                 <div className="flex items-center gap-0.5">
-                  {[...Array(5)].map((_, i) => (
+                  {[...Array(test.rating)].map((_, i) => (
                     <Star key={i} className="w-3.5 h-3.5 fill-amber-400 text-amber-400" />
                   ))}
                 </div>
@@ -793,8 +866,8 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* 8. FAQ SECTION */}
-      <section className="max-w-[800px] mx-auto space-y-12">
+      {/* 9. FAQ SECTION */}
+      <section className="section-padding max-w-[800px] mx-auto space-y-12 border-t border-brand-border">
         <div className="text-center space-y-3">
           <h2 className="text-2xl sm:text-3xl font-bold tracking-tight text-brand-text">
             Frequently Asked Questions
@@ -844,26 +917,61 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* 9. FINAL CTA SECTION */}
-      <section className="max-w-4xl mx-auto">
-        <div className="bg-slate-900 border border-slate-800 rounded-card p-8 sm:p-12 text-center text-white space-y-6 relative overflow-hidden">
+      {/* 10. STATISTICS SECTION */}
+      <section className="section-padding border-t border-brand-border space-y-12">
+        <div className="text-center space-y-3">
+          <h2 className="text-2xl sm:text-3xl font-bold tracking-tight text-brand-text">
+            Growing Careers Worldwide
+          </h2>
+          <p className="text-slate-500 text-xs sm:text-sm font-semibold max-w-md mx-auto">
+            Empowering professionals globally with quantitative credentials and opportunities.
+          </p>
+        </div>
+
+        <div className="premium-card py-10 bg-white rounded-card">
+          <div className="max-w-5xl mx-auto grid grid-cols-1 md:grid-cols-3 divide-y md:divide-y-0 md:divide-x divide-slate-100 text-center">
+            <div className="py-4 md:py-0 space-y-1.5">
+              <div className="text-3xl sm:text-4xl font-black text-brand-text">
+                <Counter value={10000} suffix="+" />
+              </div>
+              <p className="text-[10px] sm:text-xs font-bold uppercase tracking-widest text-brand-muted">Active Professionals</p>
+            </div>
+            <div className="py-4 md:py-0 space-y-1.5">
+              <div className="text-3xl sm:text-4xl font-black text-brand-text">
+                <Counter value={50000} suffix="+" />
+              </div>
+              <p className="text-[10px] sm:text-xs font-bold uppercase tracking-widest text-brand-muted">Resumes Optimized</p>
+            </div>
+            <div className="py-4 md:py-0 space-y-1.5">
+              <div className="text-3xl sm:text-4xl font-black text-brand-text">
+                <Counter value={5000} suffix="+" />
+              </div>
+              <p className="text-[10px] sm:text-xs font-bold uppercase tracking-widest text-brand-muted">Opportunities Discovered</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* 11. FINAL CTA SECTION */}
+      <section className="section-padding border-t border-brand-border">
+        <div className="max-w-[960px] mx-auto bg-white border border-brand-border rounded-[32px] p-8 sm:p-12 text-center shadow-lg relative overflow-hidden bg-gradient-to-tr from-slate-50 to-blue-50/30">
           <div className="relative space-y-6 max-w-xl mx-auto">
-            <h2 className="text-2xl sm:text-3xl font-extrabold tracking-tight">
-              Ready to Accelerate Your Career?
+            <h2 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-slate-900 leading-tight">
+              Take the Next Step Toward Your Career Goals
             </h2>
-            <p className="text-slate-400 text-xs sm:text-sm leading-relaxed font-semibold">
-              Optimize your resume, check target keywords, discover open tech listings, and follow structured timelines.
+            <p className="text-slate-500 text-xs sm:text-sm leading-relaxed font-semibold">
+              Join thousands of professionals using CareerMate to optimize resumes, discover opportunities, and build future-ready skills.
             </p>
             <div className="pt-2 flex flex-col sm:flex-row justify-center items-center gap-3.5">
               <Link
                 href="/signup"
-                className="w-full sm:w-auto bg-primary hover:bg-blue-700 text-white font-bold px-8 py-3 rounded-btn transition-colors text-xs uppercase tracking-wider text-center cursor-pointer"
+                className="w-full sm:w-auto bg-primary hover:bg-blue-800 text-white font-bold px-8 py-3.5 rounded-btn transition-colors text-xs uppercase tracking-wider text-center cursor-pointer shadow-sm"
               >
                 Get Started
               </Link>
               <Link
                 href="/resume-upload"
-                className="w-full sm:w-auto bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 font-bold px-8 py-3 rounded-btn transition-colors text-xs uppercase tracking-wider text-center cursor-pointer"
+                className="w-full sm:w-auto bg-white hover:bg-slate-50 text-slate-700 border border-brand-border font-bold px-8 py-3.5 rounded-btn transition-colors text-xs uppercase tracking-wider text-center cursor-pointer shadow-sm"
               >
                 Upload Resume
               </Link>

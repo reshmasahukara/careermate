@@ -6,6 +6,7 @@ import { usePathname } from "next/navigation";
 import { useSession, signOut } from "next-auth/react";
 import { Menu, X, ChevronRight, LayoutDashboard, LogOut } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
+import Logo from "@/components/Logo";
 
 export default function Navbar() {
   const { data: session, status } = useSession();
@@ -58,20 +59,15 @@ export default function Navbar() {
     <header
       className={`fixed top-0 left-0 right-0 z-50 h-[72px] flex items-center transition-all duration-200 ${
         scrolled
-          ? "bg-white border-b border-brand-border shadow-sm"
+          ? "bg-white/90 backdrop-blur-md border-b border-brand-border shadow-sm"
           : "bg-transparent"
       }`}
     >
       <div className="max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-full">
           {/* Logo */}
-          <Link href="/" className="flex items-center gap-2 group shrink-0">
-            <div className="w-9 h-9 rounded-[10px] bg-primary flex items-center justify-center text-white font-bold text-base shadow-sm">
-              CM
-            </div>
-            <span className="font-bold text-lg tracking-tight text-brand-text">
-              CareerMate
-            </span>
+          <Link href="/">
+            <Logo className="w-6.5 h-6.5" />
           </Link>
 
           {/* Center Navigation */}
@@ -121,21 +117,21 @@ export default function Navbar() {
                 </button>
               </div>
             ) : (
-              <>
+              <div className="flex items-center gap-6">
                 <Link
                   href="/login"
-                  className="text-xs font-semibold uppercase tracking-wider text-slate-700 hover:text-primary transition-colors"
+                  className="text-sm font-semibold text-slate-700 hover:text-primary transition-colors cursor-pointer"
                 >
                   Login
                 </Link>
                 <Link
                   href="/signup"
-                  className="bg-primary hover:bg-blue-700 text-white text-xs font-bold uppercase tracking-wider px-5 py-2.5 rounded-btn shadow-sm transition-colors flex items-center gap-1"
+                  className="bg-primary hover:bg-blue-800 text-white text-xs font-bold uppercase tracking-wider px-5 py-2.5 rounded-btn shadow-sm transition-colors flex items-center gap-1 cursor-pointer"
                 >
-                  Get Started
+                  Sign Up
                   <ChevronRight className="w-3.5 h-3.5" />
                 </Link>
-              </>
+              </div>
             )}
           </div>
 
@@ -217,7 +213,7 @@ export default function Navbar() {
                     href="/signup"
                     className="flex items-center justify-center py-2.5 rounded-btn bg-primary text-white text-xs font-bold uppercase tracking-wider hover:bg-blue-700"
                   >
-                    Get Started
+                    Sign Up
                   </Link>
                 </div>
               )}

@@ -6,6 +6,7 @@ import { Mail, ArrowRight, Heart } from "lucide-react";
 import { useToast } from "./Providers";
 import { usePathname } from "next/navigation";
 import { useSession } from "next-auth/react";
+import Logo from "@/components/Logo";
 
 export default function Footer() {
   const [email, setEmail] = useState("");
@@ -83,13 +84,8 @@ export default function Footer() {
           
           {/* Logo / Brand Info (col 4) */}
           <div className="md:col-span-4 space-y-6">
-            <Link href="/" className="flex items-center gap-2 group w-fit">
-              <div className="w-9 h-9 rounded-[10px] bg-primary flex items-center justify-center text-white font-bold text-base shadow-sm">
-                CM
-              </div>
-              <span className="font-bold text-lg tracking-tight text-white">
-                CareerMate
-              </span>
+            <Link href="/">
+              <Logo className="w-6.5 h-6.5" lightWordmark={true} />
             </Link>
             <p className="text-xs sm:text-sm text-slate-400 leading-relaxed max-w-xs">
               Accelerate your career with AI-powered resume parsing, ATS optimizations, skill analysis, and personalized roadmaps.

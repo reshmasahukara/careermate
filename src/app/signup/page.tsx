@@ -9,6 +9,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { Eye, EyeOff, Mail, Lock, User, ShieldCheck, Sparkles, UserPlus } from "lucide-react";
 import { useToast } from "@/components/Providers";
+import Logo from "@/components/Logo";
 
 const signupSchema = z
   .object({
@@ -121,13 +122,8 @@ export default function SignupPage() {
       <div className="w-full max-w-[480px] space-y-6">
         {/* Header */}
         <div className="text-center">
-          <Link href="/" className="inline-flex items-center gap-2 group mb-4">
-            <div className="w-9 h-9 rounded-[10px] bg-[#2563EB] flex items-center justify-center text-white font-bold text-base">
-              CM
-            </div>
-            <span className="font-extrabold text-xl tracking-tight text-[#0F172A]">
-              CareerMate
-            </span>
+          <Link href="/" className="inline-flex justify-center mb-4">
+            <Logo className="w-7 h-7" />
           </Link>
           <h2 className="text-2xl font-bold tracking-tight text-[#0F172A]">
             Create your account
