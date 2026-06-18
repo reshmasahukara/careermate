@@ -1,0 +1,215 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model User {
+  id            String         @id @default(cuid())
+  name          String?
+  email         String?        @unique
+  emailVerified DateTime?      @map("email_verified")
+  password      String?
+  image         String?
+  createdAt     DateTime       @default(now()) @map("created_at")
+  updatedAt     DateTime       @updatedAt @map("updated_at")
+
+  accounts      Account[]
+  sessions      Session[]
+  resumes       Resume[]
+  userSkills    UserSkill[]
+  savedJobs     SavedJob[]
+  careerPaths   CareerPath[]
+  notifications Notification[]
+  subscriptions Subscription[]
+  learningResources LearningResource[]
+
+  @@map("users")
+}
+
+model Account {
+  id                String  @id @default(cuid())
+  userId            String  @map("user_id")
+  type              String
+  provider          String
+  providerAccountId String  @map("provider_account_id")
+  refresh_token     String? @db.Text
+  access_token      String? @db.Text
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String? @db.Text
+  session_state     String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+  @@map("accounts")
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique @map("session_token")
+  userId       String   @map("user_id")
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("sessions")
+}
+
+model Resume {
+  id         String     @id @default(cuid())
+  userId     String     @map("user_id")
+  fileName   String     @map("file_name")
+  fileUrl    String     @map("file_url")
+  fileType   String     @map("file_type")
+  parsedText String?    @map("parsed_text") @db.Text
+  version    Int        @default(1)
+  createdAt  DateTime   @default(now()) @map("created_at")
+  updatedAt  DateTime   @updatedAt @map("updated_at")
+
+  user      User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  atsScores AtsScore[]
+
+  @@map("resumes")
+}
+
+model AtsScore {
+  id                 String   @id @default(cuid())
+  resumeId           String   @map("resume_id")
+  targetRole         String   @map("target_role")
+  score              Int
+  keywordsFound      String[] @map("keywords_found")
+  keywordsMissing    String[] @map("keywords_missing")
+  formattingFeedback String?  @map("formatting_feedback") @db.Text
+  sectionAnalysis    String?  @map("section_analysis") @db.Text
+  improvements       String?  @map("improvements") @db.Text
+  createdAt          DateTime @default(now()) @map("created_at")
+
+  resume Resume @relation(fields: [resumeId], references: [id], onDelete: Cascade)
+
+  @@map("ats_scores")
+}
+
+model Job {
+  id           String     @id @default(cuid())
+  title        String
+  company      String
+  location     String
+  type         String     // Full-time, Part-time, Contract, Internship
+  experience   String     // Junior, Mid, Senior, Lead
+  salary       String
+  description  String     @db.Text
+  requirements String[]
+  skills       String[]
+  applyUrl     String     @map("apply_url")
+  logoUrl      String?    @map("logo_url")
+  isRemote     Boolean    @default(false) @map("is_remote")
+  createdAt    DateTime   @default(now()) @map("created_at")
+
+  savedJobs SavedJob[]
+
+  @@map("jobs")
+}
+
+model SavedJob {
+  id      String   @id @default(cuid())
+  userId  String   @map("user_id")
+  jobId   String   @map("job_id")
+  savedAt DateTime @default(now()) @map("saved_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  job  Job  @relation(fields: [jobId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, jobId])
+  @@map("saved_jobs")
+}
+
+model Skill {
+  id        String      @id @default(cuid())
+  name      String      @unique
+  category  String      // Frontend, Backend, Design, Management, etc.
+  createdAt DateTime    @default(now()) @map("created_at")
+  
+  userSkills UserSkill[]
+
+  @@map("skills")
+}
+
+model UserSkill {
+  id          String   @id @default(cuid())
+  userId      String   @map("user_id")
+  skillId     String   @map("skill_id")
+  proficiency String   // Beginner, Intermediate, Expert
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  user  User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  skill Skill @relation(fields: [skillId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, skillId])
+  @@map("user_skills")
+}
+
+model CareerPath {
+  id          String   @id @default(cuid())
+  userId      String   @map("user_id")
+  targetRole  String   @map("target_role")
+  description String   @db.Text
+  roadmapData String   @map("roadmap_data") @db.Text // JSON string representing timeline milestones
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("career_paths")
+}
+
+model LearningResource {
+  id          String   @id @default(cuid())
+  title       String
+  provider    String
+  url         String
+  type        String   // Course, Video, Book, Article
+  difficulty  String   // Beginner, Intermediate, Advanced
+  duration    String
+  rating      Float?
+  skills      String[]
+  isCompleted Boolean  @default(false) @map("is_completed")
+  userId      String   @map("user_id")
+  createdAt   DateTime @default(now()) @map("created_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("learning_resources")
+}
+
+model Notification {
+  id        String   @id @default(cuid())
+  userId    String   @map("user_id")
+  title     String
+  message   String
+  type      String   // info, success, warning, alert
+  isRead    Boolean  @default(false) @map("is_read")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("notifications")
+}
+
+model Subscription {
+  id             String    @id @default(cuid())
+  userId         String    @map("user_id")
+  plan           String    // Free, Pro, Premium, Enterprise
+  status         String    // Active, Cancelled, Expired
+  currentPeriodEnd DateTime? @map("current_period_end")
+  createdAt      DateTime  @default(now()) @map("created_at")
+  updatedAt      DateTime  @updatedAt @map("updated_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("subscriptions")
+}
