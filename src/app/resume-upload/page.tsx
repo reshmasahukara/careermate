@@ -1,0 +1,415 @@
+"use client";
+
+import React, { useState, useEffect, useRef } from "react";
+import { useRouter } from "next/navigation";
+import Link from "next/link";
+import { useSession, signIn } from "next-auth/react";
+import {
+  Upload,
+  FileText,
+  AlertCircle,
+  CheckCircle2,
+  Trash2,
+  ArrowRight,
+  RefreshCw,
+  Sparkles,
+  CloudLightning,
+  ChevronRight,
+  Clock
+} from "lucide-react";
+import { useToast } from "@/components/Providers";
+import { uploadResumeAction, getResumesAction, deleteResumeAction } from "@/app/actions/resume";
+
+export default function ResumeUploadPage() {
+  const { data: session, status } = useSession();
+  const router = useRouter();
+  const { toast } = useToast();
+
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [resumes, setResumes] = useState<any[]>([]);
+  const [isDragActive, setIsDragActive] = useState(false);
+  
+  // Upload States
+  const [file, setFile] = useState<File | null>(null);
+  const [isUploading, setIsUploading] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState(0);
+  const [uploadError, setUploadError] = useState<string | null>(null);
+  const [isLoadingHistory, setIsLoadingHistory] = useState(true);
+
+  useEffect(() => {
+    if (session?.user) {
+      loadHistory();
+    }
+  }, [session]);
+
+  const loadHistory = async () => {
+    setIsLoadingHistory(true);
+    try {
+      const userId = (session?.user as any).id || "demo-user-123";
+      const history = await getResumesAction(userId);
+      setResumes(history);
+    } catch (e) {
+      console.error("Error loading resume history:", e);
+    } finally {
+      setIsLoadingHistory(false);
+    }
+  };
+
+  const handleDrag = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (e.type === "dragenter" || e.type === "dragover") {
+      setIsDragActive(true);
+    } else if (e.type === "dragleave") {
+      setIsDragActive(false);
+    }
+  };
+
+  const handleDrop = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragActive(false);
+
+    if (e.dataTransfer.files && e.dataTransfer.files[0]) {
+      validateAndSetFile(e.dataTransfer.files[0]);
+    }
+  };
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files[0]) {
+      validateAndSetFile(e.target.files[0]);
+    }
+  };
+
+  const validateAndSetFile = (selectedFile: File) => {
+    setUploadError(null);
+    const validTypes = ["application/pdf", "application/vnd.openxmlformats-officedocument.wordprocessingml.document"];
+    
+    if (!validTypes.includes(selectedFile.type) && !selectedFile.name.endsWith(".docx")) {
+      setUploadError("Invalid format. Please upload a PDF or DOCX file.");
+      toast("Unsupported file format.", "error");
+      return;
+    }
+
+    // Check size limit: 5MB
+    if (selectedFile.size > 5 * 1024 * 1024) {
+      setUploadError("File size exceeds 5MB limit.");
+      toast("File size too large.", "error");
+      return;
+    }
+
+    setFile(selectedFile);
+  };
+
+  const handleUploadSubmit = async () => {
+    if (!file || !session?.user) return;
+    setIsUploading(true);
+    setUploadProgress(0);
+
+    // Simulated parsing progress
+    const interval = setInterval(() => {
+      setUploadProgress((prev) => {
+        if (prev >= 95) {
+          clearInterval(interval);
+          return 95;
+        }
+        return prev + 5;
+      });
+    }, 100);
+
+    try {
+      const userId = (session.user as any).id || "demo-user-123";
+      
+      // Simulate reading file contents for local ATS keyword match
+      const reader = new FileReader();
+      reader.onload = async (event) => {
+        const textContent = (event.target?.result as string) || `Dummy parsed text for ${file.name}. Experience in React, Tailwind, and Node.js.`;
+        
+        // Mock Cloudinary storage URL
+        const mockCloudinaryUrl = `https://res.cloudinary.com/careermate/raw/upload/${Date.now()}_${file.name}`;
+        
+        const newResume = await uploadResumeAction(
+          userId,
+          file.name,
+          mockCloudinaryUrl,
+          file.type || "application/pdf",
+          textContent
+        );
+
+        clearInterval(interval);
+        setUploadProgress(100);
+        
+        setTimeout(() => {
+          setIsUploading(false);
+          setFile(null);
+          toast("Resume parsed successfully! Directing to ATS Score...", "success");
+          router.push(`/ats-checker?resumeId=${newResume.id}`);
+        }, 300);
+      };
+      
+      reader.readAsText(file.slice(0, 5000)); // Sample text slice for parsing simulation
+    } catch (err) {
+      clearInterval(interval);
+      setIsUploading(false);
+      setUploadError("An error occurred during file parsing.");
+      toast("File upload failed.", "error");
+    }
+  };
+
+  const handleDelete = async (id: string) => {
+    if (confirm("Are you sure you want to delete this resume version?")) {
+      const success = await deleteResumeAction(id);
+      if (success) {
+        setResumes(resumes.filter((r) => r.id !== id));
+        toast("Resume copy deleted successfully.", "success");
+      } else {
+        toast("Failed to delete copy.", "error");
+      }
+    }
+  };
+
+  if (status === "loading") {
+    return (
+      <div className="flex-1 flex items-center justify-center min-h-[60vh]">
+        <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin" />
+      </div>
+    );
+  }
+
+  // Fallback for unauthenticated access
+  if (!session) {
+    return (
+      <div className="flex-1 flex items-center justify-center bg-slate-50 py-16 px-4">
+        <div className="max-w-md w-full glass-card p-8 text-center space-y-5 border border-slate-200 shadow-xl">
+          <div className="w-14 h-14 bg-primary/10 rounded-full flex items-center justify-center mx-auto">
+            <Upload className="w-7 h-7 text-primary" />
+          </div>
+          <h2 className="text-xl font-extrabold text-slate-900">Sign in to Upload Resumes</h2>
+          <p className="text-slate-500 text-xs sm:text-sm leading-relaxed">
+            Please log in or explore our sandbox dashboard to test resume parsing, score benchmarking, and skills validation.
+          </p>
+          <div className="flex flex-col gap-2">
+            <button
+              onClick={() => router.push("/login")}
+              className="bg-primary text-white py-2.5 rounded-xl font-bold text-xs shadow-md"
+            >
+              Log In
+            </button>
+            <button
+              onClick={async () => {
+                await signIn("credentials", { redirect: false, email: "alex@example.com", password: "password123" });
+                router.refresh();
+              }}
+              className="bg-slate-900 text-white py-2.5 rounded-xl font-bold text-xs"
+            >
+              Explore sandbox
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="flex-1 bg-brand-bg py-10">
+      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8">
+        
+        {/* Header */}
+        <div>
+          <h1 className="text-3xl font-extrabold text-slate-900">Resume Upload</h1>
+          <p className="text-slate-500 text-sm mt-1">Upload PDF or DOCX file to run simulated ATS scoring checks.</p>
+        </div>
+
+        {/* Upload Zone */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 items-start">
+          
+          {/* Form zone (col 2) */}
+          <div className="md:col-span-2 space-y-4">
+            <div
+              onDragEnter={handleDrag}
+              onDragOver={handleDrag}
+              onDragLeave={handleDrag}
+              onDrop={handleDrop}
+              onClick={() => !isUploading && fileInputRef.current?.click()}
+              className={`border-2 border-dashed rounded-2xl p-8 text-center transition-all duration-300 flex flex-col items-center justify-center min-h-[300px] cursor-pointer ${
+                isDragActive
+                  ? "border-primary bg-primary/[0.02] scale-[0.99]"
+                  : "border-slate-200 bg-white hover:border-primary/60 hover:bg-slate-50/50"
+              } ${isUploading ? "pointer-events-none opacity-80" : ""}`}
+            >
+              <input
+                type="file"
+                ref={fileInputRef}
+                onChange={handleFileChange}
+                accept=".pdf,.docx,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+                className="hidden"
+                disabled={isUploading}
+              />
+
+              {isUploading ? (
+                <div className="w-full max-w-xs space-y-4">
+                  <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center mx-auto text-primary">
+                    <RefreshCw className="w-6 h-6 animate-spin" />
+                  </div>
+                  <div>
+                    <h3 className="font-bold text-slate-800 text-sm">Uploading and parsing...</h3>
+                    <p className="text-[10px] text-slate-400 font-semibold mt-0.5 uppercase">Simulating Cloudinary storage pipeline</p>
+                  </div>
+                  <div className="space-y-1.5">
+                    <div className="flex justify-between text-[10px] font-bold text-slate-500 uppercase tracking-wider">
+                      <span>Progress</span>
+                      <span>{uploadProgress}%</span>
+                    </div>
+                    <div className="h-1.5 w-full bg-slate-100 rounded-full overflow-hidden">
+                      <div
+                        className="h-full bg-primary rounded-full transition-all duration-300"
+                        style={{ width: `${uploadProgress}%` }}
+                      />
+                    </div>
+                  </div>
+                </div>
+              ) : file ? (
+                <div className="space-y-4 max-w-sm">
+                  <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center mx-auto text-primary">
+                    <FileText className="w-6 h-6" />
+                  </div>
+                  <div>
+                    <h3 className="font-bold text-slate-800 text-sm break-all">{file.name}</h3>
+                    <p className="text-xs text-slate-400 mt-1">{(file.size / 1024 / 1024).toFixed(2)} MB</p>
+                  </div>
+                  
+                  <div className="flex gap-2.5 justify-center">
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setFile(null);
+                      }}
+                      className="px-4 py-2 border border-slate-200 rounded-xl text-slate-600 font-bold text-xs hover:bg-slate-50"
+                    >
+                      Clear File
+                    </button>
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleUploadSubmit();
+                      }}
+                      className="px-4 py-2 bg-primary hover:bg-blue-700 text-white font-bold text-xs rounded-xl shadow-md transition-colors"
+                    >
+                      Parse Resume
+                    </button>
+                  </div>
+                </div>
+              ) : (
+                <div className="space-y-4">
+                  <div className="w-12 h-12 rounded-xl bg-slate-50 flex items-center justify-center mx-auto border shadow-sm text-slate-400">
+                    <Upload className="w-6 h-6" />
+                  </div>
+                  <div className="space-y-1">
+                    <h3 className="font-bold text-slate-800 text-sm">Drag and drop resume here</h3>
+                    <p className="text-slate-500 text-xs">Or click to search folders manually.</p>
+                  </div>
+                  <div className="text-[10px] text-slate-400 font-semibold uppercase tracking-wider">
+                    PDF & DOCX files accepted. Size limit: 5MB.
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {uploadError && (
+              <div className="p-3.5 bg-rose-50 border border-rose-100 rounded-xl text-rose-600 text-xs flex items-center gap-2 font-medium">
+                <AlertCircle className="w-4.5 h-4.5 shrink-0" />
+                {uploadError}
+              </div>
+            )}
+          </div>
+
+          {/* Guidelines Sidebar (col 1) */}
+          <div className="glass-card p-6 rounded-2xl border border-slate-200 space-y-4">
+            <h2 className="font-bold text-slate-800 text-xs uppercase tracking-wider flex items-center gap-1">
+              <Sparkles className="w-4 h-4 text-primary" />
+              Upload Checklist
+            </h2>
+            <ul className="space-y-3.5 text-xs text-slate-500 leading-relaxed font-medium">
+              <li className="flex items-start gap-2">
+                <CheckCircle2 className="w-4.5 h-4.5 text-emerald-500 shrink-0 mt-0.5" />
+                <span>**Formatting**: Standard single-column styles optimize parser accuracy.</span>
+              </li>
+              <li className="flex items-start gap-2">
+                <CheckCircle2 className="w-4.5 h-4.5 text-emerald-500 shrink-0 mt-0.5" />
+                <span>**Margins**: Keep margins standard. Avoid text columns inside header boundaries.</span>
+              </li>
+              <li className="flex items-start gap-2">
+                <CheckCircle2 className="w-4.5 h-4.5 text-emerald-500 shrink-0 mt-0.5" />
+                <span>**Content**: Quantify bullets (e.g. 'Improved efficiency by 12%').</span>
+              </li>
+            </ul>
+          </div>
+
+        </div>
+
+        {/* History Section */}
+        <div className="space-y-4 pt-4">
+          <h2 className="font-bold text-slate-900 text-lg flex items-center gap-1.5">
+            <Clock className="w-5 h-5 text-slate-400" />
+            Resume Upload History
+          </h2>
+
+          {isLoadingHistory ? (
+            <div className="space-y-2">
+              {[...Array(2)].map((_, i) => (
+                <div key={i} className="h-12 bg-slate-100 animate-pulse rounded-xl" />
+              ))}
+            </div>
+          ) : resumes.length > 0 ? (
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              {resumes.map((res) => (
+                <div
+                  key={res.id}
+                  className="p-4 rounded-xl bg-white border border-slate-200/60 shadow-sm flex items-center justify-between gap-4"
+                >
+                  <div className="flex items-center gap-3">
+                    <div className="w-9 h-9 rounded-lg bg-primary/10 flex items-center justify-center text-primary shrink-0">
+                      <FileText className="w-5 h-5" />
+                    </div>
+                    <div className="min-w-0">
+                      <h4 className="font-bold text-slate-800 text-xs sm:text-sm truncate max-w-[180px] sm:max-w-[240px]">
+                        {res.fileName}
+                      </h4>
+                      <p className="text-[10px] text-slate-400 font-semibold mt-0.5">
+                        v{res.version} • {new Date(res.createdAt).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center gap-2">
+                    <Link
+                      href={`/ats-checker?resumeId=${res.id}`}
+                      className="bg-primary/10 hover:bg-primary/20 text-primary p-2 rounded-lg text-xs font-bold transition-all"
+                      title="Run ATS Check"
+                    >
+                      <ChevronRight className="w-4 h-4" />
+                    </Link>
+                    <button
+                      onClick={() => handleDelete(res.id)}
+                      className="text-slate-400 hover:text-rose-600 p-2 rounded-lg transition-colors cursor-pointer"
+                      title="Delete Copy"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div className="text-xs text-slate-500 py-4 italic">
+              No previous versions stored. Add a copy above to establish records.
+            </div>
+          )}
+        </div>
+
+      </div>
+    </div>
+  );
+}
