@@ -1,48 +1,50 @@
 "use server";
 
 import { prisma, isDbConfigured } from "@/lib/db";
-import { mockDb } from "@/lib/mockData";
 
-export async function getSavedJobsAction(userId: string) {
-  if (isDbConfigured()) {
-    try {
-      const saves = await prisma.savedJob.findMany({
-        where: { userId },
-        include: { job: true },
-      });
-      return saves.map((s) => s.job);
-    } catch (e) {
-      console.error("Prisma error fetching saved jobs:", e);
-    }
+export async function getJobsAction({
+  page = 1,
+  limit = 10,
+  search = "",
+  category = "",
+}: {
+  page?: number;
+  limit?: number;
+  search?: string;
+  category?: string;
+}) {
+  isDbConfigured();
+
+  const where: any = {};
+  if (search) {
+    where.OR = [
+      { title: { contains: search, mode: "insensitive" } },
+      { company: { contains: search, mode: "insensitive" } },
+    ];
   }
-  return mockDb.getSavedJobs(userId);
-}
-
-export async function toggleSaveJobAction(userId: string, jobId: string) {
-  if (isDbConfigured()) {
-    try {
-      const existing = await prisma.savedJob.findUnique({
-        where: {
-          userId_jobId: { userId, jobId },
-        },
-      });
-
-      if (existing) {
-        await prisma.savedJob.delete({
-          where: {
-            userId_jobId: { userId, jobId },
-          },
-        });
-        return false; // Job unsaved
-      } else {
-        await prisma.savedJob.create({
-          data: { userId, jobId },
-        });
-        return true; // Job saved
-      }
-    } catch (e) {
-      console.error("Prisma error toggling save job:", e);
-    }
+  if (category) {
+    // Assuming category filters on title or a specific category field.
+    // For now, we'll map category to a generic search or title filter if jobs table doesn't have a strict category.
+    where.title = { contains: category, mode: "insensitive" };
   }
-  return mockDb.saveJob(userId, jobId);
+
+  try {
+    const jobs = await prisma.job.findMany({
+      where,
+      skip: (page - 1) * limit,
+      take: limit,
+      orderBy: { createdAt: "desc" },
+    });
+    
+    const total = await prisma.job.count({ where });
+
+    return {
+      jobs,
+      total,
+      pages: Math.ceil(total / limit),
+    };
+  } catch (e) {
+    console.error("Prisma error fetching jobs:", e);
+    throw new Error("Failed to fetch jobs.");
+  }
 }

@@ -18,7 +18,7 @@ import {
   Clock
 } from "lucide-react";
 import { useToast } from "@/components/Providers";
-import { uploadResumeAction, getResumesAction, deleteResumeAction } from "@/app/actions/resume";
+import { processResumeUploadAction, getResumesAction, deleteResumeAction } from "@/app/actions/resume";
 import DashboardLayout from "@/components/DashboardLayout";
 
 export default function ResumeUploadPage() {
@@ -121,34 +121,21 @@ export default function ResumeUploadPage() {
     try {
       const userId = (session.user as any).id || "demo-user-123";
       
-      // Simulate reading file contents for local ATS keyword match
-      const reader = new FileReader();
-      reader.onload = async (event) => {
-        const textContent = (event.target?.result as string) || `Dummy parsed text for ${file.name}. Experience in React, Tailwind, and Node.js.`;
-        
-        // Mock Cloudinary storage URL
-        const mockCloudinaryUrl = `https://res.cloudinary.com/careermate/raw/upload/${Date.now()}_${file.name}`;
-        
-        const newResume = await uploadResumeAction(
-          userId,
-          file.name,
-          mockCloudinaryUrl,
-          file.type || "application/pdf",
-          textContent
-        );
+      const formData = new FormData();
+      formData.append("file", file);
 
-        clearInterval(interval);
-        setUploadProgress(100);
-        
-        setTimeout(() => {
-          setIsUploading(false);
-          setFile(null);
-          toast("Resume parsed successfully! Directing to ATS Score...", "success");
-          router.push(`/ats-checker?resumeId=${newResume.id}`);
-        }, 300);
-      };
+      // Server action now handles Cloudinary upload and text parsing simulation
+      const newResume = await processResumeUploadAction(userId, formData);
+
+      clearInterval(interval);
+      setUploadProgress(100);
       
-      reader.readAsText(file.slice(0, 5000)); // Sample text slice for parsing simulation
+      setTimeout(() => {
+        setIsUploading(false);
+        setFile(null);
+        toast("Resume parsed successfully! Directing to ATS Score...", "success");
+        router.push(`/ats-checker?resumeId=${newResume.id}`);
+      }, 300);
     } catch (err) {
       clearInterval(interval);
       setIsUploading(false);

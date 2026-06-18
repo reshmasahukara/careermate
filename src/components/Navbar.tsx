@@ -14,6 +14,16 @@ export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
 
+  const [activeSection, setActiveSection] = useState("home");
+
+  const navLinks = [
+    { name: "Home", href: "/", id: "home" },
+    { name: "Features", href: "/#features", id: "features" },
+    { name: "Pricing", href: "/pricing", id: "pricing" },
+    { name: "How It Works", href: "/how-it-works", id: "how-it-works" },
+    { name: "Contact", href: "/#contact", id: "contact" },
+  ];
+
   useEffect(() => {
     const handleScroll = () => {
       if (window.scrollY > 20) {
@@ -21,19 +31,46 @@ export default function Navbar() {
       } else {
         setScrolled(false);
       }
-    };
-    window.addEventListener("scroll", handleScroll);
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, []);
 
-  const navLinks = [
-    { name: "Home", href: "/" },
-    { name: "Features", href: "/#features" },
-    { name: "Jobs", href: "/jobs" },
-    { name: "Pricing", href: "/pricing" },
-    { name: "About", href: "/about" },
-    { name: "Contact", href: "/contact" },
-  ];
+      if (pathname === '/pricing') {
+        setActiveSection('pricing');
+        return;
+      }
+      if (pathname === '/how-it-works') {
+        setActiveSection('how-it-works');
+        return;
+      }
+      if (pathname === '/features') {
+        setActiveSection('features');
+        return;
+      }
+
+      if (pathname === '/') {
+        const sections = ["hero", "features", "about", "contact"];
+        let current = "home";
+        if (window.scrollY === 0) {
+          current = "home";
+        } else {
+          for (const section of sections) {
+            const el = document.getElementById(section);
+            if (el) {
+              const rect = el.getBoundingClientRect();
+              if (rect.top <= 100) {
+                current = section === "hero" ? "home" : section;
+              }
+            }
+          }
+        }
+        setActiveSection(current);
+      } else {
+        setActiveSection("");
+      }
+    };
+
+    window.addEventListener("scroll", handleScroll);
+    handleScroll(); // Initial check
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, [pathname]);
 
   const toggleMenu = () => setIsOpen(!isOpen);
 
@@ -72,15 +109,12 @@ export default function Navbar() {
 
           {/* Center Navigation */}
           <nav className="hidden md:flex items-center gap-6">
-            {navLinks.map((link) => {
-              const isActive =
-                link.href === "/"
-                  ? pathname === "/"
-                  : pathname.startsWith(link.href.split("#")[0]) && link.href !== "/";
+            {navLinks.map((link, index) => {
+              const isActive = activeSection === link.id;
 
               return (
                 <Link
-                  key={link.name}
+                  key={`nav-${link.name}-${index}`}
                   href={link.href}
                   className={`text-sm font-medium transition-colors py-1.5 px-1 relative ${
                     isActive
@@ -166,16 +200,14 @@ export default function Navbar() {
             className="absolute top-[72px] left-0 right-0 bg-white border-b border-brand-border shadow-md md:hidden"
           >
             <div className="px-4 pt-2 pb-6 space-y-2.5">
-              {navLinks.map((link) => {
-                const isActive =
-                  link.href === "/"
-                    ? pathname === "/"
-                    : pathname.startsWith(link.href.split("#")[0]) && link.href !== "/";
+              {navLinks.map((link, index) => {
+                const isActive = activeSection === link.id;
 
                 return (
                   <Link
-                    key={link.name}
+                    key={`nav-mobile-${link.name}-${index}`}
                     href={link.href}
+                    onClick={() => setIsOpen(false)}
                     className={`block px-4 py-2.5 rounded-lg text-sm font-semibold transition-colors ${
                       isActive
                         ? "bg-slate-50 text-primary"

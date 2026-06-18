@@ -2,7 +2,6 @@ import { NextAuthOptions } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 import GoogleProvider from "next-auth/providers/google";
 import { prisma, isDbConfigured } from "@/lib/db";
-import { mockDb } from "@/lib/mockData";
 
 export const authOptions: NextAuthOptions = {
   session: {
@@ -25,63 +24,51 @@ export const authOptions: NextAuthOptions = {
           return null;
         }
 
-        // Demo User Bypass - Easy testing for the user
-        if (credentials.email === "alex@example.com") {
-          return {
-            id: "demo-user-123",
-            name: "Alex Morgan",
-            email: "alex@example.com",
-          };
-        }
+        isDbConfigured();
 
-        // 1. Check if PostgreSQL DB is active
-        if (isDbConfigured()) {
-          try {
-            const user = await prisma.user.findUnique({
-              where: { email: credentials.email },
-            });
+        try {
+          const user = await prisma.user.findUnique({
+            where: { email: credentials.email },
+          });
 
-            if (!user) {
-              return null;
-            }
-
-            // In production, we'd hash the password, e.g. using bcrypt.
-            // For convenience, we check if passwords match.
-            // (We'll assume simple match or validation for sandbox purposes).
-            if (credentials.password.length >= 6) {
-              return {
-                id: user.id,
-                name: user.name,
-                email: user.email,
-                image: user.image,
-              };
-            }
-          } catch (error) {
-            console.error("Prisma authorize error, falling back to mock DB:", error);
+          if (!user) {
+            console.warn(`Auth failed: User not found for email ${credentials.email}`);
+            throw new Error("Invalid email or password.");
           }
-        }
 
-        // 2. Fall back to local mock DB
-        const mockUser = mockDb.getUser(credentials.email);
-        if (mockUser && credentials.password.length >= 6) {
-          return {
-            id: mockUser.id,
-            name: mockUser.name,
-            email: mockUser.email,
-          };
-        } else if (!mockUser && credentials.password.length >= 6) {
-          // Auto-register mock user for demonstration purposes!
-          const namePart = credentials.email.split("@")[0];
-          const capitalized = namePart.charAt(0).toUpperCase() + namePart.slice(1);
-          const newUser = mockDb.createUser(capitalized, credentials.email);
-          return {
-            id: newUser.id,
-            name: newUser.name,
-            email: newUser.email,
-          };
-        }
+          if (!user.password) {
+            console.warn(`Auth failed: User ${credentials.email} signed up with OAuth, no password exists.`);
+            throw new Error("You previously signed up with a different provider (e.g. Google). Please use that to log in.");
+          }
 
-        return null;
+          const bcrypt = await import("bcryptjs");
+          const isPasswordValid = await bcrypt.compare(credentials.password, user.password);
+
+          if (!isPasswordValid) {
+            console.warn(`Auth failed: Incorrect password for email ${credentials.email}`);
+            throw new Error("Invalid email or password.");
+          }
+
+          return {
+            id: user.id,
+            name: user.name,
+            email: user.email,
+            image: user.image,
+          };
+        } catch (error: any) {
+          console.error("Prisma authorize error:", error.message || error);
+          
+          if (error.code === "P1001" || error.message?.includes("Can't reach database server")) {
+            throw new Error("Unable to connect right now. Please try again later.");
+          }
+
+          // If the error was one of our manually thrown user errors, pass it through.
+          if (error.message === "Invalid email or password.") {
+            throw new Error(error.message);
+          }
+
+          throw new Error("Unable to sign in. Please try again.");
+        }
       },
     }),
   ],

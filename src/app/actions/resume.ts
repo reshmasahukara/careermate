@@ -1,27 +1,112 @@
 "use server";
 
 import { prisma, isDbConfigured } from "@/lib/db";
-import { mockDb } from "@/lib/mockData";
 
 /**
  * Server action to get all resumes for a user.
  */
 export async function getResumesAction(userId: string) {
-  if (isDbConfigured()) {
-    try {
-      return await prisma.resume.findMany({
-        where: { userId },
-        orderBy: { createdAt: "desc" },
-      });
-    } catch (e) {
-      console.error("Prisma error, using mock:", e);
-    }
+  isDbConfigured(); // check/warn
+  try {
+    return await prisma.resume.findMany({
+      where: { userId },
+      orderBy: { createdAt: "desc" },
+    });
+  } catch (e) {
+    console.error("Prisma error getting resumes:", e);
+    throw new Error("Failed to get resumes.");
   }
-  return mockDb.getResumes(userId);
 }
 
 /**
- * Server action to save/upload a new resume record.
+ * Server action to efficiently check if a user has any resumes.
+ * Optimizes payload sizes by returning a boolean instead of heavy text payloads.
+ */
+export async function hasResumesAction(userId: string) {
+  isDbConfigured();
+  try {
+    const count = await prisma.resume.count({
+      where: { userId },
+    });
+    return count > 0;
+  } catch (e) {
+    console.error("Prisma error counting resumes:", e);
+    return false;
+  }
+}
+
+import { v2 as cloudinary } from "cloudinary";
+
+// Configure Cloudinary
+cloudinary.config({
+  cloud_name: process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME,
+  api_key: process.env.CLOUDINARY_API_KEY,
+  api_secret: process.env.CLOUDINARY_API_SECRET,
+});
+
+/**
+ * Uploads a file buffer to Cloudinary using a stream.
+ */
+function uploadToCloudinary(buffer: Buffer, fileName: string): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const stream = cloudinary.uploader.upload_stream(
+      {
+        folder: "careermate/resumes",
+        public_id: `${Date.now()}_${fileName.replace(/[^a-zA-Z0-9]/g, "_")}`,
+        resource_type: "raw", // For PDF/DOCX
+      },
+      (error, result) => {
+        if (error) reject(error);
+        else resolve(result?.secure_url || "");
+      }
+    );
+    stream.end(buffer);
+  });
+}
+
+/**
+ * Main action to process the resume: upload to Cloudinary, mock parse text, and save to DB.
+ */
+export async function processResumeUploadAction(userId: string, formData: FormData) {
+  isDbConfigured();
+  
+  const file = formData.get("file") as File;
+  if (!file) throw new Error("No file provided.");
+
+  try {
+    const arrayBuffer = await file.arrayBuffer();
+    const buffer = Buffer.from(arrayBuffer);
+
+    // 1. Upload to Cloudinary
+    let fileUrl = "";
+    if (process.env.CLOUDINARY_API_KEY) {
+      fileUrl = await uploadToCloudinary(buffer, file.name);
+    } else {
+      console.warn("Cloudinary not configured. Using mock URL.");
+      fileUrl = `https://res.cloudinary.com/mock/${Date.now()}_${file.name}`;
+    }
+
+    // 2. Simple mock parsing (In a real app, you'd use a PDF parser here)
+    const textContent = buffer.toString("utf-8").substring(0, 5000) + `\n\nDummy parsed text for ${file.name}. Experience in React, Tailwind, and Node.js.`;
+
+    // 3. Save to DB
+    return await prisma.resume.create({
+      data: {
+        userId,
+        fileName: file.name,
+        fileUrl,
+        fileType: file.type || "application/pdf",
+        parsedText: textContent,
+      },
+    });
+  } catch (e) {
+    console.error("Resume processing error:", e);
+    throw new Error("Failed to process and upload resume.");
+  }
+}
+
+/**
+ * Server action to save/upload a new resume record manually.
  */
 export async function uploadResumeAction(
   userId: string,
@@ -30,65 +115,62 @@ export async function uploadResumeAction(
   fileType: string,
   parsedText: string
 ) {
-  if (isDbConfigured()) {
-    try {
-      return await prisma.resume.create({
-        data: {
-          userId,
-          fileName,
-          fileUrl,
-          fileType,
-          parsedText,
-        },
-      });
-    } catch (e) {
-      console.error("Prisma upload error:", e);
-    }
+  isDbConfigured();
+  try {
+    return await prisma.resume.create({
+      data: {
+        userId,
+        fileName,
+        fileUrl,
+        fileType,
+        parsedText,
+      },
+    });
+  } catch (e) {
+    console.error("Prisma upload error:", e);
+    throw new Error("Failed to upload resume.");
   }
-  return mockDb.createResume(userId, fileName, fileUrl, fileType, parsedText);
 }
 
 /**
  * Server action to get ATS scores for a resume.
  */
 export async function getAtsScoresAction(userId: string) {
-  if (isDbConfigured()) {
-    try {
-      const resumes = await prisma.resume.findMany({
-        where: { userId },
-        select: { id: true },
-      });
-      const resumeIds = resumes.map((r) => r.id);
-      return await prisma.atsScore.findMany({
-        where: { resumeId: { in: resumeIds } },
-        orderBy: { createdAt: "desc" },
-      });
-    } catch (e) {
-      console.error("Prisma ATS error:", e);
-    }
+  isDbConfigured();
+  try {
+    const resumes = await prisma.resume.findMany({
+      where: { userId },
+      select: { id: true },
+    });
+    const resumeIds = resumes.map((r) => r.id);
+    return await prisma.atsScore.findMany({
+      where: { resumeId: { in: resumeIds } },
+      orderBy: { createdAt: "desc" },
+    });
+  } catch (e) {
+    console.error("Prisma ATS error:", e);
+    return [];
   }
-  return mockDb.getAtsScoresByUserId(userId);
 }
 
 /**
  * Server action to delete a resume.
  */
 export async function deleteResumeAction(id: string) {
-  if (isDbConfigured()) {
-    try {
-      await prisma.resume.delete({
-        where: { id },
-      });
-      return true;
-    } catch (e) {
-      console.error("Prisma delete resume error:", e);
-    }
+  isDbConfigured();
+  try {
+    await prisma.resume.delete({
+      where: { id },
+    });
+    return true;
+  } catch (e) {
+    console.error("Prisma delete resume error:", e);
+    return false;
   }
-  return mockDb.deleteResume(id);
 }
 
 /**
- * Simulates or calculates ATS scores using a local word-matching analyzer
+ * Calculates ATS scores using a local word-matching analyzer
  * when OpenAI keys are not configured.
  */
 export async function calculateAtsScoreAction(
@@ -96,6 +178,7 @@ export async function calculateAtsScoreAction(
   targetRole: string,
   resumeText: string
 ) {
+  isDbConfigured();
   // Keyword Analysis Logic - Simple rule engine
   const targetLower = targetRole.toLowerCase();
   let keywords: string[] = [];
@@ -138,33 +221,21 @@ export async function calculateAtsScoreAction(
 • Quantify achievements using metrics (e.g. 'Optimized performance by 15%').
 • Avoid abbreviations like CSS (use Cascading Style Sheets) in header profiles.`;
 
-  if (isDbConfigured()) {
-    try {
-      return await prisma.atsScore.create({
-        data: {
-          resumeId,
-          targetRole,
-          score: finalScore,
-          keywordsFound: found,
-          keywordsMissing: missing,
-          formattingFeedback,
-          sectionAnalysis,
-          improvements,
-        },
-      });
-    } catch (e) {
-      console.error("Prisma score calculation save error:", e);
-    }
+  try {
+    return await prisma.atsScore.create({
+      data: {
+        resumeId,
+        targetRole,
+        score: finalScore,
+        keywordsFound: found,
+        keywordsMissing: missing,
+        formattingFeedback,
+        sectionAnalysis,
+        improvements,
+      },
+    });
+  } catch (e) {
+    console.error("Prisma score calculation save error:", e);
+    throw new Error("Failed to calculate ATS score.");
   }
-
-  return mockDb.createAtsScore(
-    resumeId,
-    targetRole,
-    finalScore,
-    found,
-    missing,
-    formattingFeedback,
-    sectionAnalysis,
-    improvements
-  );
 }

@@ -22,9 +22,14 @@ import {
   Search,
   User,
   Sparkles,
-  HelpCircle
+  HelpCircle,
+  ChevronDown,
+  ChevronUp
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
+import Logo from "@/components/Logo";
+import { hasResumesAction } from "@/app/actions/resume";
+import { getNotificationsAction, markNotificationsAsReadAction } from "@/app/actions/settings";
 
 interface DashboardLayoutProps {
   children: React.ReactNode;
@@ -38,11 +43,46 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [isMobileOpen, setIsMobileOpen] = useState(false);
   const [showNotifications, setShowNotifications] = useState(false);
+  const [notifications, setNotifications] = useState<any[]>([]);
+  const [hasResumes, setHasResumes] = useState(false);
+  const [dashboardSubmenuOpen, setDashboardSubmenuOpen] = useState(true);
 
   // Close mobile sidebar on navigation
   useEffect(() => {
     setIsMobileOpen(false);
   }, [pathname]);
+
+  // Fetch whether the user has resumes to determine if we should show the submenu
+  useEffect(() => {
+    if ((session?.user as any)?.id) {
+      hasResumesAction((session?.user as any).id).then(setHasResumes);
+      loadNotifications();
+    }
+  }, [(session?.user as any)?.id]);
+
+  const loadNotifications = async () => {
+    if (!session?.user) return;
+    const userId = (session?.user as any).id || "demo-user-123";
+    try {
+      const notifs = await getNotificationsAction(userId);
+      setNotifications(notifs);
+    } catch (e) {
+      console.error(e);
+    }
+  };
+
+  const handleMarkAllRead = async () => {
+    if (!session?.user) return;
+    const userId = (session?.user as any).id || "demo-user-123";
+    try {
+      await markNotificationsAsReadAction(userId);
+      setNotifications(prev => prev.map(n => ({ ...n, isRead: true })));
+    } catch (e) {
+      console.error(e);
+    }
+  };
+
+  const unreadCount = notifications.filter((n) => !n.isRead).length;
 
   if (status === "loading") {
     return (
@@ -61,13 +101,13 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
   }
 
   const menuItems = [
-    { name: "Overview", href: "/dashboard", icon: LayoutDashboard },
-    { name: "Upload Resume", href: "/resume-upload", icon: Upload },
+    { name: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
+    { name: "Resume Upload", href: "/resume-upload", icon: Upload },
     { name: "ATS Checker", href: "/ats-checker", icon: FileCheck },
     { name: "Job Board", href: "/jobs", icon: Briefcase },
-    { name: "Skill Gaps", href: "/skill-gap", icon: Award },
+    { name: "Skill Gap Analysis", href: "/skill-gap", icon: Award },
     { name: "Learning Roadmap", href: "/roadmap", icon: BookOpen },
-    { name: "Saved Jobs", href: "/jobs?tab=saved", icon: Heart },
+    { name: "Help & Docs", href: "/help", icon: HelpCircle },
     { name: "Settings", href: "/settings", icon: Settings },
   ];
 
@@ -112,14 +152,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
         <div>
           <div className="h-[72px] border-b border-[#E2E8F0] flex items-center justify-between px-4">
             <Link href="/dashboard" className="flex items-center gap-2 group shrink-0 overflow-hidden">
-              <div className="w-9 h-9 rounded-[10px] bg-[#2563EB] flex items-center justify-center text-white font-bold text-base shadow-sm shrink-0">
-                CM
-              </div>
-              {!isCollapsed && (
-                <span className="font-extrabold text-lg tracking-tight text-[#0F172A] transition-opacity duration-200">
-                  CareerMate
-                </span>
-              )}
+              <Logo className="w-6.5 h-6.5" hideWordmark={isCollapsed} />
             </Link>
 
             {/* Mobile Close Button */}
@@ -132,28 +165,80 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
           </div>
 
           {/* Navigation Links */}
-          <nav className="p-3.5 space-y-1">
-            {menuItems.map((item) => {
+          <nav className="p-3.5 space-y-1 overflow-y-auto">
+            {menuItems.map((item, index) => {
               const Icon = item.icon;
+              const isDashboard = item.href === "/dashboard";
+              
+              // We only consider it active if it EXACTLY matches the parent or a sub-route,
+              // but we need to handle submenus carefully.
               const isActive = pathname === item.href || (item.href !== "/dashboard" && pathname.startsWith(item.href.split("?")[0]));
 
               return (
-                <Link
-                  key={item.name}
-                  href={item.href}
-                  className={`flex items-center gap-3 px-3 py-2.5 rounded-[12px] text-sm font-semibold transition-all group cursor-pointer
-                    ${
-                      isActive
-                        ? "bg-[#2563EB]/5 text-[#2563EB]"
-                        : "text-[#64748B] hover:text-[#0F172A] hover:bg-[#F8FAFC]"
-                    }
-                  `}
-                >
-                  <Icon className={`w-4.5 h-4.5 shrink-0 ${isActive ? "text-[#2563EB]" : "text-[#64748B] group-hover:text-[#0F172A]"}`} />
-                  {(!isCollapsed || isMobileOpen) && (
-                    <span className="truncate">{item.name}</span>
+                <div key={`menu-${item.name}-${index}`}>
+                  {isDashboard && hasResumes && (!isCollapsed || isMobileOpen) ? (
+                    <button
+                      onClick={() => setDashboardSubmenuOpen(!dashboardSubmenuOpen)}
+                      className={`flex items-center justify-between w-full px-3 py-2.5 rounded-[12px] text-sm font-semibold transition-all group cursor-pointer ${
+                        isActive || pathname.startsWith("/dashboard/")
+                          ? "bg-[#2563EB]/5 text-[#2563EB]"
+                          : "text-[#64748B] hover:text-[#0F172A] hover:bg-[#F8FAFC]"
+                      }`}
+                    >
+                      <div className="flex items-center gap-3">
+                        <Icon className={`w-4.5 h-4.5 shrink-0 ${isActive || pathname.startsWith("/dashboard/") ? "text-[#2563EB]" : "text-[#64748B] group-hover:text-[#0F172A]"}`} />
+                        <span className="truncate">{item.name}</span>
+                      </div>
+                      {dashboardSubmenuOpen ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+                    </button>
+                  ) : (
+                    <Link
+                      href={item.href}
+                      className={`flex items-center gap-3 px-3 py-2.5 rounded-[12px] text-sm font-semibold transition-all group cursor-pointer
+                        ${
+                          isActive
+                            ? "bg-[#2563EB]/5 text-[#2563EB]"
+                            : "text-[#64748B] hover:text-[#0F172A] hover:bg-[#F8FAFC]"
+                        }
+                      `}
+                    >
+                      <Icon className={`w-4.5 h-4.5 shrink-0 ${isActive ? "text-[#2563EB]" : "text-[#64748B] group-hover:text-[#0F172A]"}`} />
+                      {(!isCollapsed || isMobileOpen) && (
+                        <span className="truncate">{item.name}</span>
+                      )}
+                    </Link>
                   )}
-                </Link>
+
+                  {/* Submenu rendering */}
+                  {isDashboard && hasResumes && dashboardSubmenuOpen && (!isCollapsed || isMobileOpen) && (
+                    <div className="mt-1 pl-10 space-y-1">
+                      <Link
+                        href="/dashboard"
+                        className={`block px-3 py-2 rounded-[8px] text-xs font-semibold ${
+                          pathname === "/dashboard" ? "bg-[#2563EB]/10 text-[#2563EB]" : "text-[#64748B] hover:bg-[#F8FAFC] hover:text-[#0F172A]"
+                        }`}
+                      >
+                        Overview
+                      </Link>
+                      <Link
+                        href="/dashboard/analytics"
+                        className={`block px-3 py-2 rounded-[8px] text-xs font-semibold ${
+                          pathname === "/dashboard/analytics" ? "bg-[#2563EB]/10 text-[#2563EB]" : "text-[#64748B] hover:bg-[#F8FAFC] hover:text-[#0F172A]"
+                        }`}
+                      >
+                        Analytics
+                      </Link>
+                      <Link
+                        href="/dashboard/activity"
+                        className={`block px-3 py-2 rounded-[8px] text-xs font-semibold ${
+                          pathname === "/dashboard/activity" ? "bg-[#2563EB]/10 text-[#2563EB]" : "text-[#64748B] hover:bg-[#F8FAFC] hover:text-[#0F172A]"
+                        }`}
+                      >
+                        Activity
+                      </Link>
+                    </div>
+                  )}
+                </div>
               );
             })}
           </nav>
@@ -260,7 +345,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
                 className="p-2.5 rounded-[12px] bg-[#F8FAFC] hover:bg-slate-100 border border-[#E2E8F0]/60 text-[#64748B] hover:text-[#0F172A] transition-colors relative cursor-pointer"
               >
                 <Bell className="w-4.5 h-4.5" />
-                <span className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-[#2563EB]" />
+                {unreadCount > 0 && <span className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-[#2563EB]" />}
               </button>
 
               {/* Notification Overlay Popover */}
@@ -276,17 +361,26 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
                     >
                       <div className="flex items-center justify-between pb-2 border-b border-[#E2E8F0]/60">
                         <span className="text-xs font-extrabold text-[#0F172A] uppercase tracking-wider">Recent Alerts</span>
-                        <span className="text-[10px] font-bold text-[#2563EB] cursor-pointer hover:underline">Mark all read</span>
+                        {unreadCount > 0 && (
+                          <span 
+                            onClick={handleMarkAllRead}
+                            className="text-[10px] font-bold text-[#2563EB] cursor-pointer hover:underline"
+                          >
+                            Mark all read
+                          </span>
+                        )}
                       </div>
-                      <div className="space-y-3">
-                        <div className="text-xs leading-relaxed">
-                          <div className="font-bold text-[#0F172A]">ATS Profile Updated</div>
-                          <div className="text-[#64748B] text-[10px] mt-0.5">Your technical keywords list was matched against live roles.</div>
-                        </div>
-                        <div className="text-xs leading-relaxed">
-                          <div className="font-bold text-[#0F172A]">Mock Interview Scheduled</div>
-                          <div className="text-[#64748B] text-[10px] mt-0.5">Prepare with standard backend questions from your roadmap.</div>
-                        </div>
+                      <div className="space-y-3 max-h-64 overflow-y-auto no-scrollbar">
+                        {notifications.length === 0 ? (
+                          <div className="text-xs text-slate-400 italic text-center py-4">No notifications</div>
+                        ) : (
+                          notifications.map((n) => (
+                            <div key={n.id} className={`text-xs leading-relaxed p-2 rounded-lg ${n.isRead ? 'opacity-60' : 'bg-slate-50'}`}>
+                              <div className="font-bold text-[#0F172A]">{n.title}</div>
+                              <div className="text-[#64748B] text-[10px] mt-0.5">{n.message}</div>
+                            </div>
+                          ))
+                        )}
                       </div>
                     </motion.div>
                   </>

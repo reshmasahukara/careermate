@@ -22,7 +22,9 @@ const eslintConfig = defineConfig([
       "@typescript-eslint/no-unused-vars": "off",
       "prefer-const": "off",
       "react-hooks/exhaustive-deps": "off",
-      "@next/next/no-img-element": "off"
+      "@next/next/no-img-element": "off",
+      "@typescript-eslint/no-require-imports": "off",
+      "react-hooks/incompatible-library": "off"
     }
   }
 ]);

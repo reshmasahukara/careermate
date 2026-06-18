@@ -1,256 +1,200 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
+import { Check } from "lucide-react";
 import { useSession } from "next-auth/react";
-import { CheckCircle2, Star, Zap, HelpCircle, ChevronDown, Check } from "lucide-react";
-import { useToast } from "@/components/Providers";
-import { getSubscriptionAction, upgradeSubscriptionAction } from "@/app/actions/settings";
-import Link from "next/link";
+import { useRouter } from "next/navigation";
+import Navbar from "@/components/Navbar";
+import Footer from "@/components/Footer";
+
+const pricingPlans = [
+  {
+    name: "Free",
+    price: "$0",
+    period: "",
+    description: "Test out basic scoring options.",
+    features: [
+      "1 resume upload limit",
+      "Basic ATS optimization score",
+      "Limited job recommendations"
+    ],
+    cta: "Register Account",
+    action: "Free",
+    highlight: false
+  },
+  {
+    name: "Pro",
+    price: "$19",
+    period: "/mo",
+    description: "Perfect for active software job hunting.",
+    features: [
+      "Unlimited resume uploads",
+      "Advanced ATS keyword suggestions",
+      "Detailed skill gap diagnostics",
+      "Advanced filterable job lists"
+    ],
+    cta: "Upgrade to Pro",
+    action: "Pro",
+    highlight: true
+  },
+  {
+    name: "Premium",
+    price: "$39",
+    period: "/mo",
+    description: "Accelerate development and leaders targets.",
+    features: [
+      "Everything in Pro plan",
+      "AI career roadmaps & tracking",
+      "Mock interview preparation",
+      "Priority support response in 2h"
+    ],
+    cta: "Get Premium",
+    action: "Premium",
+    highlight: false
+  },
+  {
+    name: "Enterprise",
+    price: "Custom",
+    period: "",
+    description: "Custom solutions for universities, career centers, and organizations.",
+    features: [
+      "Multi-user seat management",
+      "University bulk licenses",
+      "Custom database API integrations",
+      "Dedicated success manager"
+    ],
+    cta: "Contact Sales",
+    action: "Enterprise",
+    highlight: false
+  }
+];
 
 export default function PricingPage() {
   const { data: session } = useSession();
-  const { toast } = useToast();
+  const router = useRouter();
+  const [isCheckingOut, setIsCheckingOut] = useState<string | null>(null);
 
-  const [activePlan, setActivePlan] = useState("Pro");
-  const [openFaq, setOpenFaq] = useState<number | null>(null);
-
-  useEffect(() => {
-    if (session?.user) {
-      loadActiveSubscription();
+  const handleSubscribe = async (planName: string) => {
+    if (!session) {
+      router.push("/login");
+      return;
     }
-  }, [session]);
-
-  const loadActiveSubscription = async () => {
-    try {
-      const userId = (session?.user as any).id || "demo-user-123";
-      const sub = await getSubscriptionAction(userId);
-      if (sub) {
-        setActivePlan(sub.plan);
-      }
-    } catch (e) {
-      console.error(e);
-    }
-  };
-
-  const handleUpgrade = async (plan: "Free" | "Pro" | "Premium" | "Enterprise") => {
-    if (!session?.user) {
-      toast("Please sign in to upgrade subscription plans.", "warning");
+    
+    if (planName === "Free") {
+      router.push("/dashboard");
       return;
     }
 
-    const userId = (session.user as any).id || "demo-user-123";
+    setIsCheckingOut(planName);
+
     try {
-      await upgradeSubscriptionAction(userId, plan);
-      setActivePlan(plan);
-      toast(`Successfully shifted subscription plan to ${plan}!`, "success");
-    } catch (err) {
-      toast("Error upgrading subscription.", "error");
+      const mockPriceId = planName === "Pro" ? "price_1Pro" : "price_1Premium";
+      
+      const res = await fetch("/api/checkout_sessions", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ planId: planName, priceId: mockPriceId }),
+      });
+
+      const data = await res.json();
+      if (data.url) {
+        window.location.href = data.url;
+      } else {
+        console.error("Failed to create checkout session:", data);
+        alert("Failed to create checkout session. Check console for details.");
+      }
+    } catch (e) {
+      console.error(e);
+      alert("An error occurred during checkout.");
+    } finally {
+      setIsCheckingOut(null);
     }
   };
 
-  const pricingCards = [
-    {
-      name: "Free",
-      price: "$0",
-      period: "",
-      description: "Test out our basic parsing features.",
-      features: [
-        "1 resume upload limit",
-        "Basic ATS optimization score",
-        "Limited job recommendations",
-        "Community help resources"
-      ],
-      buttonText: "Register Account",
-      badge: "Sandbox",
-      actionPlan: "Free",
-      color: "border-[#E5E7EB]"
-    },
-    {
-      name: "Pro",
-      price: "$19",
-      period: "/mo",
-      description: "Perfect for active software job hunting.",
-      features: [
-        "Unlimited resume uploads",
-        "Advanced ATS keyword suggestions",
-        "Detailed skill gap diagnostics",
-        "Advanced filterable job lists",
-        "Email support response in 24h"
-      ],
-      buttonText: "Upgrade to Pro",
-      badge: "Most Popular",
-      actionPlan: "Pro",
-      color: "border-primary ring-2 ring-primary/5 relative scale-[1.02] z-10"
-    },
-    {
-      name: "Premium",
-      price: "$39",
-      period: "/mo",
-      description: "Accelerate development and leaders target.",
-      features: [
-        "Everything in Pro plan",
-        "AI career roadmaps & tracking",
-        "Mock interview preparation",
-        "Priority support response in 2h",
-        "Exclusive career masterclasses"
-      ],
-      buttonText: "Get Premium",
-      badge: "Deep Study",
-      actionPlan: "Premium",
-      color: "border-[#E5E7EB]"
-    },
-    {
-      name: "Enterprise",
-      price: "Custom",
-      period: "",
-      description: "For universities, coding camps, & groups.",
-      features: [
-        "Multi-user seat management",
-        "University bulk licenses",
-        "Custom database API integrations",
-        "Dedicated success manager",
-        "Monthly analytical reports"
-      ],
-      buttonText: "Contact Sales",
-      badge: "Scale Growth",
-      actionPlan: "Enterprise",
-      color: "border-[#E5E7EB]"
-    }
-  ] as const;
-
-  const faqs = [
-    {
-      question: "Can I cancel my monthly subscription anytime?",
-      answer: "Yes, you can cancel, upgrade, or downgrade your plan at any time through your Profile settings. Once cancelled, your Pro/Premium features will remain active until the end of your billing cycle."
-    },
-    {
-      question: "What payment methods do you accept?",
-      answer: "We support all major credit cards, Apple Pay, Google Pay, and PayPal processing securely via Stripe integration."
-    },
-    {
-      question: "Do you offer university or coding boot camp discounts?",
-      answer: "Yes! Our Enterprise plan includes custom packages for academic institutions. Contact our team to request a custom bulk quote."
-    }
-  ];
-
   return (
-    <div className="flex-1 bg-brand-bg py-12 sm:py-16">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-16">
-        
-        {/* Header */}
-        <div className="text-center space-y-4 max-w-2xl mx-auto">
-          <h1 className="text-4xl font-extrabold tracking-tight text-slate-900 leading-tight">
-            Flexible Pricing Built for Every Career Goal
-          </h1>
-          <p className="text-slate-500 text-sm sm:text-base leading-relaxed">
-            Benchmarking scores and building learning paths should be accessible. Choose the subscription level that matches your growth velocity.
-          </p>
-        </div>
+    <div className="w-full bg-white flex flex-col min-h-screen">
+      <Navbar />
+      <main className="flex-grow pt-[72px]">
+        {/* PRICING */}
+        <section className="w-full bg-[#FFFFFF] border-b border-[#E5E7EB]/70 flex-grow h-full pt-[40px]">
+          <div className="max-w-[1280px] px-6 mx-auto w-full py-[96px] md:py-[72px] py-[56px] space-y-12">
+            <div className="text-center space-y-3">
+              <span className="text-[10px] font-bold text-[#1E293B] uppercase tracking-widest bg-slate-100 border border-[#E5E7EB] px-3 py-1 rounded-full">
+                Pricing
+              </span>
+              <h2 className="text-2xl sm:text-3xl font-black text-[#0F172A] tracking-tight">
+                Choose Your Plan
+              </h2>
+              <p className="text-slate-500 text-xs sm:text-sm font-semibold">
+                Flexible plans for every career stage.
+              </p>
+            </div>
 
-        {/* Pricing Cards Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 items-stretch">
-          {pricingCards.map((card) => {
-            const isCurrent = activePlan === card.actionPlan;
-            const isPro = card.name === "Pro";
+            {/* 4 pricing columns */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 items-stretch">
+              {pricingPlans.map((plan, index) => {
+                return (
+                  <div
+                    key={`plan-${plan.name}-${index}`}
+                    className={`premium-card p-6 rounded-card bg-white flex flex-col justify-between ${
+                      plan.highlight 
+                        ? "border-[#10B981] ring-2 ring-[#10B981]/5 shadow-md shadow-[#10B981]/5 bg-[#10B981]/[0.005]" 
+                        : "border-[#E5E7EB]"
+                    }`}
+                  >
+                    <div className="space-y-6">
+                      <div className="flex justify-between items-center">
+                        <span className={`text-[10px] font-bold uppercase tracking-widest px-2.5 py-0.5 rounded-full ${
+                          plan.highlight ? "bg-[#10B981]/10 text-[#10B981]" : "bg-slate-100 text-slate-500"
+                        }`}>
+                          {plan.name}
+                        </span>
+                      </div>
 
-            return (
-              <div
-                key={card.name}
-                className={`premium-card p-8 rounded-card flex flex-col justify-between ${card.color}`}
-              >
-                <div className="space-y-6">
-                  <div className="flex justify-between items-center">
-                    <span className={`text-[10px] font-bold uppercase tracking-widest px-2.5 py-0.5 rounded-full ${
-                      isPro ? "bg-primary/10 text-primary" : "bg-slate-100 text-slate-500"
-                    }`}>
-                      {card.badge}
-                    </span>
-                  </div>
+                      <div className="space-y-2">
+                        <div className="flex items-baseline">
+                          <span className="text-3xl font-black text-slate-900 font-sans">{plan.price}</span>
+                          {plan.period && (
+                            <span className="text-slate-400 font-semibold text-xs ml-1">{plan.period}</span>
+                          )}
+                        </div>
+                        <p className="text-slate-500 text-xs leading-normal font-semibold">{plan.description}</p>
+                      </div>
 
-                  <div className="space-y-2">
-                    <h3 className="text-xl font-bold text-slate-900">{card.name}</h3>
-                    <div className="flex items-baseline">
-                      <span className="text-4xl font-black text-slate-900">{card.price}</span>
-                      {card.period && (
-                        <span className="text-slate-400 font-semibold text-xs ml-1">{card.period}</span>
-                      )}
+                      <hr className="border-slate-100" />
+
+                      {/* Checklist */}
+                      <ul className="space-y-2.5">
+                        {plan.features.map((feat, index) => (
+                          <li key={`feat-${feat}-${index}`} className="flex items-start gap-2 text-xs text-slate-600 font-semibold leading-relaxed text-left">
+                            <Check className="w-4 h-4 text-[#10B981] shrink-0 mt-0.5" />
+                            <span>{feat}</span>
+                          </li>
+                        ))}
+                      </ul>
                     </div>
-                    <p className="text-slate-500 text-xs leading-normal">{card.description}</p>
+
+                    <div className="pt-8">
+                      <button
+                        onClick={() => handleSubscribe(plan.name)}
+                        disabled={isCheckingOut === plan.name}
+                        className={`w-full py-2.5 rounded-btn text-xs font-bold uppercase tracking-wider text-center block transition-all cursor-pointer ${
+                          plan.highlight
+                            ? "bg-[#0F172A] hover:bg-[#1E293B] text-white shadow-sm"
+                            : "bg-white hover:bg-slate-50 border border-[#E5E7EB] text-slate-700"
+                        } disabled:opacity-50 disabled:cursor-not-allowed`}
+                      >
+                        {isCheckingOut === plan.name ? "Processing..." : plan.cta}
+                      </button>
+                    </div>
                   </div>
-
-                  <hr className="border-slate-100" />
-
-                  {/* Feature Checklists */}
-                  <ul className="space-y-3">
-                    {card.features.map((feat) => (
-                      <li key={feat} className="flex items-start gap-2.5 text-xs text-slate-600 leading-relaxed font-semibold">
-                        <Check className="w-4.5 h-4.5 text-emerald-500 shrink-0 mt-0.5" />
-                        <span>{feat}</span>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-
-                <div className="pt-8">
-                  {session ? (
-                    <button
-                      onClick={() => handleUpgrade(card.actionPlan as any)}
-                      disabled={isCurrent}
-                      className={`w-full py-3 rounded-xl text-xs font-bold uppercase tracking-wider transition-all cursor-pointer ${
-                        isCurrent
-                          ? "bg-slate-100 text-slate-400 cursor-not-allowed border border-slate-200"
-                          : isPro
-                          ? "bg-[#0F172A] hover:bg-[#1E293B] text-white shadow-md shadow-[#0F172A]/10"
-                          : "bg-white hover:bg-slate-50 border border-[#E5E7EB] text-slate-700"
-                      }`}
-                    >
-                      {isCurrent ? "Active Plan" : card.buttonText}
-                    </button>
-                  ) : (
-                    <Link
-                      href="/signup"
-                      className={`w-full py-3 rounded-xl text-xs font-bold uppercase tracking-wider text-center block transition-all cursor-pointer ${
-                        isPro
-                          ? "bg-[#0F172A] hover:bg-[#1E293B] text-white shadow-md shadow-[#0F172A]/10"
-                          : "bg-white hover:bg-slate-50 border border-[#E5E7EB] text-slate-700"
-                      }`}
-                    >
-                      {card.buttonText}
-                    </Link>
-                  )}
-                </div>
-              </div>
-            );
-          })}
-        </div>
-
-        {/* Pricing FAQ Section */}
-        <div className="max-w-3xl mx-auto space-y-6">
-          <h2 className="text-2xl font-extrabold text-center text-slate-900">Pricing Questions</h2>
-          <div className="space-y-4">
-            {faqs.map((faq, idx) => (
-              <div key={idx} className="border border-[#E5E7EB] rounded-2xl bg-white overflow-hidden shadow-sm">
-                <button
-                  onClick={() => setOpenFaq(openFaq === idx ? null : idx)}
-                  className="w-full flex justify-between items-center p-5 font-bold text-slate-800 text-left cursor-pointer"
-                >
-                  <span className="text-xs sm:text-sm uppercase tracking-wider flex items-center gap-2">
-                    <HelpCircle className="w-4 h-4 text-slate-400 shrink-0" />
-                    {faq.question}
-                  </span>
-                  <ChevronDown className={`w-4 h-4 text-slate-500 transition-transform ${openFaq === idx ? "rotate-180" : ""}`} />
-                </button>
-                {openFaq === idx && (
-                  <div className="px-5 pb-5 pt-1 text-slate-600 text-xs sm:text-sm border-t border-slate-50 leading-relaxed bg-slate-50/50">
-                    {faq.answer}
-                  </div>
-                )}
-              </div>
-            ))}
+                );
+              })}
+            </div>
           </div>
-        </div>
-
-      </div>
+        </section>
+      </main>
+      <Footer />
     </div>
   );
 }
