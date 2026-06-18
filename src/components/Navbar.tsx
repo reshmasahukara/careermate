@@ -117,10 +117,10 @@ export default function Navbar() {
                 </button>
               </div>
             ) : (
-              <div className="flex items-center gap-6">
+              <div className="flex items-center gap-4">
                 <Link
                   href="/login"
-                  className="text-sm font-semibold text-slate-700 hover:text-primary transition-colors cursor-pointer"
+                  className="border border-[#E2E8F0] hover:border-primary hover:bg-slate-50 text-slate-700 hover:text-primary px-4.5 py-2 rounded-btn text-sm font-semibold transition-all cursor-pointer"
                 >
                   Login
                 </Link>

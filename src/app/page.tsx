@@ -19,10 +19,9 @@ import {
   BookOpen,
   Check,
   ShieldCheck,
-  Calendar,
-  Lock
+  Plus,
+  Play
 } from "lucide-react";
-import { ResponsiveContainer, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip } from "recharts";
 import { motion, AnimatePresence } from "framer-motion";
 
 // Interactive Count-up Component
@@ -56,9 +55,6 @@ function Counter({ value, suffix = "" }: { value: number; suffix?: string }) {
 }
 
 export default function HomePage() {
-  const [activeStep, setActiveStep] = useState(0);
-  const [openFaq, setOpenFaq] = useState<number | null>(null);
-  const [activeFeature, setActiveFeature] = useState(0);
   const [isMounted, setIsMounted] = useState(false);
 
   useEffect(() => {
@@ -67,947 +63,555 @@ export default function HomePage() {
 
   const featureCards = [
     {
-      title: "Calculate ATS Score",
-      description: "Instantly benchmark your resume score against standard ATS parser algorithms.",
-      icon: <FileCheck className="w-5 h-5 text-primary" />,
-      href: "/ats-checker"
-    },
-    {
-      title: "Analyze Resume",
+      title: "Resume Analyzer",
       description: "Get detailed AI feedback on experience formatting, metrics, and word impact.",
-      icon: <FileText className="w-5 h-5 text-secondary" />,
+      icon: <FileText className="w-5 h-5 text-[#1E40AF]" />,
       href: "/resume-analysis"
     },
     {
-      title: "Discover Jobs",
-      description: "Search open positions recommended based on your technical skill profiles.",
-      icon: <Briefcase className="w-5 h-5 text-accent" />,
+      title: "ATS Score Checker",
+      description: "Instantly benchmark your resume score against standard ATS parser rules.",
+      icon: <FileCheck className="w-5 h-5 text-[#14B8A6]" />,
+      href: "/ats-checker"
+    },
+    {
+      title: "Job Recommendations",
+      description: "Discover open positions recommended based on your technical skill profiles.",
+      icon: <Briefcase className="w-5 h-5 text-indigo-600" />,
       href: "/jobs"
     },
     {
-      title: "Identify Skill Gaps",
-      description: "Compare your resume skills with target descriptions to map out path targets.",
-      icon: <Compass className="w-5 h-5 text-emerald-500" />,
-      href: "/skill-gap"
-    }
-  ];
-
-  const steps = [
-    { num: "01", title: "Upload Resume", desc: "Drag & drop PDF/DOCX." },
-    { num: "02", title: "Analyze ATS Score", desc: "Scan target matching keywords." },
-    { num: "03", title: "Identify Skill Gaps", desc: "Check missing technologies." },
-    { num: "04", title: "Discover Jobs", desc: "Unlock matches & roadmaps." }
-  ];
-
-  const featuresList = [
-    {
-      title: "AI Resume Analysis",
-      desc: "Our model screens your experience blocks, highlighting weak action verbs and recommending metric achievements.",
-      preview: (
-        <div className="space-y-4">
-          <div className="flex justify-between items-center pb-2 border-b border-brand-border">
-            <span className="text-[11px] font-bold text-slate-400 uppercase tracking-widest">Experience Impact</span>
-            <span className="text-xs text-rose-500 font-bold bg-rose-50 px-2 py-0.5 rounded-full uppercase">Action required</span>
-          </div>
-          <div className="p-4 bg-slate-50 border border-brand-border rounded-xl space-y-2">
-            <div className="flex justify-between text-xs font-semibold">
-              <span className="text-slate-800">"Responsible for React code"</span>
-              <span className="text-slate-400 font-medium">Weak verb</span>
-            </div>
-            <p className="text-[11px] text-slate-600 font-semibold leading-relaxed">
-              👉 Replace with: <span className="text-slate-900 font-bold">"Engineered high-performance React modules improving load speeds by 40%."</span>
-            </p>
-          </div>
-          <div className="p-4 bg-emerald-50/50 border border-emerald-100 rounded-xl space-y-1">
-            <div className="flex justify-between text-xs font-semibold text-emerald-800">
-              <span>"Led frontend restructuring"</span>
-              <span className="text-emerald-600 font-medium">Strong verb</span>
-            </div>
-            <p className="text-[11px] text-emerald-700 font-semibold">
-              Perfect formatting with quantified results.
-            </p>
-          </div>
-        </div>
-      )
-    },
-    {
-      title: "ATS Optimization",
-      desc: "Benchmark matching percentages against specific job specs, scanning for missing skills and structure flags.",
-      preview: (
-        <div className="space-y-4">
-          <div className="flex justify-between items-center pb-2 border-b border-slate-100">
-            <span className="text-[11px] font-bold text-slate-400 uppercase tracking-widest">Keyword Match</span>
-            <span className="text-xs font-extrabold text-emerald-600 bg-emerald-50 px-2.5 py-0.5 rounded-full">85% MATCH</span>
-          </div>
-          <div className="space-y-3">
-            <div className="space-y-1.5">
-              <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest block">Found (12)</span>
-              <div className="flex flex-wrap gap-1.5">
-                <span className="bg-emerald-50 text-emerald-700 text-[10px] font-semibold px-2 py-0.5 rounded border border-emerald-100">Next.js</span>
-                <span className="bg-emerald-50 text-emerald-700 text-[10px] font-semibold px-2 py-0.5 rounded border border-emerald-100">Prisma</span>
-                <span className="bg-emerald-50 text-emerald-700 text-[10px] font-semibold px-2 py-0.5 rounded border border-emerald-100">PostgreSQL</span>
-                <span className="bg-emerald-50 text-emerald-700 text-[10px] font-semibold px-2 py-0.5 rounded border border-emerald-100">React</span>
-              </div>
-            </div>
-            <div className="space-y-1.5">
-              <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest block">Missing (2)</span>
-              <div className="flex flex-wrap gap-1.5">
-                <span className="bg-rose-50 text-rose-700 text-[10px] font-semibold px-2 py-0.5 rounded border border-rose-100">TypeScript</span>
-                <span className="bg-rose-50 text-rose-700 text-[10px] font-semibold px-2 py-0.5 rounded border border-rose-100">GraphQL</span>
-              </div>
-            </div>
-          </div>
-        </div>
-      )
-    },
-    {
-      title: "Job Matching",
-      desc: "Skip generic job listings. Get recommended roles matching the technologies extracted from your resume.",
-      preview: (
-        <div className="space-y-3">
-          <div className="flex justify-between items-center pb-2 border-b border-slate-100">
-            <span className="text-[11px] font-bold text-slate-400 uppercase tracking-widest">Recommended Positions</span>
-          </div>
-          <div className="p-3 bg-slate-50 border border-brand-border rounded-xl flex justify-between items-center gap-3">
-            <div>
-              <h4 className="font-bold text-xs text-slate-800">Senior Full-Stack Engineer</h4>
-              <p className="text-[10px] text-slate-400 font-semibold">Vercel • Remote • $140k - $170k</p>
-            </div>
-            <span className="bg-primary/10 text-primary text-[9px] font-extrabold px-2.5 py-1 rounded-full uppercase tracking-wider">92% Match</span>
-          </div>
-          <div className="p-3 bg-slate-50 border border-brand-border rounded-xl flex justify-between items-center gap-3">
-            <div>
-              <h4 className="font-bold text-xs text-slate-800">Software Engineer (Frontend)</h4>
-              <p className="text-[10px] text-slate-400 font-semibold">Stripe • San Francisco • $130k - $160k</p>
-            </div>
-            <span className="bg-primary/10 text-primary text-[9px] font-extrabold px-2.5 py-1 rounded-full uppercase tracking-wider">85% Match</span>
-          </div>
-        </div>
-      )
+      title: "AI Interview Preparation",
+      description: "Practice mock interview questions with dynamic real-time performance analytics.",
+      icon: <Zap className="w-5 h-5 text-amber-500" />,
+      href: "/contact"
     },
     {
       title: "Skill Gap Analysis",
-      desc: "Visualize your technical profile against market targets using analytical double-axis graphs.",
-      preview: (
-        <div className="space-y-3">
-          <div className="flex justify-between items-center pb-2 border-b border-slate-100">
-            <span className="text-[11px] font-bold text-slate-400 uppercase tracking-widest">Gap Diagnostic</span>
-            <span className="text-xs font-bold text-rose-500">Critical missing skills</span>
-          </div>
-          <div className="space-y-3">
-            <div>
-              <div className="flex justify-between text-xs font-semibold mb-1">
-                <span>Docker & DevOps</span>
-                <span className="text-rose-500 font-bold">60% Gap</span>
-              </div>
-              <div className="h-2 w-full bg-slate-100 rounded-full overflow-hidden">
-                <div className="h-full bg-rose-500 rounded-full w-[40%]" />
-              </div>
-            </div>
-            <div>
-              <div className="flex justify-between text-xs font-semibold mb-1">
-                <span>TypeScript</span>
-                <span className="text-rose-500 font-bold">30% Gap</span>
-              </div>
-              <div className="h-2 w-full bg-slate-100 rounded-full overflow-hidden">
-                <div className="h-full bg-rose-400 rounded-full w-[70%]" />
-              </div>
-            </div>
-          </div>
-        </div>
-      )
+      description: "Compare your resume skills with target descriptions to map out path targets.",
+      icon: <Compass className="w-5 h-5 text-rose-500" />,
+      href: "/skill-gap"
     },
     {
-      title: "Learning Roadmaps",
-      desc: "Unlock custom timeline roadmaps loaded with recommended online courses to shut down skill gaps.",
-      preview: (
-        <div className="space-y-3">
-          <div className="flex justify-between items-center pb-2 border-b border-slate-100">
-            <span className="text-[11px] font-bold text-slate-400 uppercase tracking-widest">Suggested Milestones</span>
-          </div>
-          <div className="flex gap-3 items-start p-2.5">
-            <span className="w-5 h-5 rounded-full bg-emerald-500 text-white flex items-center justify-center text-[10px] font-bold shrink-0 mt-0.5">✓</span>
-            <div className="text-xs">
-              <span className="font-bold text-slate-800 block">Week 1: TypeScript Fundamentals</span>
-              <span className="text-[10px] text-slate-400 font-semibold">Udemy Course • 4.8 Rating • 6 Hours</span>
-            </div>
-          </div>
-          <div className="flex gap-3 items-start p-2.5">
-            <span className="w-5 h-5 rounded-full bg-slate-200 text-slate-400 flex items-center justify-center text-[10px] font-bold shrink-0 mt-0.5">2</span>
-            <div className="text-xs">
-              <span className="font-bold text-slate-600 block">Week 2: Docker Containers & Deployments</span>
-              <span className="text-[10px] text-slate-400 font-semibold">Coursera Course • 4.7 Rating • 8 Hours</span>
-            </div>
-          </div>
-        </div>
-      )
-    },
-    {
-      title: "Career Progress Tracking",
-      desc: "Record historical scans, follow applications bookmark status, and track weekly checklist targets.",
-      preview: (
-        <div className="space-y-3">
-          <div className="flex justify-between items-center pb-2 border-b border-slate-100">
-            <span className="text-[11px] font-bold text-slate-400 uppercase tracking-widest">Dashboard Alert</span>
-          </div>
-          <div className="p-4 bg-blue-50/50 border border-blue-100 text-slate-800 rounded-xl text-xs space-y-2">
-            <div className="font-bold text-blue-900 flex items-center gap-1.5">
-              <Zap className="w-4 h-4 text-blue-600" />
-              Interview Prep Target
-            </div>
-            <p className="text-[10px] text-slate-500 leading-relaxed font-semibold">
-              You've successfully closed 2 skill gaps this week! Your scheduled resume mock review begins in 24 hours.
-            </p>
-          </div>
-        </div>
-      )
+      title: "Learning Resources",
+      description: "Access curated online courses and guidelines to build missing technologies.",
+      icon: <BookOpen className="w-5 h-5 text-emerald-600" />,
+      href: "/roadmap"
     }
   ];
 
-  const pricingPlans = [
+  const timelineSteps = [
     {
-      name: "Free",
-      price: "$0",
-      period: "",
-      description: "Test out basic scoring options.",
-      features: [
-        "1 resume upload limit",
-        "Basic ATS optimization score",
-        "Limited job recommendations"
-      ],
-      cta: "Register Account",
-      action: "Free",
-      highlight: false
+      num: "01",
+      title: "Upload Resume",
+      desc: "Drag & drop PDF/DOCX file.",
+      icon: <FileText className="w-5 h-5 text-[#1E40AF]" />
     },
     {
-      name: "Pro",
-      price: "$19",
-      period: "/mo",
-      description: "Perfect for active software job hunting.",
-      features: [
-        "Unlimited resume uploads",
-        "Advanced ATS keyword suggestions",
-        "Detailed skill gap diagnostics",
-        "Advanced filterable job lists"
-      ],
-      cta: "Upgrade to Pro",
-      action: "Pro",
-      highlight: true
+      num: "02",
+      title: "AI Analysis",
+      desc: "AI scans text for impact verbs.",
+      icon: <Zap className="w-5 h-5 text-amber-500" />
     },
     {
-      name: "Premium",
-      price: "$39",
-      period: "/mo",
-      description: "Accelerate development and leaders targets.",
-      features: [
-        "Everything in Pro plan",
-        "AI career roadmaps & tracking",
-        "Mock interview preparation",
-        "Priority support response in 2h"
-      ],
-      cta: "Get Premium",
-      action: "Premium",
-      highlight: false
+      num: "03",
+      title: "Get ATS Score",
+      desc: "Benchmark keyword match score.",
+      icon: <FileCheck className="w-5 h-5 text-[#14B8A6]" />
     },
     {
-      name: "Enterprise",
-      price: "Custom",
-      period: "",
-      description: "Custom solutions for universities, career centers, and organizations.",
-      features: [
-        "Multi-user seat management",
-        "University bulk licenses",
-        "Custom database API integrations",
-        "Dedicated success manager"
-      ],
-      cta: "Contact Sales",
-      action: "Enterprise",
-      highlight: false
+      num: "04",
+      title: "Discover Jobs",
+      desc: "Instantly find matching roles.",
+      icon: <Briefcase className="w-5 h-5 text-indigo-600" />
+    },
+    {
+      num: "05",
+      title: "Build Skills & Succeed",
+      desc: "Shut gaps & land the job.",
+      icon: <Award className="w-5 h-5 text-emerald-600" />
     }
   ];
 
   const testimonials = [
     {
       name: "Sarah Jenkins",
-      role: "Frontend Developer at Vercel",
+      role: "Frontend Developer",
+      company: "Vercel",
       image: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=150",
       rating: 5,
       story: "CareerMate's ATS Checker was a game-changer. I optimized my resume with their missing keyword list and landed three interviews in a week!"
     },
     {
       name: "David Chen",
-      role: "Data Analyst at Stripe",
+      role: "Data Analyst",
+      company: "Stripe",
       image: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150",
       rating: 5,
       story: "The skill gap analyzer mapped out exactly what SQL and dashboard metrics I was missing for Senior roles. The suggested courses filled the gap perfectly."
     },
     {
       name: "Elena Rostova",
-      role: "Product Designer at Figma",
+      role: "Product Designer",
+      company: "Figma",
       image: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150",
       rating: 5,
       story: "I loved the clean SaaS design and instant suggestions. Uploading my resume gave me highly detailed critiques of my experience metrics. Highly recommended!"
     }
   ];
 
-  const faqs = [
-    {
-      question: "What is an ATS, and how does CareerMate score my resume?",
-      answer: "An Applicant Tracking System (ATS) is software employers use to screen resume files based on keyword match. CareerMate uses simulated ATS parsing algorithms to evaluate your resume against specified roles, highlighting match scores, missing keywords, and layout flags."
-    },
-    {
-      question: "Which document formats do you support?",
-      answer: "We support PDF and DOCX uploads, which are the standard formats accepted by company portals. For best results, we recommend uploading standard, single-column PDF formatting."
-    },
-    {
-      question: "Is my personal data secure?",
-      answer: "Yes, data security and privacy are our top priorities. All uploaded resumes are stored securely in Cloudinary/PostgreSQL and are never sold or shared. You can delete your account and files at any time through Settings."
-    }
-  ];
-
-  // Mock Mini Chart Data for Hero Preview
-  const previewChartData = [
-    { name: "v1", score: 62 },
-    { name: "v2", score: 74 },
-    { name: "v3", score: 85 },
-    { name: "v4", score: 92 },
-  ];
-
   return (
-    <div className="w-full bg-white pt-[72px]">
+    <div className="w-full bg-white">
       
-      {/* 2. HERO SECTION */}
-      <section className="w-full bg-gradient-to-b from-[#F5F9FF] to-[#FFFFFF] relative overflow-hidden">
-        {/* Subtle blurred color blobs at 5% opacity */}
-        <div className="absolute top-1/4 left-1/4 -translate-x-1/2 -translate-y-1/2 w-96 h-96 rounded-full bg-primary/[0.05] blur-3xl pointer-events-none" />
-        <div className="absolute bottom-1/4 right-1/4 translate-x-1/2 translate-y-1/2 w-96 h-96 rounded-full bg-accent/[0.05] blur-3xl pointer-events-none" />
-        
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 section-padding flex flex-col items-center text-center space-y-6 relative z-10">
-          <div className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-white border border-brand-border text-slate-700 text-xs font-semibold shadow-xs">
-            <Star className="w-3.5 h-3.5 text-amber-500 fill-amber-500" />
-            Trusted by 10,000+ professionals
-          </div>
+      {/* SECTION 2: HERO SECTION WITH DASHBOARD PREVIEW */}
+      <section className="w-full bg-gradient-to-b from-[#F5F9FF] to-[#FFFFFF] relative overflow-hidden pt-[72px]">
+        {/* Decorative blur blobs */}
+        <div className="absolute top-1/4 left-1/4 -translate-x-1/2 -translate-y-1/2 w-96 h-96 rounded-full bg-[#1E40AF]/[0.03] blur-3xl pointer-events-none" />
+        <div className="absolute bottom-1/4 right-1/4 translate-x-1/2 translate-y-1/2 w-96 h-96 rounded-full bg-[#14B8A6]/[0.03] blur-3xl pointer-events-none" />
 
-          <h1 className="text-4xl sm:text-5xl md:text-[56px] md:leading-[64px] font-bold text-brand-text tracking-tight max-w-3xl">
-            Build a Smarter Career Path with CareerMate
-          </h1>
-
-          <p className="text-base sm:text-lg text-brand-muted leading-relaxed max-w-2xl mx-auto font-medium">
-            Upload your resume, optimize your ATS score, discover relevant jobs, and identify skill gaps with AI-powered career guidance.
-          </p>
-
-          {/* CTA Row */}
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-3.5 pt-4 w-full sm:w-auto">
-            <Link
-              href="/signup"
-              className="w-full sm:w-auto bg-primary hover:bg-blue-800 text-white font-bold text-sm px-8 py-3.5 rounded-btn shadow-sm transition-colors text-center cursor-pointer"
-            >
-              Get Started
-            </Link>
-            <Link
-              href="/resume-upload"
-              className="w-full sm:w-auto bg-white hover:bg-slate-50 border border-brand-border text-slate-700 font-bold text-sm px-8 py-3.5 rounded-btn shadow-sm transition-colors text-center cursor-pointer"
-            >
-              Upload Resume
-            </Link>
-          </div>
-
-          {/* Trust Row */}
-          <div className="flex flex-wrap items-center justify-center gap-x-6 gap-y-2.5 pt-6 text-xs font-semibold text-brand-muted">
-            <span className="flex items-center gap-1.5">
-              <Check className="w-4 h-4 text-emerald-500 animate-pulse" />
-              No credit card required
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 section-padding grid grid-cols-1 lg:grid-cols-12 gap-12 items-center relative z-10">
+          
+          {/* Left Column (45%) */}
+          <div className="lg:col-span-5 space-y-6 text-left">
+            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-blue-50 border border-blue-100 text-[#1E40AF] text-xs font-bold uppercase tracking-wider">
+              AI-Powered Career Growth Platform
             </span>
-            <span className="flex items-center gap-1.5">
-              <Check className="w-4 h-4 text-emerald-500 animate-pulse" />
-              Free ATS scan
-            </span>
-            <span className="flex items-center gap-1.5">
-              <Check className="w-4 h-4 text-emerald-500 animate-pulse" />
-              Secure data handling
-            </span>
-          </div>
-        </div>
-      </section>
 
-      {/* 3. FEATURE CARDS */}
-      <section className="w-full bg-[#FFFFFF] border-t border-[#E2E8F0]/40">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 section-padding grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-          {featureCards.map((card) => (
-            <Link
-              key={card.title}
-              href={card.href}
-              className="premium-card p-6 rounded-card bg-white border border-[#E2E8F0] shadow-sm hover:shadow-md transition-all flex flex-col justify-between"
-            >
-              <div className="space-y-4">
-                <div className="w-10 h-10 rounded-lg bg-slate-50 border border-brand-border flex items-center justify-center text-primary">
-                  {card.icon}
-                </div>
-                <h3 className="font-bold text-slate-900 text-sm tracking-tight">{card.title}</h3>
-                <p className="text-xs text-slate-500 leading-relaxed font-semibold">{card.description}</p>
-              </div>
-              <span className="mt-6 text-xs font-bold text-primary flex items-center gap-1 group cursor-pointer self-start">
-                Open Module
-                <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform" />
-              </span>
-            </Link>
-          ))}
-        </div>
-      </section>
+            <h1 className="text-4xl sm:text-5xl lg:text-[48px] lg:leading-[56px] font-black text-[#0F172A] tracking-tight">
+              Build a Smarter Career Path with CareerMate
+            </h1>
 
-      {/* 4. HOW CAREERMATE WORKS SECTION */}
-      <section className="w-full bg-[#F8FAFC] border-t border-[#E2E8F0]/40">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 section-padding space-y-12">
-          <div className="text-center space-y-3">
-            <h2 className="text-2xl sm:text-3xl font-bold tracking-tight text-brand-text">
-              How CareerMate Works
-            </h2>
-            <p className="text-slate-500 text-xs sm:text-sm font-semibold max-w-md mx-auto">
-              A precise, logical flow designed to help candidates optimize CV matching. Click each step to preview.
+            <p className="text-sm sm:text-base text-slate-500 leading-relaxed font-semibold">
+              Optimize your resume, improve ATS performance, discover relevant opportunities, and close skill gaps with AI-driven career guidance.
             </p>
-          </div>
 
-          {/* Symmetrical horizontal steps connected by progress line */}
-          <div className="relative pt-6 max-w-4xl mx-auto">
-            {/* Progress bar line */}
-            <div className="absolute top-[38px] left-[12%] right-[12%] h-[2px] bg-slate-200 -z-10">
-              <div 
-                className="h-full bg-primary transition-all duration-300"
-                style={{ width: `${(activeStep / (steps.length - 1)) * 100}%` }}
-              />
+            {/* Buttons Row */}
+            <div className="flex flex-col sm:flex-row items-center gap-3 pt-2">
+              <Link
+                href="/signup"
+                className="w-full sm:w-auto bg-[#1E40AF] hover:bg-blue-800 text-white font-bold text-xs uppercase tracking-wider px-8 py-3.5 rounded-btn shadow-sm transition-all text-center cursor-pointer"
+              >
+                Get Started
+              </Link>
+              <Link
+                href="/resume-upload"
+                className="w-full sm:w-auto bg-white hover:bg-slate-50 border border-[#E2E8F0] text-slate-700 font-bold text-xs uppercase tracking-wider px-8 py-3.5 rounded-btn shadow-sm transition-all text-center cursor-pointer"
+              >
+                Upload Resume
+              </Link>
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-4 gap-6 items-stretch text-center">
-              {steps.map((step, idx) => (
-                <button 
-                  key={idx} 
-                  onClick={() => setActiveStep(idx)}
-                  className="group flex flex-col items-center space-y-4 text-center cursor-pointer focus:outline-none"
-                >
-                  <div className={`w-10 h-10 rounded-full border-2 mx-auto flex items-center justify-center font-bold text-xs relative shadow-sm transition-all duration-300 ${
-                    activeStep >= idx 
-                      ? "bg-primary border-primary text-white scale-110" 
-                      : "bg-white border-brand-border text-slate-400"
-                  }`}>
-                    {step.num}
-                  </div>
-                  <div className="space-y-1.5">
-                    <h4 className={`font-bold text-sm transition-colors duration-300 ${
-                      activeStep === idx ? "text-primary font-extrabold" : "text-slate-900"
-                    }`}>{step.title}</h4>
-                    <p className="text-xs text-slate-500 leading-normal font-semibold max-w-[180px] mx-auto">
-                      {step.desc}
-                    </p>
-                  </div>
-                </button>
-              ))}
+            {/* Trust Row */}
+            <div className="flex flex-wrap items-center gap-x-5 gap-y-2 pt-2 text-xs font-bold text-slate-400">
+              <span className="flex items-center gap-1.5">
+                <Check className="w-4 h-4 text-[#14B8A6]" />
+                Free ATS Scan
+              </span>
+              <span className="flex items-center gap-1.5">
+                <Check className="w-4 h-4 text-[#14B8A6]" />
+                Secure Data Handling
+              </span>
+              <span className="flex items-center gap-1.5">
+                <Check className="w-4 h-4 text-[#14B8A6]" />
+                No Credit Card Required
+              </span>
             </div>
-          </div>
 
-          {/* Active Step Details */}
-          <div className="mt-8 max-w-2xl mx-auto premium-card p-6 rounded-card bg-white flex flex-col md:flex-row items-center gap-6">
-            <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center text-primary shrink-0">
-              {activeStep === 0 && <FileText className="w-6 h-6" />}
-              {activeStep === 1 && <FileCheck className="w-6 h-6" />}
-              {activeStep === 2 && <Compass className="w-6 h-6" />}
-              {activeStep === 3 && <Briefcase className="w-6 h-6" />}
-            </div>
-            <div className="space-y-2 text-left flex-1">
-              <h4 className="font-bold text-base text-slate-900">
-                {activeStep === 0 && "Step 1: Upload Your Profile Resume"}
-                {activeStep === 1 && "Step 2: Interactive ATS Scoring Analysis"}
-                {activeStep === 2 && "Step 3: Analyze & Close Skill Gaps"}
-                {activeStep === 3 && "Step 4: Unlock Jobs & Custom Roadmaps"}
-              </h4>
-              <p className="text-xs text-slate-500 font-semibold leading-relaxed">
-                {activeStep === 0 && "Simply upload your PDF or Word resume. Our secure parsing engine extracts work experience, educational history, credentials, and listed skills without selling your data."}
-                {activeStep === 1 && "We run your resume content through modern ATS parser rules to benchmark scores. We identify missing keywords, readability flags, and formatting suggestions to improve match rate."}
-                {activeStep === 2 && "Compare your parsed credentials directly against standard market requirements. Get a transparent visualization of exact technical tools, frameworks, and workflows you lack."}
-                {activeStep === 3 && "Receive curated job listings based on your skill matching percentage. Access structured week-by-week learning courses to upgrade skills and transition profiles smoothly."}
+            {/* Mini Social Proof */}
+            <div className="flex items-center gap-3 pt-4 border-t border-slate-100">
+              <div className="flex -space-x-2.5 overflow-hidden shrink-0">
+                <img className="inline-block h-8 w-8 rounded-full ring-2 ring-white object-cover" src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=80" alt="User 1" />
+                <img className="inline-block h-8 w-8 rounded-full ring-2 ring-white object-cover" src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=80" alt="User 2" />
+                <img className="inline-block h-8 w-8 rounded-full ring-2 ring-white object-cover" src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=80" alt="User 3" />
+                <img className="inline-block h-8 w-8 rounded-full ring-2 ring-white object-cover" src="https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=80" alt="User 4" />
+              </div>
+              <p className="text-xs text-slate-500 font-semibold leading-snug">
+                <span className="text-[#0F172A] font-bold">10,000+ professionals</span> are growing their careers with CareerMate
               </p>
             </div>
           </div>
+
+          {/* Right Column (55% / col-span-7) */}
+          <div className="lg:col-span-7 w-full">
+            {/* Dashboard Container Card */}
+            <div className="premium-card rounded-[24px] bg-white shadow-xl overflow-hidden flex flex-col border border-[#E2E8F0] relative">
+              {/* Mock Dashboard Topbar */}
+              <div className="bg-slate-50 px-6 py-4 border-b border-[#E2E8F0] flex items-center justify-between shrink-0">
+                <div className="flex items-center gap-3">
+                  <div className="flex gap-1.5">
+                    <div className="w-2.5 h-2.5 rounded-full bg-rose-400" />
+                    <div className="w-2.5 h-2.5 rounded-full bg-amber-400" />
+                    <div className="w-2.5 h-2.5 rounded-full bg-emerald-400" />
+                  </div>
+                  <span className="text-[10px] text-slate-400 font-extrabold uppercase tracking-widest pl-2 font-mono">
+                    app.careermate.io/dashboard
+                  </span>
+                </div>
+                <div className="flex items-center gap-3">
+                  <span className="text-[10px] bg-emerald-50 text-[#14B8A6] font-bold px-2 py-0.5 rounded-full">
+                    Live System
+                  </span>
+                </div>
+              </div>
+
+              {/* Dashboard Content Grid */}
+              <div className="p-6 bg-slate-50/40 grid grid-cols-1 md:grid-cols-12 gap-5 items-stretch text-left">
+                
+                {/* Left side widgets */}
+                <div className="md:col-span-7 space-y-5">
+                  <div className="grid grid-cols-2 gap-4">
+                    {/* ATS Score widget */}
+                    <div className="p-4 bg-white border border-[#E2E8F0] rounded-2xl flex flex-col items-center justify-center text-center shadow-xs">
+                      <div className="w-14 h-14 rounded-full border-[4px] border-[#14B8A6] border-t-transparent flex items-center justify-center font-black text-[#0F172A] text-sm shrink-0 mb-1.5">
+                        92%
+                      </div>
+                      <h4 className="font-extrabold text-[10px] text-slate-400 uppercase tracking-wider mb-0.5">ATS Score</h4>
+                      <p className="text-[9px] text-emerald-600 font-bold">Excellent match</p>
+                    </div>
+
+                    {/* Resume Match Widget */}
+                    <div className="p-4 bg-white border border-[#E2E8F0] rounded-2xl flex flex-col items-center justify-center text-center shadow-xs">
+                      <div className="w-14 h-14 rounded-full border-[4px] border-[#1E40AF] border-t-transparent flex items-center justify-center font-black text-[#0F172A] text-sm shrink-0 mb-1.5">
+                        88%
+                      </div>
+                      <h4 className="font-extrabold text-[10px] text-slate-400 uppercase tracking-wider mb-0.5">Match Rate</h4>
+                      <p className="text-[9px] text-[#1E40AF] font-bold">Frontend Engineer</p>
+                    </div>
+                  </div>
+
+                  {/* Skill Gap Progress Widget */}
+                  <div className="p-4 bg-white border border-[#E2E8F0] rounded-2xl shadow-xs space-y-3">
+                    <div className="flex justify-between items-center pb-1.5 border-b border-slate-100">
+                      <span className="text-[9px] font-bold text-slate-400 uppercase tracking-wider">Skill Gap Analysis</span>
+                      <span className="text-[9px] text-[#1E40AF] font-bold uppercase">Target: Stripe role</span>
+                    </div>
+                    
+                    <div className="space-y-2.5">
+                      <div>
+                        <div className="flex justify-between text-[10px] font-semibold mb-0.5 text-slate-700">
+                          <span>TypeScript</span>
+                          <span>90% Yours</span>
+                        </div>
+                        <div className="h-1.5 w-full bg-slate-100 rounded-full overflow-hidden">
+                          <div className="h-full bg-[#1E40AF] rounded-full w-[90%]" />
+                        </div>
+                      </div>
+                      <div>
+                        <div className="flex justify-between text-[10px] font-semibold mb-0.5 text-slate-700">
+                          <span>Next.js Framework</span>
+                          <span>95% Yours</span>
+                        </div>
+                        <div className="h-1.5 w-full bg-slate-100 rounded-full overflow-hidden">
+                          <div className="h-full bg-[#1E40AF] rounded-full w-[95%]" />
+                        </div>
+                      </div>
+                      <div>
+                        <div className="flex justify-between text-[10px] font-semibold mb-0.5 text-slate-700">
+                          <span>Docker & DevOps</span>
+                          <span>60% Yours</span>
+                        </div>
+                        <div className="h-1.5 w-full bg-slate-100 rounded-full overflow-hidden">
+                          <div className="h-full bg-amber-500 rounded-full w-[60%]" />
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Right side widgets */}
+                <div className="md:col-span-5 space-y-5">
+                  {/* Recommended Jobs Widget */}
+                  <div className="p-4 bg-white border border-[#E2E8F0] rounded-2xl shadow-xs space-y-3 flex flex-col justify-between h-full">
+                    <div className="space-y-2">
+                      <div className="flex justify-between items-center pb-1.5 border-b border-slate-100">
+                        <span className="text-[9px] font-bold text-slate-400 uppercase tracking-wider">Recommended Jobs</span>
+                      </div>
+                      
+                      <div className="space-y-2">
+                        <div className="p-2 bg-slate-50 border border-slate-100 rounded-lg space-y-0.5">
+                          <div className="flex justify-between items-start">
+                            <h5 className="font-extrabold text-[10px] text-slate-800 leading-tight">Senior React Dev</h5>
+                            <span className="bg-blue-50 text-[#1E40AF] font-black px-1.5 py-0.5 rounded text-[8px]">92%</span>
+                          </div>
+                          <p className="text-[8px] text-slate-400 font-semibold">Stripe • Remote • $140k</p>
+                        </div>
+
+                        <div className="p-2 bg-slate-50 border border-slate-100 rounded-lg space-y-0.5">
+                          <div className="flex justify-between items-start">
+                            <h5 className="font-extrabold text-[10px] text-slate-800 leading-tight">Frontend Engineer</h5>
+                            <span className="bg-teal-50 text-[#14B8A6] font-black px-1.5 py-0.5 rounded text-[8px]">88%</span>
+                          </div>
+                          <p className="text-[8px] text-slate-400 font-semibold">Vercel • Hybrid • $160k</p>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Roadmap Milestone status */}
+                    <div className="pt-2 border-t border-slate-100 space-y-1.5">
+                      <span className="text-[9px] font-bold text-slate-400 uppercase tracking-wider block">Learning Progress</span>
+                      <div className="p-2 bg-teal-50/60 border border-teal-100 rounded-lg">
+                        <div className="font-bold text-[9px] text-teal-800 flex justify-between">
+                          <span>Milestone 3 of 5</span>
+                          <span>65% Done</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+              </div>
+            </div>
+          </div>
+
         </div>
       </section>
 
-      {/* 5. CORE FEATURES SECTION */}
-      <section id="features" className="w-full bg-[#FFFFFF] border-t border-[#E2E8F0]/40 scroll-mt-24">
+      {/* SECTION 3: STATISTICS BAR */}
+      <section className="w-full bg-white py-6">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="premium-card py-8 px-6 bg-white rounded-[24px] border border-[#E2E8F0] shadow-md">
+            <div className="grid grid-cols-1 md:grid-cols-4 divide-y md:divide-y-0 md:divide-x divide-slate-100 text-center">
+              
+              {/* Stat 1 */}
+              <div className="py-4 md:py-0 flex flex-col items-center justify-center space-y-2">
+                <div className="w-9 h-9 rounded-full bg-blue-50 flex items-center justify-center text-[#1E40AF]">
+                  <Users className="w-4.5 h-4.5" />
+                </div>
+                <div className="space-y-0.5">
+                  <div className="text-2xl sm:text-3xl font-black text-[#0F172A] tracking-tight">
+                    <Counter value={10000} suffix="+" />
+                  </div>
+                  <p className="text-[9px] sm:text-[10px] font-bold uppercase tracking-widest text-slate-400">Active Professionals</p>
+                </div>
+              </div>
+
+              {/* Stat 2 */}
+              <div className="py-4 md:py-0 flex flex-col items-center justify-center space-y-2">
+                <div className="w-9 h-9 rounded-full bg-teal-50 flex items-center justify-center text-[#14B8A6]">
+                  <FileCheck className="w-4.5 h-4.5" />
+                </div>
+                <div className="space-y-0.5">
+                  <div className="text-2xl sm:text-3xl font-black text-[#0F172A] tracking-tight">
+                    <Counter value={50000} suffix="+" />
+                  </div>
+                  <p className="text-[9px] sm:text-[10px] font-bold uppercase tracking-widest text-slate-400">Resumes Optimized</p>
+                </div>
+              </div>
+
+              {/* Stat 3 */}
+              <div className="py-4 md:py-0 flex flex-col items-center justify-center space-y-2">
+                <div className="w-9 h-9 rounded-full bg-indigo-50 flex items-center justify-center text-indigo-600">
+                  <Briefcase className="w-4.5 h-4.5" />
+                </div>
+                <div className="space-y-0.5">
+                  <div className="text-2xl sm:text-3xl font-black text-[#0F172A] tracking-tight">
+                    <Counter value={5000} suffix="+" />
+                  </div>
+                  <p className="text-[9px] sm:text-[10px] font-bold uppercase tracking-widest text-slate-400">Opportunities Discovered</p>
+                </div>
+              </div>
+
+              {/* Stat 4 */}
+              <div className="py-4 md:py-0 flex flex-col items-center justify-center space-y-2">
+                <div className="w-9 h-9 rounded-full bg-amber-50 flex items-center justify-center text-amber-500">
+                  <Award className="w-4.5 h-4.5" />
+                </div>
+                <div className="space-y-0.5">
+                  <div className="text-2xl sm:text-3xl font-black text-[#0F172A] tracking-tight">
+                    <Counter value={95} suffix="%" />
+                  </div>
+                  <p className="text-[9px] sm:text-[10px] font-bold uppercase tracking-widest text-slate-400">Recommendation Accuracy</p>
+                </div>
+              </div>
+
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* SECTION 4: CORE FEATURES GRID */}
+      <section id="features" className="w-full bg-[#F8FAFC] border-t border-[#E2E8F0]/40 scroll-mt-24">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 section-padding space-y-12">
+          
           <div className="text-center space-y-3">
-            <h2 className="text-2xl sm:text-3xl font-bold text-brand-text tracking-tight">
-              Enterprise features built for growth
+            <span className="text-[10px] font-bold text-[#1E40AF] uppercase tracking-widest bg-blue-50 border border-blue-100 px-3 py-1 rounded-full">
+              Features
+            </span>
+            <h2 className="text-2xl sm:text-3xl font-black text-[#0F172A] tracking-tight">
+              Everything You Need to Grow Your Career
             </h2>
             <p className="text-slate-500 text-xs sm:text-sm font-semibold max-w-lg mx-auto">
               Our advanced tool suite is engineered to streamline your job applications and accelerate career outcomes.
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {featuresList.map((feature, idx) => (
-              <div 
-                key={feature.title}
-                className="premium-card rounded-card bg-white shadow-sm hover:shadow-md border border-[#E2E8F0] overflow-hidden flex flex-col justify-between min-h-[460px] transition-all"
+          {/* 6 feature cards in one row on desktop */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-5 items-stretch">
+            {featureCards.map((card, idx) => (
+              <Link
+                key={card.title}
+                href={card.href}
+                className="premium-card p-5 rounded-[20px] bg-white border border-[#E2E8F0] shadow-xs hover:shadow-md hover:-translate-y-1 transition-all flex flex-col justify-between text-left"
               >
-                {/* Text Content */}
-                <div className="p-6 space-y-3">
-                  <div className="flex items-center gap-3">
-                    <span className="w-6.5 h-6.5 rounded-lg bg-primary/10 text-primary flex items-center justify-center font-bold text-xs shrink-0">
-                      {idx + 1}
-                    </span>
-                    <h4 className="font-bold text-sm text-slate-900 tracking-tight">{feature.title}</h4>
+                <div className="space-y-4">
+                  <div className="w-9 h-9 rounded-lg bg-slate-50 border border-[#E2E8F0] flex items-center justify-center">
+                    {card.icon}
                   </div>
-                  <p className="text-xs text-slate-500 font-semibold leading-relaxed">
-                    {feature.desc}
-                  </p>
-                </div>
-
-                {/* Styled Console/Browser Preview inside the card */}
-                <div className="mx-6 mb-6 mt-2 flex-1 bg-slate-50 border border-brand-border rounded-xl shadow-inner overflow-hidden flex flex-col min-h-[220px]">
-                  {/* Browser Bar */}
-                  <div className="bg-slate-100 px-3.5 py-2 border-b border-brand-border flex items-center justify-between shrink-0">
-                    <div className="flex items-center gap-1.5">
-                      <div className="w-1.5 h-1.5 rounded-full bg-rose-400" />
-                      <div className="w-1.5 h-1.5 rounded-full bg-amber-400" />
-                      <div className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
-                    </div>
-                    <span className="text-[8px] font-bold text-slate-400 uppercase tracking-widest">
-                      preview_console
-                    </span>
-                    <div className="w-6" />
-                  </div>
-                  {/* Preview Container */}
-                  <div className="p-4 flex-1 flex flex-col justify-center bg-white text-left">
-                    <div className="w-full">
-                      {feature.preview}
-                    </div>
+                  <div className="space-y-1.5">
+                    <h3 className="font-extrabold text-[#0F172A] text-xs sm:text-sm tracking-tight leading-snug">{card.title}</h3>
+                    <p className="text-[11px] text-slate-400 leading-relaxed font-semibold">{card.description}</p>
                   </div>
                 </div>
-              </div>
+                
+                <span className="mt-6 text-[10px] font-bold text-[#1E40AF] flex items-center gap-1 group cursor-pointer self-start">
+                  Open Tool
+                  <ArrowRight className="w-3 h-3 group-hover:translate-x-0.5 transition-transform" />
+                </span>
+              </Link>
             ))}
           </div>
+
         </div>
       </section>
 
-      {/* 6. DASHBOARD PREVIEW SECTION */}
-      <section className="w-full bg-[#F5F9FF] border-t border-[#E2E8F0]/40">
+      {/* SECTION 5: HOW CAREERMATE WORKS */}
+      <section className="w-full bg-white border-t border-[#E2E8F0]/40">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 section-padding space-y-12">
           
           <div className="text-center space-y-3">
-            <span className="text-[10px] font-bold text-primary uppercase tracking-widest bg-primary/10 px-2.5 py-1 rounded-full">
-              Platform Preview
+            <span className="text-[10px] font-bold text-[#1E40AF] uppercase tracking-widest bg-blue-50 border border-blue-100 px-3 py-1 rounded-full">
+              How It Works
             </span>
-            <h2 className="text-2xl sm:text-3xl font-bold tracking-tight text-brand-text">
-              Career Insights Dashboard
+            <h2 className="text-2xl sm:text-3xl font-black text-[#0F172A] tracking-tight">
+              Simple Steps to Career Success
             </h2>
-            <p className="text-slate-500 text-xs sm:text-sm font-semibold max-w-lg mx-auto">
-              Real-time career optimization metrics, recommendations, and roadmap tracking at your fingertips.
+            <p className="text-slate-500 text-xs sm:text-sm font-semibold max-w-md mx-auto">
+              Follow our logical, step-by-step pipeline to land your next technical role.
             </p>
           </div>
 
-          {/* High-Fidelity Mockup Container with rounded container and subtle gradient overlay */}
-          <div className="premium-card rounded-[24px] bg-white shadow-xl overflow-hidden flex flex-col border border-brand-border max-w-5xl mx-auto relative">
-            <div className="absolute inset-0 bg-gradient-to-b from-[#FFFFFF] to-[#F5F9FF]/20 pointer-events-none" />
-            
-            {/* Mock Dashboard Topbar Header */}
-            <div className="bg-slate-50 px-6 py-4 border-b border-brand-border flex items-center justify-between relative z-10">
-              <div className="flex items-center gap-3">
-                <div className="flex gap-1.5">
-                  <div className="w-2.5 h-2.5 rounded-full bg-rose-400" />
-                  <div className="w-2.5 h-2.5 rounded-full bg-amber-400" />
-                  <div className="w-2.5 h-2.5 rounded-full bg-emerald-400" />
-                </div>
-                <span className="text-[10px] text-slate-400 font-extrabold uppercase tracking-widest pl-2">
-                  app.careermate.io/dashboard
-                </span>
-              </div>
-              <div className="flex items-center gap-3">
-                <div className="w-32 h-6 bg-slate-200/60 rounded-full animate-pulse" />
-                <div className="w-6 h-6 rounded-full bg-slate-200" />
-              </div>
-            </div>
+          {/* Horizontal timeline connected by a line */}
+          <div className="relative pt-6 max-w-5xl mx-auto">
+            {/* Progress line */}
+            <div className="absolute top-[38px] left-[10%] right-[10%] h-[2px] bg-slate-100 -z-10 hidden md:block" />
 
-            {/* Dashboard Content Grid */}
-            <div className="p-6 sm:p-8 bg-transparent grid grid-cols-1 md:grid-cols-12 gap-6 items-stretch relative z-10">
-              
-              {/* Left Column widgets (col-8) */}
-              <div className="md:col-span-8 space-y-6">
-                
-                {/* Score cards & Match Grid */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                  
-                  {/* ATS Score widget */}
-                  <div className="p-5 bg-white border border-brand-border rounded-xl flex items-center gap-5 shadow-sm">
-                    <div className="w-16 h-16 rounded-full border-[5px] border-emerald-500 border-t-transparent flex items-center justify-center font-black text-slate-800 text-base shadow-sm shrink-0">
-                      92%
+            <div className="grid grid-cols-1 md:grid-cols-5 gap-8 items-stretch text-center">
+              {timelineSteps.map((step, idx) => (
+                <div key={idx} className="flex flex-col items-center space-y-4 text-center">
+                  {/* Step bubble */}
+                  <div className="w-10 h-10 rounded-full border-2 border-[#E2E8F0] bg-white text-slate-700 mx-auto flex items-center justify-center font-bold text-xs relative shadow-xs shrink-0">
+                    <div className="w-8 h-8 rounded-full bg-slate-50 border border-[#E2E8F0] flex items-center justify-center">
+                      {step.icon}
                     </div>
-                    <div className="space-y-0.5">
-                      <h4 className="font-extrabold text-xs text-slate-500 uppercase tracking-wider">ATS Score</h4>
-                      <p className="text-xs text-emerald-600 font-bold">Excellent match strength</p>
-                      <p className="text-[10px] text-slate-400 font-semibold leading-normal">Ready for enterprise review gates</p>
-                    </div>
-                  </div>
-
-                  {/* Role Match Score Widget */}
-                  <div className="p-5 bg-white border border-brand-border rounded-xl flex items-center gap-5 shadow-sm">
-                    <div className="w-16 h-16 rounded-full border-[5px] border-primary border-t-transparent flex items-center justify-center font-black text-slate-800 text-base shadow-sm shrink-0">
-                      88%
-                    </div>
-                    <div className="space-y-0.5">
-                      <h4 className="font-extrabold text-xs text-slate-500 uppercase tracking-wider">Role Match Score</h4>
-                      <p className="text-xs text-primary font-bold">Senior Frontend Engineer</p>
-                      <p className="text-[10px] text-slate-400 font-semibold leading-normal">Matched with target Stripe vacancy</p>
-                    </div>
-                  </div>
-
-                </div>
-
-                {/* Skill Gap Progress Widget */}
-                <div className="p-5 bg-white border border-brand-border rounded-xl shadow-sm space-y-4">
-                  <div className="flex justify-between items-center pb-2 border-b border-slate-100">
-                    <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Skill Gap Progress</span>
-                    <span className="text-[10px] text-primary font-bold uppercase">Stripe Target profile</span>
+                    {/* Step badge overlay */}
+                    <span className="absolute -top-1 -right-1 bg-[#1E40AF] text-white font-mono text-[8px] font-extrabold w-4 h-4 rounded-full flex items-center justify-center">
+                      {step.num}
+                    </span>
                   </div>
                   
-                  <div className="space-y-3.5">
-                    <div>
-                      <div className="flex justify-between text-xs font-semibold mb-1 text-slate-700">
-                        <span>TypeScript</span>
-                        <span>90% Yours / 100% Target</span>
-                      </div>
-                      <div className="h-2 w-full bg-slate-100 rounded-full overflow-hidden">
-                        <div className="h-full bg-primary rounded-full w-[90%]" />
-                      </div>
-                    </div>
-                    <div>
-                      <div className="flex justify-between text-xs font-semibold mb-1 text-slate-700">
-                        <span>Next.js Framework</span>
-                        <span>95% Yours / 90% Target</span>
-                      </div>
-                      <div className="h-2 w-full bg-slate-100 rounded-full overflow-hidden">
-                        <div className="h-full bg-primary rounded-full w-[95%]" />
-                      </div>
-                    </div>
-                    <div>
-                      <div className="flex justify-between text-xs font-semibold mb-1 text-slate-700">
-                        <span>Docker Containers</span>
-                        <span>60% Yours / 80% Target</span>
-                      </div>
-                      <div className="h-2 w-full bg-slate-100 rounded-full overflow-hidden">
-                        <div className="h-full bg-amber-500 rounded-full w-[60%]" />
-                      </div>
-                    </div>
+                  {/* Content details */}
+                  <div className="space-y-1">
+                    <h4 className="font-extrabold text-xs sm:text-sm text-[#0F172A]">{step.title}</h4>
+                    <p className="text-[11px] text-slate-500 leading-relaxed font-semibold max-w-[150px] mx-auto">
+                      {step.desc}
+                    </p>
                   </div>
                 </div>
-
-              </div>
-
-              {/* Right Column widgets (col-4) */}
-              <div className="md:col-span-4 space-y-6">
-                
-                {/* Recommended Jobs Widget */}
-                <div className="p-5 bg-white border border-brand-border rounded-xl shadow-sm space-y-4 flex flex-col justify-between h-full">
-                  <div className="space-y-3">
-                    <div className="flex justify-between items-center pb-2 border-b border-slate-100">
-                      <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Recommended Jobs</span>
-                    </div>
-                    
-                    <div className="space-y-2.5">
-                      <div className="p-2.5 bg-slate-50 border border-brand-border rounded-lg space-y-1">
-                        <div className="flex justify-between items-start">
-                          <h5 className="font-extrabold text-[11px] text-slate-800">Senior React Dev</h5>
-                          <span className="bg-primary/10 text-primary font-bold px-1.5 py-0.5 rounded text-[8px] uppercase">92%</span>
-                        </div>
-                        <p className="text-[9px] text-slate-400 font-semibold">Stripe • Remote • $140k</p>
-                      </div>
-
-                      <div className="p-2.5 bg-slate-50 border border-brand-border rounded-lg space-y-1">
-                        <div className="flex justify-between items-start">
-                          <h5 className="font-extrabold text-[11px] text-slate-800">Full-Stack Architect</h5>
-                          <span className="bg-emerald-50 text-emerald-700 font-bold px-1.5 py-0.5 rounded text-[8px] uppercase">88%</span>
-                        </div>
-                        <p className="text-[9px] text-slate-400 font-semibold">Vercel • San Francisco • $160k</p>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Learning Roadmap Progress Widget */}
-                  <div className="pt-4 border-t border-slate-100 space-y-2.5">
-                    <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Roadmap Status</span>
-                    <div className="p-3 bg-teal-50 border border-teal-100 rounded-lg text-slate-800 space-y-1.5">
-                      <div className="font-extrabold text-[10px] text-teal-800 flex justify-between">
-                        <span>Milestone 3 of 5</span>
-                        <span>65% Done</span>
-                      </div>
-                      <p className="text-[9px] text-slate-500 font-medium">Currently: Deploying Docker containers to AWS ECS</p>
-                    </div>
-                  </div>
-                </div>
-
-              </div>
-
+              ))}
             </div>
-
           </div>
 
         </div>
       </section>
 
-      {/* 7. PRICING SECTION */}
-      <section className="w-full bg-[#FFFFFF] border-t border-[#E2E8F0]/40">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 section-padding space-y-12">
-          <div className="text-center space-y-3">
-            <h2 className="text-2xl sm:text-3xl font-bold tracking-tight text-brand-text">
-              Choose the Plan That Matches Your Goals
-            </h2>
-            <p className="text-slate-500 text-xs sm:text-sm font-semibold">
-              Start free and upgrade as your career journey evolves.
-            </p>
-          </div>
-
-          {/* 4 pricing columns */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 items-stretch">
-            {pricingPlans.map((plan) => {
-              return (
-                <div
-                  key={plan.name}
-                  className={`premium-card p-6 rounded-card bg-white flex flex-col justify-between ${
-                    plan.highlight 
-                      ? "border-primary ring-2 ring-primary/5 shadow-md shadow-primary/5 bg-primary/[0.005]" 
-                      : "border-brand-border"
-                  }`}
-                >
-                  <div className="space-y-6">
-                    <div className="flex justify-between items-center">
-                      <span className={`text-[10px] font-bold uppercase tracking-widest px-2.5 py-0.5 rounded-full ${
-                        plan.highlight ? "bg-primary/10 text-primary" : "bg-slate-100 text-slate-500"
-                      }`}>
-                        {plan.name}
-                      </span>
-                    </div>
-
-                    <div className="space-y-2">
-                      <div className="flex items-baseline">
-                        <span className="text-3xl font-black text-slate-900">{plan.price}</span>
-                        {plan.period && (
-                          <span className="text-slate-400 font-semibold text-xs ml-1">{plan.period}</span>
-                        )}
-                      </div>
-                      <p className="text-slate-500 text-xs leading-normal font-semibold">{plan.description}</p>
-                    </div>
-
-                    <hr className="border-slate-100" />
-
-                    {/* Checklist */}
-                    <ul className="space-y-2.5">
-                      {plan.features.map((feat) => (
-                        <li key={feat} className="flex items-start gap-2 text-xs text-slate-600 font-semibold leading-relaxed">
-                          <Check className="w-4 h-4 text-emerald-500 shrink-0 mt-0.5" />
-                          <span>{feat}</span>
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-
-                  <div className="pt-8">
-                    <Link
-                      href="/pricing"
-                      className={`w-full py-2.5 rounded-btn text-xs font-bold uppercase tracking-wider text-center block transition-all cursor-pointer ${
-                        plan.highlight
-                          ? "bg-primary hover:bg-blue-800 text-white shadow-sm"
-                          : "bg-slate-900 hover:bg-slate-800 text-white"
-                      }`}
-                    >
-                      {plan.cta}
-                    </Link>
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-        </div>
-      </section>
-
-      {/* 8. FAQ SECTION */}
+      {/* SECTION 6: TESTIMONIALS */}
       <section className="w-full bg-[#F8FAFC] border-t border-[#E2E8F0]/40">
-        <div className="max-w-[800px] mx-auto px-4 sm:px-6 lg:px-8 section-padding space-y-12">
-          <div className="text-center space-y-3">
-            <h2 className="text-2xl sm:text-3xl font-bold tracking-tight text-brand-text">
-              Frequently Asked Questions
-            </h2>
-            <p className="text-slate-500 text-xs sm:text-sm font-semibold">
-              Common answers regarding matching algorithms and formatting parameters.
-            </p>
-          </div>
-
-          <div className="space-y-4">
-            {faqs.map((faq, idx) => (
-              <div
-                key={idx}
-                className="border border-[#E2E8F0] rounded-xl overflow-hidden bg-white shadow-sm"
-              >
-                <button
-                  onClick={() => setOpenFaq(openFaq === idx ? null : idx)}
-                  className="w-full flex justify-between items-center p-4.5 font-bold text-slate-800 text-left focus:outline-none cursor-pointer"
-                >
-                  <span className="flex items-center gap-2.5 text-xs sm:text-sm uppercase tracking-wide">
-                    <HelpCircle className="w-4 h-4 text-slate-400 shrink-0" />
-                    {faq.question}
-                  </span>
-                  <ChevronDown
-                    className={`w-4 h-4 text-slate-500 transition-transform duration-200 ${
-                      openFaq === idx ? "rotate-180" : ""
-                    }`}
-                  />
-                </button>
-                <AnimatePresence initial={false}>
-                  {openFaq === idx && (
-                    <motion.div
-                      initial={{ height: 0, opacity: 0 }}
-                      animate={{ height: "auto", opacity: 1 }}
-                      exit={{ height: 0, opacity: 0 }}
-                      transition={{ duration: 0.2, ease: "easeInOut" }}
-                      className="overflow-hidden"
-                    >
-                      <div className="px-5 pb-5 pt-1.5 text-slate-500 text-xs sm:text-sm border-t border-slate-100 leading-relaxed font-semibold bg-white">
-                        {faq.answer}
-                      </div>
-                    </motion.div>
-                  )}
-                </AnimatePresence>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* 9. TESTIMONIALS SECTION */}
-      <section className="w-full bg-[#FFFFFF] border-t border-[#E2E8F0]/40">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 section-padding space-y-12">
+          
           <div className="text-center space-y-3">
-            <h2 className="text-2xl sm:text-3xl font-bold tracking-tight text-brand-text">
+            <span className="text-[10px] font-bold text-[#1E40AF] uppercase tracking-widest bg-blue-50 border border-blue-100 px-3 py-1 rounded-full">
+              Testimonials
+            </span>
+            <h2 className="text-2xl sm:text-3xl font-black text-[#0F172A] tracking-tight">
               Career Journeys Powered by CareerMate
             </h2>
             <p className="text-slate-500 text-xs sm:text-sm font-semibold max-w-sm mx-auto">
-              Benchmark comparisons and keyword checks that drove candidate wins.
+              Real success stories from professionals who accelerated their career goals.
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          {/* Testimonial cards */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             {testimonials.map((test) => (
               <div
                 key={test.name}
-                className="premium-card p-6 rounded-card bg-white border border-[#E2E8F0] shadow-sm hover:shadow-md transition-all flex flex-col justify-between"
+                className="premium-card p-6 rounded-[20px] bg-white border border-[#E2E8F0] shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all flex flex-col justify-between text-left"
               >
                 <div className="space-y-4">
+                  {/* Star rating */}
                   <div className="flex items-center gap-0.5">
                     {[...Array(test.rating)].map((_, i) => (
                       <Star key={i} className="w-3.5 h-3.5 fill-amber-400 text-amber-400" />
                     ))}
                   </div>
+                  {/* Review text */}
                   <p className="text-slate-600 text-xs sm:text-sm italic leading-relaxed font-semibold">
                     "{test.story}"
                   </p>
                 </div>
 
+                {/* Profile info */}
                 <div className="flex items-center gap-3 pt-6 mt-6 border-t border-slate-100">
                   <img
                     src={test.image}
                     alt={test.name}
-                    className="w-9 h-9 rounded-full object-cover"
+                    className="w-9 h-9 rounded-full object-cover ring-1 ring-slate-100"
                   />
                   <div>
-                    <h4 className="font-bold text-xs text-slate-900 leading-tight">{test.name}</h4>
-                    <p className="text-[10px] text-slate-500 font-semibold">{test.role}</p>
+                    <h4 className="font-bold text-xs text-[#0F172A] leading-tight">{test.name}</h4>
+                    <p className="text-[10px] text-slate-500 font-semibold">{test.role} • <span className="font-bold text-slate-600">{test.company}</span></p>
                   </div>
                 </div>
               </div>
             ))}
           </div>
+
         </div>
       </section>
 
-      {/* 10. STATISTICS SECTION */}
-      <section className="w-full bg-[#F5F9FF] border-t border-[#E2E8F0]/40">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 section-padding space-y-12">
-          <div className="text-center space-y-3">
-            <h2 className="text-2xl sm:text-3xl font-bold tracking-tight text-brand-text">
-              Growing Careers Worldwide
-            </h2>
-            <p className="text-slate-500 text-xs sm:text-sm font-semibold max-w-md mx-auto">
-              Empowering professionals globally with quantitative credentials and opportunities.
-            </p>
-          </div>
-
-          <div className="premium-card py-12 px-6 bg-white rounded-3xl border border-[#E2E8F0] shadow-md max-w-5xl mx-auto">
-            <div className="grid grid-cols-1 md:grid-cols-3 divide-y md:divide-y-0 md:divide-x divide-slate-100 text-center">
-              
-              {/* Stat 1 */}
-              <div className="py-6 md:py-0 flex flex-col items-center space-y-3">
-                <div className="w-10 h-10 rounded-full bg-blue-50 flex items-center justify-center text-primary">
-                  <Users className="w-5 h-5" />
-                </div>
-                <div className="space-y-1">
-                  <div className="text-3xl sm:text-4xl font-black text-brand-text">
-                    <Counter value={10000} suffix="+" />
-                  </div>
-                  <p className="text-[10px] sm:text-xs font-bold uppercase tracking-widest text-brand-muted">Active Professionals</p>
-                </div>
+      {/* SECTION 7: FINAL CALL-TO-ACTION BANNER */}
+      <section className="w-full bg-white py-12">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="w-full bg-gradient-to-r from-[#1E40AF] to-[#2563EB] rounded-[24px] px-8 py-10 sm:px-12 sm:py-14 text-white shadow-xl relative overflow-hidden">
+            {/* Soft decorative background circles */}
+            <div className="absolute top-0 right-0 w-80 h-80 rounded-full bg-white/[0.04] blur-2xl pointer-events-none" />
+            
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center relative z-10 text-left">
+              {/* Left Column content */}
+              <div className="lg:col-span-8 space-y-4">
+                <h2 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-white leading-tight">
+                  Take the Next Step Toward Your Career Goals
+                </h2>
+                <p className="text-blue-100 text-xs sm:text-sm leading-relaxed font-semibold max-w-2xl">
+                  Join thousands of professionals using CareerMate to optimize resumes, discover opportunities, and build future-ready skills.
+                </p>
               </div>
 
-              {/* Stat 2 */}
-              <div className="py-6 md:py-0 flex flex-col items-center space-y-3">
-                <div className="w-10 h-10 rounded-full bg-teal-50 flex items-center justify-center text-accent">
-                  <FileCheck className="w-5 h-5" />
-                </div>
-                <div className="space-y-1">
-                  <div className="text-3xl sm:text-4xl font-black text-brand-text">
-                    <Counter value={50000} suffix="+" />
-                  </div>
-                  <p className="text-[10px] sm:text-xs font-bold uppercase tracking-widest text-brand-muted">Resumes Optimized</p>
-                </div>
+              {/* Right Column buttons */}
+              <div className="lg:col-span-4 flex flex-col sm:flex-row lg:flex-col xl:flex-row items-stretch sm:items-center lg:items-stretch xl:items-center justify-end gap-3.5 w-full">
+                <Link
+                  href="/resume-upload"
+                  className="bg-white hover:bg-slate-100 text-[#1E40AF] font-bold text-xs uppercase tracking-wider px-6 py-3.5 rounded-btn text-center cursor-pointer shadow-sm transition-all"
+                >
+                  Upload Resume
+                </Link>
+                <Link
+                  href="/signup"
+                  className="bg-transparent hover:bg-white/10 text-white border border-white/30 hover:border-white font-bold text-xs uppercase tracking-wider px-6 py-3.5 rounded-btn text-center cursor-pointer shadow-sm transition-all"
+                >
+                  Create Free Account
+                </Link>
               </div>
-
-              {/* Stat 3 */}
-              <div className="py-6 md:py-0 flex flex-col items-center space-y-3">
-                <div className="w-10 h-10 rounded-full bg-emerald-50 flex items-center justify-center text-[#14B8A6]">
-                  <Compass className="w-5 h-5" />
-                </div>
-                <div className="space-y-1">
-                  <div className="text-3xl sm:text-4xl font-black text-brand-text">
-                    <Counter value={5000} suffix="+" />
-                  </div>
-                  <p className="text-[10px] sm:text-xs font-bold uppercase tracking-widest text-brand-muted">Opportunities Discovered</p>
-                </div>
-              </div>
-
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* 11. FINAL CTA SECTION */}
-      <section className="w-full bg-gradient-to-br from-[#0F172A] to-[#1E293B] border-t border-slate-800">
-        <div className="max-w-[960px] mx-auto px-4 sm:px-6 lg:px-8 section-padding text-center">
-          <div className="space-y-6 max-w-2xl mx-auto">
-            <h2 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-white leading-tight">
-              Take the Next Step Toward Your Career Goals
-            </h2>
-            <p className="text-slate-300 text-xs sm:text-sm leading-relaxed font-semibold">
-              Join thousands of professionals using CareerMate to optimize resumes, discover opportunities, and build future-ready skills.
-            </p>
-            <div className="pt-2 flex flex-col sm:flex-row justify-center items-center gap-3.5">
-              <Link
-                href="/signup"
-                className="w-full sm:w-auto bg-primary hover:bg-blue-800 text-white font-bold px-8 py-3.5 rounded-btn transition-colors text-xs uppercase tracking-wider text-center cursor-pointer shadow-sm"
-              >
-                Get Started
-              </Link>
-              <Link
-                href="/resume-upload"
-                className="w-full sm:w-auto bg-slate-800 hover:bg-slate-700 text-white border border-slate-700 font-bold px-8 py-3.5 rounded-btn transition-colors text-xs uppercase tracking-wider text-center cursor-pointer shadow-sm"
-              >
-                Upload Resume
-              </Link>
             </div>
           </div>
         </div>
