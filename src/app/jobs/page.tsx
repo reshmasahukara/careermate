@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import { useSession } from "next-auth/react";
+import DashboardLayout from "@/components/DashboardLayout";
 import {
   Search,
   MapPin,
@@ -135,275 +136,272 @@ export default function JobListingsPage() {
     toast("Filters reset successfully.", "info");
   };
 
-  return (
-    <div className="flex-1 bg-brand-bg py-10">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8">
+  const renderContent = (
+    <div className="space-y-6">
+      
+      {/* Header */}
+      <div>
+        <h1 className="text-2xl font-bold text-[#0F172A]">Job Board</h1>
+        <p className="text-[#64748B] text-xs font-semibold mt-1">Explore job postings recommended based on your technical skill profiles.</p>
+      </div>
+
+      {/* Tab Switching */}
+      <div className="flex border-b border-[#E2E8F0]">
+        <button
+          onClick={() => {
+            setActiveTab("all");
+            setCurrentPage(1);
+          }}
+          className={`px-6 py-3.5 text-xs font-bold uppercase tracking-wider border-b-2 transition-colors cursor-pointer ${
+            activeTab === "all"
+              ? "border-[#2563EB] text-[#2563EB]"
+              : "border-transparent text-[#64748B] hover:text-[#0F172A]"
+          }`}
+        >
+          All Open Positions
+        </button>
         
-        {/* Header */}
-        <div>
-          <h1 className="text-3xl font-extrabold text-slate-900">Job Board</h1>
-          <p className="text-slate-500 text-sm mt-1">Explore job postings recommended based on your technical skill profiles.</p>
-        </div>
+        <button
+          onClick={() => {
+            setActiveTab("recommended");
+            setCurrentPage(1);
+            if (userSkills.length === 0) {
+              toast("Upload a resume or save skills in Profile to get custom recommendations.", "info");
+            }
+          }}
+          className={`px-6 py-3.5 text-xs font-bold uppercase tracking-wider border-b-2 transition-colors flex items-center gap-1.5 cursor-pointer ${
+            activeTab === "recommended"
+              ? "border-[#2563EB] text-[#2563EB]"
+              : "border-transparent text-[#64748B] hover:text-[#0F172A]"
+          }`}
+        >
+          <Sparkles className="w-4 h-4" />
+          Recommended for You
+        </button>
+      </div>
 
-        {/* Tab Switching */}
-        <div className="flex border-b border-slate-200">
-          <button
-            onClick={() => {
-              setActiveTab("all");
-              setCurrentPage(1);
-            }}
-            className={`px-6 py-3.5 text-xs font-bold uppercase tracking-wider border-b-2 transition-colors cursor-pointer ${
-              activeTab === "all"
-                ? "border-primary text-primary"
-                : "border-transparent text-slate-500 hover:text-slate-700"
-            }`}
-          >
-            All Open Positions
-          </button>
-          
-          <button
-            onClick={() => {
-              setActiveTab("recommended");
-              setCurrentPage(1);
-              if (userSkills.length === 0) {
-                toast("Upload a resume or save skills in Profile to get custom recommendations.", "info");
-              }
-            }}
-            className={`px-6 py-3.5 text-xs font-bold uppercase tracking-wider border-b-2 transition-colors flex items-center gap-1.5 cursor-pointer ${
-              activeTab === "recommended"
-                ? "border-primary text-primary"
-                : "border-transparent text-slate-500 hover:text-slate-700"
-            }`}
-          >
-            <Sparkles className="w-4 h-4" />
-            Recommended for You
-          </button>
-        </div>
-
-        {/* Board Workspace */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-          
-          {/* Filters Sidebar (col 4) */}
-          <div className="lg:col-span-4 bg-white p-6 border border-slate-200 rounded-2xl shadow-sm space-y-6">
-            <div className="flex justify-between items-center pb-4 border-b border-slate-100">
-              <span className="text-xs font-bold text-slate-800 uppercase tracking-wider flex items-center gap-1.5">
-                <SlidersHorizontal className="w-4 h-4 text-slate-500" />
-                Filter Roles
-              </span>
-              <button
-                onClick={resetFilters}
-                className="text-[10px] font-bold text-primary hover:underline uppercase tracking-wider cursor-pointer"
-              >
-                Clear All
-              </button>
-            </div>
-
-            <div className="space-y-4">
-              
-              {/* Keyword Search */}
-              <div>
-                <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-2">
-                  Keyword Search
-                </label>
-                <div className="relative">
-                  <input
-                    type="text"
-                    value={searchQuery}
-                    onChange={(e) => {
-                      setSearchQuery(e.target.value);
-                      setCurrentPage(1);
-                    }}
-                    placeholder="e.g. Next.js, Stripe, Engineer"
-                    className="w-full bg-slate-50 border border-slate-200 rounded-xl py-2 px-3 text-xs focus:outline-none focus:border-primary pl-8 text-slate-700 font-semibold"
-                  />
-                  <Search className="absolute left-2.5 top-2.5 w-4.5 h-4.5 text-slate-400" />
-                </div>
-              </div>
-
-              {/* Location selection */}
-              <div>
-                <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-2">
-                  Location
-                </label>
-                <select
-                  value={filterLocation}
-                  onChange={(e) => {
-                    setFilterLocation(e.target.value);
-                    setCurrentPage(1);
-                  }}
-                  className="w-full bg-slate-50 border border-slate-200 rounded-xl py-2.5 px-3 text-xs focus:outline-none font-semibold text-slate-600 focus:bg-white transition-colors"
-                >
-                  <option value="">All Locations</option>
-                  <option value="San Francisco">San Francisco, CA</option>
-                  <option value="Seattle">Seattle, WA</option>
-                  <option value="New York">New York, NY</option>
-                </select>
-              </div>
-
-              {/* Experience selection */}
-              <div>
-                <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-2">
-                  Experience Level
-                </label>
-                <select
-                  value={filterExperience}
-                  onChange={(e) => {
-                    setFilterExperience(e.target.value);
-                    setCurrentPage(1);
-                  }}
-                  className="w-full bg-slate-50 border border-slate-200 rounded-xl py-2.5 px-3 text-xs focus:outline-none font-semibold text-slate-600 focus:bg-white transition-colors"
-                >
-                  <option value="">All Experience</option>
-                  <option value="Junior">Junior (0-2 years)</option>
-                  <option value="Mid">Mid (2-5 years)</option>
-                  <option value="Senior">Senior (5+ years)</option>
-                </select>
-              </div>
-
-              {/* Remote selection */}
-              <div>
-                <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-2">
-                  Work Environment
-                </label>
-                <div className="grid grid-cols-3 gap-2">
-                  {[
-                    { label: "All", value: null },
-                    { label: "Remote", value: true },
-                    { label: "Onsite", value: false },
-                  ].map((env) => {
-                    const isSelected = filterRemote === env.value;
-                    return (
-                      <button
-                        key={env.label}
-                        onClick={() => {
-                          setFilterRemote(env.value);
-                          setCurrentPage(1);
-                        }}
-                        className={`py-2 rounded-lg text-xs font-bold border transition-all cursor-pointer ${
-                          isSelected
-                            ? "bg-slate-900 border-slate-900 text-white"
-                            : "border-slate-200 hover:bg-slate-50 text-slate-600"
-                        }`}
-                      >
-                        {env.label}
-                      </button>
-                    );
-                  })}
-                </div>
-              </div>
-
-            </div>
+      {/* Board Workspace */}
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+        
+        {/* Filters Sidebar (col 4) */}
+        <div className="lg:col-span-4 bg-white p-6 border border-[#E2E8F0] rounded-[20px] shadow-sm space-y-6">
+          <div className="flex justify-between items-center pb-4 border-b border-[#E2E8F0]/60">
+            <span className="text-xs font-extrabold text-[#0F172A] uppercase tracking-wider flex items-center gap-1.5">
+              <SlidersHorizontal className="w-4 h-4 text-[#64748B]" />
+              Filter Roles
+            </span>
+            <button
+              onClick={resetFilters}
+              className="text-[10px] font-bold text-[#2563EB] hover:underline uppercase tracking-wider cursor-pointer"
+            >
+              Clear All
+            </button>
           </div>
 
-          {/* Job listings (col 8) */}
-          <div className="lg:col-span-8 space-y-6">
+          <div className="space-y-4">
             
-            {paginatedJobs.length > 0 ? (
-              <div className="space-y-4">
-                {paginatedJobs.map((job) => {
-                  const isSaved = savedJobIds.includes(job.id);
+            {/* Keyword Search */}
+            <div>
+              <label className="block text-[10px] font-bold text-[#64748B] uppercase tracking-wider mb-2">
+                Keyword Search
+              </label>
+              <div className="relative">
+                <input
+                  type="text"
+                  value={searchQuery}
+                  onChange={(e) => {
+                    setSearchQuery(e.target.value);
+                    setCurrentPage(1);
+                  }}
+                  placeholder="e.g. Next.js, Stripe, Engineer"
+                  className="w-full bg-[#F8FAFC] border border-[#E2E8F0] rounded-[12px] py-2 px-3 text-xs focus:outline-none focus:border-[#2563EB] pl-8 text-[#0F172A] font-semibold"
+                />
+                <Search className="absolute left-2.5 top-2.5 w-4.5 h-4.5 text-[#64748B]" />
+              </div>
+            </div>
+
+            {/* Location selection */}
+            <div>
+              <label className="block text-[10px] font-bold text-[#64748B] uppercase tracking-wider mb-2">
+                Location
+              </label>
+              <select
+                value={filterLocation}
+                onChange={(e) => {
+                  setFilterLocation(e.target.value);
+                  setCurrentPage(1);
+                }}
+                className="w-full bg-[#F8FAFC] border border-[#E2E8F0] rounded-[12px] py-2.5 px-3 text-xs focus:outline-none font-semibold text-[#64748B] focus:bg-white transition-colors"
+              >
+                <option value="">All Locations</option>
+                <option value="San Francisco">San Francisco, CA</option>
+                <option value="Seattle">Seattle, WA</option>
+                <option value="New York">New York, NY</option>
+              </select>
+            </div>
+
+            {/* Experience selection */}
+            <div>
+              <label className="block text-[10px] font-bold text-[#64748B] uppercase tracking-wider mb-2">
+                Experience Level
+              </label>
+              <select
+                value={filterExperience}
+                onChange={(e) => {
+                  setFilterExperience(e.target.value);
+                  setCurrentPage(1);
+                }}
+                className="w-full bg-[#F8FAFC] border border-[#E2E8F0] rounded-[12px] py-2.5 px-3 text-xs focus:outline-none font-semibold text-[#64748B] focus:bg-white transition-colors"
+              >
+                <option value="">All Experience</option>
+                <option value="Junior">Junior (0-2 years)</option>
+                <option value="Mid">Mid (2-5 years)</option>
+                <option value="Senior">Senior (5+ years)</option>
+              </select>
+            </div>
+
+            {/* Remote selection */}
+            <div>
+              <label className="block text-[10px] font-bold text-[#64748B] uppercase tracking-wider mb-2">
+                Work Environment
+              </label>
+              <div className="grid grid-cols-3 gap-2">
+                {[
+                  { label: "All", value: null },
+                  { label: "Remote", value: true },
+                  { label: "Onsite", value: false },
+                ].map((env) => {
+                  const isSelected = filterRemote === env.value;
                   return (
-                    <div
-                      key={job.id}
-                      onClick={() => setSelectedJob(job)}
-                      className="glass-card p-6 rounded-2xl border border-slate-200 hover:border-primary/40 transition-all duration-200 cursor-pointer flex flex-col justify-between gap-4"
+                    <button
+                      key={env.label}
+                      onClick={() => {
+                        setFilterRemote(env.value);
+                        setCurrentPage(1);
+                      }}
+                      className={`py-2 rounded-[8px] text-xs font-bold border transition-all cursor-pointer ${
+                        isSelected
+                          ? "bg-[#0F172A] border-[#0F172A] text-white"
+                          : "border-[#E2E8F0] hover:bg-[#F8FAFC] text-[#64748B]"
+                      }`}
                     >
-                      <div className="flex justify-between items-start gap-4">
-                        <div className="space-y-1">
-                          <h3 className="font-extrabold text-base sm:text-lg text-slate-900 hover:text-primary transition-colors">
-                            {job.title}
-                          </h3>
-                          <p className="text-xs sm:text-sm text-slate-500 font-semibold flex items-center gap-1">
-                            <Briefcase className="w-4 h-4 text-slate-400" />
-                            {job.company} • {job.location}
-                          </p>
-                        </div>
-
-                        <div className="flex items-center gap-2">
-                          <button
-                            onClick={(e) => handleToggleSave(e, job.id)}
-                            className={`p-2.5 rounded-xl border transition-all cursor-pointer ${
-                              isSaved
-                                ? "bg-rose-50 border-rose-100 text-rose-500"
-                                : "bg-white border-slate-200 hover:border-slate-300 text-slate-400 hover:text-slate-600"
-                            }`}
-                          >
-                            <Heart className={`w-4 h-4 ${isSaved ? "fill-rose-500" : ""}`} />
-                          </button>
-                        </div>
-                      </div>
-
-                      <p className="text-slate-600 dark:text-slate-300 text-xs sm:text-sm line-clamp-2 leading-relaxed">
-                        {job.description}
-                      </p>
-
-                      {/* Required skills */}
-                      <div className="flex flex-wrap gap-1.5 pt-2">
-                        {job.skills.map((skill: string) => {
-                          const matchesUser = userSkills.includes(skill.toLowerCase());
-                          return (
-                            <span
-                              key={skill}
-                              className={`text-[10px] font-bold px-2 py-0.5 rounded-md border ${
-                                matchesUser
-                                  ? "bg-emerald-50 border-emerald-100 text-emerald-700"
-                                  : "bg-slate-50 border-slate-200/60 text-slate-600"
-                              }`}
-                            >
-                              {skill}
-                            </span>
-                          );
-                        })}
-                      </div>
-
-                      {/* Footer salary info */}
-                      <div className="flex justify-between items-center pt-4 mt-2 border-t border-slate-100/60 text-xs text-slate-500">
-                        <span className="flex items-center gap-1 font-semibold">
-                          <DollarSign className="w-4.5 h-4.5 text-slate-400" />
-                          {job.salary}
-                        </span>
-                        <span className="text-[10px] text-slate-400 uppercase tracking-wider font-semibold">
-                          {new Date(job.createdAt).toLocaleDateString("en-US", { month: "short", day: "numeric" })}
-                        </span>
-                      </div>
-
-                    </div>
+                      {env.label}
+                    </button>
                   );
                 })}
-
-                {/* Pagination bar */}
-                <div className="flex items-center justify-between pt-6 border-t border-slate-100">
-                  <button
-                    onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
-                    disabled={currentPage === 1}
-                    className="flex items-center gap-1 text-xs font-bold text-slate-600 hover:text-primary transition-colors disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
-                  >
-                    <ChevronLeft className="w-4 h-4" />
-                    Previous
-                  </button>
-                  <span className="text-xs font-semibold text-slate-500">
-                    Page {currentPage} of {totalPages}
-                  </span>
-                  <button
-                    onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
-                    disabled={currentPage === totalPages}
-                    className="flex items-center gap-1 text-xs font-bold text-slate-600 hover:text-primary transition-colors disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
-                  >
-                    Next
-                    <ChevronRight className="w-4 h-4" />
-                  </button>
-                </div>
-
               </div>
-            ) : (
-              <div className="text-center py-16 bg-white rounded-2xl border border-slate-200 flex flex-col items-center gap-3">
-                <Briefcase className="w-12 h-12 text-slate-300 animate-bounce" />
-                <h3 className="font-bold text-slate-800 text-sm">No job positions found</h3>
-                <p className="text-slate-500 text-xs">Try clearing search parameters or adjusting active filters.</p>
-              </div>
-            )}
+            </div>
 
           </div>
+        </div>
+
+        {/* Job listings (col 8) */}
+        <div className="lg:col-span-8 space-y-6">
+          
+          {paginatedJobs.length > 0 ? (
+            <div className="space-y-4">
+              {paginatedJobs.map((job) => {
+                const isSaved = savedJobIds.includes(job.id);
+                return (
+                  <div
+                    key={job.id}
+                    onClick={() => setSelectedJob(job)}
+                    className="bg-white border border-[#E2E8F0] p-6 rounded-[20px] hover:border-[#2563EB]/40 shadow-sm hover:shadow-md transition-all duration-200 cursor-pointer flex flex-col justify-between gap-4"
+                  >
+                    <div className="flex justify-between items-start gap-4">
+                      <div className="space-y-1">
+                        <h3 className="font-extrabold text-base sm:text-lg text-[#0F172A] hover:text-[#2563EB] transition-colors">
+                          {job.title}
+                        </h3>
+                        <p className="text-xs sm:text-sm text-[#64748B] font-semibold flex items-center gap-1">
+                          <Briefcase className="w-4 h-4 text-[#64748B]" />
+                          {job.company} • {job.location}
+                        </p>
+                      </div>
+
+                      <div className="flex items-center gap-2">
+                        <button
+                          onClick={(e) => handleToggleSave(e, job.id)}
+                          className={`p-2.5 rounded-[12px] border transition-all cursor-pointer ${
+                            isSaved
+                              ? "bg-rose-50 border-rose-100 text-rose-500"
+                              : "bg-white border-[#E2E8F0] hover:border-slate-300 text-slate-400 hover:text-slate-600"
+                          }`}
+                        >
+                          <Heart className={`w-4 h-4 ${isSaved ? "fill-rose-500" : ""}`} />
+                        </button>
+                      </div>
+                    </div>
+
+                    <p className="text-slate-600 dark:text-slate-300 text-xs sm:text-sm line-clamp-2 leading-relaxed font-semibold">
+                      {job.description}
+                    </p>
+
+                    {/* Required skills */}
+                    <div className="flex flex-wrap gap-1.5 pt-2">
+                      {job.skills.map((skill: string) => {
+                        const matchesUser = userSkills.includes(skill.toLowerCase());
+                        return (
+                          <span
+                            key={skill}
+                            className={`text-[10px] font-bold px-2 py-0.5 rounded-md border ${
+                              matchesUser
+                                ? "bg-emerald-50 border-emerald-100 text-emerald-700"
+                                : "bg-[#F8FAFC] border-[#E2E8F0] text-slate-600"
+                            }`}
+                          >
+                            {skill}
+                          </span>
+                        );
+                      })}
+                    </div>
+
+                    {/* Footer salary info */}
+                    <div className="flex justify-between items-center pt-4 mt-2 border-t border-[#E2E8F0]/60 text-xs text-[#64748B]">
+                      <span className="flex items-center gap-1 font-semibold">
+                        <DollarSign className="w-4.5 h-4.5 text-[#64748B]" />
+                        {job.salary}
+                      </span>
+                      <span className="text-[10px] text-slate-400 uppercase tracking-wider font-semibold">
+                        {new Date(job.createdAt).toLocaleDateString("en-US", { month: "short", day: "numeric" })}
+                      </span>
+                    </div>
+
+                  </div>
+                );
+              })}
+
+              {/* Pagination bar */}
+              <div className="flex items-center justify-between pt-6 border-t border-[#E2E8F0]/60">
+                <button
+                  onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+                  disabled={currentPage === 1}
+                  className="flex items-center gap-1 text-xs font-bold text-[#64748B] hover:text-[#2563EB] transition-colors disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+                >
+                  <ChevronLeft className="w-4 h-4" />
+                  Previous
+                </button>
+                <span className="text-xs font-semibold text-[#64748B]">
+                  Page {currentPage} of {totalPages}
+                </span>
+                <button
+                  onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
+                  disabled={currentPage === totalPages}
+                  className="flex items-center gap-1 text-xs font-bold text-[#64748B] hover:text-[#2563EB] transition-colors disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+                >
+                  Next
+                  <ChevronRight className="w-4 h-4" />
+                </button>
+              </div>
+
+            </div>
+          ) : (
+            <div className="text-center py-16 bg-white rounded-[20px] border border-[#E2E8F0] flex flex-col items-center gap-3">
+              <Briefcase className="w-12 h-12 text-[#64748B]" />
+              <h3 className="font-bold text-[#0F172A] text-sm">No job positions found</h3>
+              <p className="text-[#64748B] text-xs font-semibold">Try clearing search parameters or adjusting active filters.</p>
+            </div>
+          )}
 
         </div>
 
@@ -416,35 +414,35 @@ export default function JobListingsPage() {
           onClick={() => setSelectedJob(null)}
         >
           <div
-            className="bg-white rounded-2xl max-w-2xl w-full p-6 sm:p-8 space-y-6 shadow-2xl relative overflow-y-auto max-h-[85vh] border border-slate-100"
+            className="bg-white rounded-[20px] border border-[#E2E8F0] max-w-2xl w-full p-6 sm:p-8 space-y-6 shadow-2xl relative overflow-y-auto max-h-[85vh]"
             onClick={(e) => e.stopPropagation()}
           >
             {/* Header info */}
             <div className="flex justify-between items-start gap-4">
               <div className="space-y-1">
-                <h2 className="text-lg sm:text-2xl font-black text-slate-900 leading-tight">
+                <h2 className="text-lg sm:text-2xl font-black text-[#0F172A] leading-tight">
                   {selectedJob.title}
                 </h2>
-                <p className="text-xs sm:text-sm font-semibold text-slate-500">
+                <p className="text-xs sm:text-sm font-semibold text-[#64748B]">
                   {selectedJob.company} • {selectedJob.location}
                 </p>
               </div>
               <button
                 onClick={() => setSelectedJob(null)}
-                className="text-slate-400 hover:text-slate-600 font-bold p-1 hover:bg-slate-100 rounded-lg cursor-pointer"
+                className="text-slate-400 hover:text-slate-600 font-bold p-1 hover:bg-[#F8FAFC] rounded-lg cursor-pointer"
               >
                 ✕
               </button>
             </div>
 
             {/* Salary details bar */}
-            <div className="flex flex-wrap gap-4 text-xs font-semibold text-slate-600 bg-slate-50 p-4 rounded-xl border border-slate-100/60">
+            <div className="flex flex-wrap gap-4 text-xs font-semibold text-[#64748B] bg-[#F8FAFC] p-4 rounded-[12px] border border-[#E2E8F0]">
               <span className="flex items-center gap-1">
-                <DollarSign className="w-4.5 h-4.5 text-primary shrink-0" />
+                <DollarSign className="w-4.5 h-4.5 text-[#2563EB] shrink-0" />
                 Salary: {selectedJob.salary}
               </span>
               <span className="flex items-center gap-1">
-                <Briefcase className="w-4.5 h-4.5 text-secondary shrink-0" />
+                <Briefcase className="w-4.5 h-4.5 text-[#4F46E5] shrink-0" />
                 Type: {selectedJob.type}
               </span>
               <span className="flex items-center gap-1 font-semibold uppercase tracking-wider text-[10px] text-slate-400">
@@ -453,14 +451,14 @@ export default function JobListingsPage() {
             </div>
 
             {/* Description */}
-            <div className="space-y-2 text-xs sm:text-sm text-slate-600 leading-relaxed font-medium">
-              <h4 className="font-extrabold text-slate-800 uppercase tracking-wider text-[10px]">Position Overview</h4>
+            <div className="space-y-2 text-xs sm:text-sm text-slate-600 leading-relaxed font-semibold">
+              <h4 className="font-extrabold text-[#0F172A] uppercase tracking-wider text-[10px]">Position Overview</h4>
               <p>{selectedJob.description}</p>
             </div>
 
             {/* Requirements list */}
             <div className="space-y-2">
-              <h4 className="font-extrabold text-slate-800 uppercase tracking-wider text-[10px]">Job Requirements</h4>
+              <h4 className="font-extrabold text-[#0F172A] uppercase tracking-wider text-[10px]">Job Requirements</h4>
               <ul className="space-y-2">
                 {selectedJob.requirements.map((req: string, i: number) => (
                   <li key={i} className="text-xs text-slate-600 flex items-start gap-2 leading-relaxed font-semibold">
@@ -472,10 +470,10 @@ export default function JobListingsPage() {
             </div>
 
             {/* CTA action buttons */}
-            <div className="flex gap-4 pt-4 border-t border-slate-100 justify-end">
+            <div className="flex gap-4 pt-4 border-t border-[#E2E8F0]/60 justify-end">
               <button
                 onClick={() => setSelectedJob(null)}
-                className="px-5 py-2.5 border border-slate-200 text-slate-700 text-xs font-bold rounded-xl hover:bg-slate-50 transition-colors"
+                className="px-5 py-2.5 border border-[#E2E8F0] text-slate-700 text-xs font-bold rounded-[12px] hover:bg-[#F8FAFC] transition-colors"
               >
                 Close details
               </button>
@@ -484,7 +482,7 @@ export default function JobListingsPage() {
                 href={selectedJob.applyUrl}
                 target="_blank"
                 rel="noreferrer"
-                className="px-6 py-2.5 bg-primary hover:bg-blue-700 text-white text-xs font-bold rounded-xl flex items-center justify-center gap-1.5 shadow shadow-primary/15 transition-colors cursor-pointer"
+                className="px-6 py-2.5 bg-[#2563EB] hover:bg-[#1D4ED8] text-white text-xs font-bold rounded-[12px] flex items-center justify-center gap-1.5 shadow transition-colors cursor-pointer"
               >
                 Apply Direct
                 <ExternalLink className="w-4 h-4" />
@@ -495,6 +493,18 @@ export default function JobListingsPage() {
         </div>
       )}
 
+    </div>
+  );
+
+  if (session) {
+    return <DashboardLayout>{renderContent}</DashboardLayout>;
+  }
+
+  return (
+    <div className="flex-1 bg-brand-bg py-10">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        {renderContent}
+      </div>
     </div>
   );
 }

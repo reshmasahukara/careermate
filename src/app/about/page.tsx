@@ -51,7 +51,7 @@ export default function AboutPage() {
 
       {/* Stats Board */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-6 bg-white border border-slate-200 p-8 rounded-2xl shadow-sm text-center">
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-6 bg-white border border-slate-200 p-8 rounded-card shadow-sm text-center">
           {stats.map((st) => (
             <div key={st.label} className="space-y-1.5">
               <div className="text-3xl font-black text-slate-900">{st.value}</div>
@@ -65,7 +65,7 @@ export default function AboutPage() {
       <section className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 grid grid-cols-1 md:grid-cols-2 gap-8">
         
         {/* Card 1 */}
-        <div className="glass-card p-8 rounded-2xl border border-slate-200 space-y-4">
+        <div className="premium-card p-8 rounded-card space-y-4">
           <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center text-primary shadow-sm">
             <Award className="w-5 h-5" />
           </div>
@@ -76,7 +76,7 @@ export default function AboutPage() {
         </div>
 
         {/* Card 2 */}
-        <div className="glass-card p-8 rounded-2xl border border-slate-200 space-y-4">
+        <div className="premium-card p-8 rounded-card space-y-4">
           <div className="w-10 h-10 rounded-xl bg-secondary/10 flex items-center justify-center text-secondary shadow-sm">
             <TrendingUp className="w-5 h-5" />
           </div>
@@ -99,7 +99,7 @@ export default function AboutPage() {
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           {team.map((member) => (
-            <div key={member.name} className="glass-card p-6 rounded-2xl border border-slate-200 text-center flex flex-col items-center justify-between gap-6">
+            <div key={member.name} className="premium-card p-6 rounded-card text-center flex flex-col items-center justify-between gap-6">
               <div className="space-y-4 flex flex-col items-center">
                 <img
                   src={member.image}

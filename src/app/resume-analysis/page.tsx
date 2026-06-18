@@ -146,7 +146,7 @@ export default function ResumeAnalysisPage() {
         </div>
 
         {/* Form selection */}
-        <div className="glass-card p-6 rounded-2xl border border-slate-200 flex flex-col sm:flex-row items-center gap-4">
+        <div className="premium-card p-6 rounded-card flex flex-col sm:flex-row items-center gap-4">
           <div className="flex-1 w-full">
             <label className="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-2">
               Select Resume Version
@@ -200,7 +200,7 @@ export default function ResumeAnalysisPage() {
           <div className="space-y-6">
             
             {/* Top Score Box */}
-            <div className="glass-card p-6 rounded-2xl border border-slate-200 flex flex-col sm:flex-row items-center justify-between gap-6">
+            <div className="premium-card p-6 rounded-card flex flex-col sm:flex-row items-center justify-between gap-6">
               <div className="space-y-2 flex-1">
                 <div className="flex items-center gap-2">
                   <h2 className="text-xl font-extrabold text-slate-900">Overall Structure Score</h2>
@@ -260,7 +260,7 @@ export default function ResumeAnalysisPage() {
                   return (
                     <div
                       key={section.id}
-                      className="border border-slate-200 rounded-2xl overflow-hidden bg-white shadow-sm"
+                      className="border border-slate-200 rounded-card overflow-hidden bg-white shadow-sm"
                     >
                       <button
                         onClick={() => setOpenSection(isOpen ? null : section.id)}
@@ -342,7 +342,7 @@ export default function ResumeAnalysisPage() {
           </div>
         ) : (
           !isAnalyzing && (
-            <div className="text-center py-16 bg-white rounded-2xl border border-slate-200 shadow-sm flex flex-col items-center gap-4">
+            <div className="text-center py-16 bg-white rounded-card border border-slate-200 shadow-sm flex flex-col items-center gap-4">
               <div className="w-14 h-14 bg-primary/10 rounded-full flex items-center justify-center text-primary">
                 <BarChart className="w-7 h-7" />
               </div>

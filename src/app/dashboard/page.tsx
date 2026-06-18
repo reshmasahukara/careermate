@@ -32,6 +32,7 @@ import {
 import { getUserSkillsAction } from "@/app/actions/skills";
 import { getSavedJobsAction } from "@/app/actions/jobs";
 import { getNotificationsAction, getSubscriptionAction } from "@/app/actions/settings";
+import DashboardLayout from "@/components/DashboardLayout";
 
 // Recharts dynamically imported to prevent server-side hydration errors
 import {
@@ -121,10 +122,10 @@ export default function DashboardPage() {
   // Safe checks for logged out users
   if (status === "loading") {
     return (
-      <div className="flex-1 flex items-center justify-center min-h-[70vh]">
+      <div className="flex-1 flex items-center justify-center min-h-[70vh] bg-[#F8FAFC]">
         <div className="flex flex-col items-center gap-3">
-          <div className="w-10 h-10 border-4 border-primary border-t-transparent rounded-full animate-spin" />
-          <p className="text-sm font-semibold text-slate-500">Checking credentials...</p>
+          <div className="w-10 h-10 border-4 border-[#2563EB] border-t-transparent rounded-full animate-spin" />
+          <p className="text-sm font-semibold text-[#64748B]">Checking credentials...</p>
         </div>
       </div>
     );
@@ -132,25 +133,25 @@ export default function DashboardPage() {
 
   if (!session) {
     return (
-      <div className="flex-1 min-h-[80vh] flex items-center justify-center px-4 bg-slate-50">
-        <div className="max-w-md w-full glass-card p-8 rounded-2xl text-center space-y-6 shadow-xl border border-slate-200">
-          <div className="w-14 h-14 bg-primary/10 rounded-full flex items-center justify-center mx-auto">
-            <LayoutDashboard className="w-8 h-8 text-primary" />
+      <div className="flex-1 min-h-screen flex items-center justify-center px-4 bg-[#F8FAFC] py-16">
+        <div className="w-full max-w-[480px] bg-white border border-[#E2E8F0] p-8 rounded-[20px] shadow-sm text-center space-y-6">
+          <div className="w-14 h-14 bg-[#2563EB]/10 rounded-full flex items-center justify-center mx-auto">
+            <LayoutDashboard className="w-7 h-7 text-[#2563EB]" />
           </div>
-          <h2 className="text-2xl font-extrabold text-slate-900">Sign in to Access Dashboard</h2>
-          <p className="text-sm text-slate-500 leading-relaxed">
+          <h2 className="text-2xl font-bold text-[#0F172A]">Sign in to Access Dashboard</h2>
+          <p className="text-sm text-[#64748B] leading-relaxed">
             Manage your resumes, check target ATS scores, save open roles, and track your custom learning roadmap milestones.
           </p>
           <div className="flex flex-col gap-3">
             <Link
               href="/login"
-              className="w-full bg-primary hover:bg-blue-700 text-white font-bold py-3 rounded-xl shadow-md transition-all text-sm"
+              className="w-full bg-[#2563EB] hover:bg-[#1D4ED8] text-white font-bold py-3 rounded-[12px] shadow-sm transition-all text-sm block"
             >
               Sign In to Your Account
             </Link>
             <button
               onClick={handleEnterDemo}
-              className="w-full bg-slate-900 hover:bg-slate-800 text-white font-bold py-3 rounded-xl shadow-md transition-all text-sm cursor-pointer flex items-center justify-center gap-2"
+              className="w-full bg-[#0F172A] hover:bg-[#1E293B] text-white font-bold py-3 rounded-[12px] shadow-sm transition-all text-sm cursor-pointer flex items-center justify-center gap-2"
             >
               <Sparkles className="w-4 h-4 text-amber-400" />
               Explore Demo Sandbox
@@ -185,33 +186,33 @@ export default function DashboardPage() {
   ];
 
   return (
-    <div className="flex-1 bg-brand-bg py-10">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8">
+    <DashboardLayout>
+      <div className="space-y-6">
         
-        {/* Dashboard Header */}
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+        {/* Welcome Banner Card */}
+        <div className="bg-gradient-to-r from-[#2563EB]/5 to-[#4F46E5]/5 border border-[#E2E8F0] p-6 rounded-[20px] shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div>
-            <h1 className="text-3xl font-extrabold text-slate-900 flex items-center gap-2">
+            <h1 className="text-xl font-bold text-[#0F172A] flex items-center gap-2">
               Welcome back, {session.user?.name || "Alex"}
-              <span className="text-sm bg-primary/10 text-primary px-2.5 py-1 rounded-full font-bold uppercase tracking-wider">
+              <span className="text-xs bg-[#2563EB]/10 text-[#2563EB] px-2.5 py-1 rounded-full font-bold uppercase tracking-wider">
                 {subscription?.plan || "Pro"} Member
               </span>
             </h1>
-            <p className="text-slate-500 text-sm mt-1">
+            <p className="text-[#64748B] text-xs mt-1">
               Benchmark scores, track applications, and advance learning roadmaps.
             </p>
           </div>
           <div className="flex gap-3">
             <Link
               href="/resume-upload"
-              className="bg-primary hover:bg-blue-700 text-white font-bold px-4 py-2.5 rounded-xl text-xs flex items-center gap-1.5 transition-colors cursor-pointer"
+              className="bg-[#2563EB] hover:bg-[#1D4ED8] text-white font-bold px-4 py-2.5 rounded-[12px] text-xs flex items-center gap-1.5 transition-colors cursor-pointer shadow-sm hover:shadow-md"
             >
               <Plus className="w-4 h-4" />
               Upload Resume
             </Link>
             <Link
               href="/settings"
-              className="bg-white hover:bg-slate-50 text-slate-700 font-bold px-4 py-2.5 rounded-xl text-xs border border-slate-200 shadow-sm transition-colors"
+              className="bg-white hover:bg-[#F8FAFC] text-[#0F172A] font-bold px-4 py-2.5 rounded-[12px] text-xs border border-[#E2E8F0] shadow-sm transition-colors"
             >
               Profile Settings
             </Link>
@@ -228,26 +229,26 @@ export default function DashboardPage() {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               
               {/* Profile Completion */}
-              <div className="glass-card p-6 rounded-2xl flex flex-col justify-between border border-slate-200">
+              <div className="bg-white border border-[#E2E8F0] p-6 rounded-[20px] flex flex-col justify-between shadow-sm hover:shadow-md transition-all duration-200 h-full">
                 <div className="space-y-4">
                   <div className="flex justify-between items-center">
-                    <h2 className="font-bold text-slate-800 text-sm uppercase tracking-wider">Profile Strength</h2>
-                    <span className="text-xs font-extrabold text-primary">{profileCompletion}% Complete</span>
+                    <h2 className="font-bold text-[#0F172A] text-xs uppercase tracking-wider">Profile Strength</h2>
+                    <span className="text-xs font-extrabold text-[#2563EB]">{profileCompletion}% Complete</span>
                   </div>
-                  <div className="h-3 w-full bg-slate-100 rounded-full overflow-hidden">
+                  <div className="h-2.5 w-full bg-[#F8FAFC] border border-[#E2E8F0]/60 rounded-full overflow-hidden">
                     <div
-                      className="h-full bg-gradient-to-r from-primary to-secondary rounded-full transition-all duration-1000"
+                      className="h-full bg-gradient-to-r from-[#2563EB] to-[#4F46E5] rounded-full transition-all duration-1000"
                       style={{ width: `${profileCompletion}%` }}
                     />
                   </div>
-                  <p className="text-slate-500 text-xs leading-relaxed">
+                  <p className="text-[#64748B] text-xs leading-relaxed font-semibold">
                     Improve matching odds by adding details. Uploading a resume and mapping skills increases ranking visibility.
                   </p>
                 </div>
                 
-                <div className="pt-4 mt-4 border-t border-slate-100 flex justify-between items-center text-xs">
-                  <span className="text-slate-500 font-semibold uppercase">Next Steps</span>
-                  <Link href="/skill-gap" className="text-primary hover:text-blue-700 font-bold flex items-center gap-0.5">
+                <div className="pt-4 mt-4 border-t border-[#E2E8F0]/60 flex justify-between items-center text-xs">
+                  <span className="text-[#64748B] font-semibold uppercase">Next Steps</span>
+                  <Link href="/skill-gap" className="text-[#2563EB] hover:text-[#1D4ED8] font-bold flex items-center gap-0.5">
                     Add Skills
                     <ChevronRight className="w-3.5 h-3.5" />
                   </Link>
@@ -255,10 +256,10 @@ export default function DashboardPage() {
               </div>
 
               {/* ATS Score History Chart */}
-              <div className="glass-card p-6 rounded-2xl flex flex-col justify-between border border-slate-200">
+              <div className="bg-white border border-[#E2E8F0] p-6 rounded-[20px] flex flex-col justify-between shadow-sm hover:shadow-md transition-all duration-200 h-full">
                 <div>
-                  <h2 className="font-bold text-slate-800 text-sm uppercase tracking-wider mb-2">ATS Match Trend</h2>
-                  <p className="text-slate-500 text-xs">Score tracking across consecutive uploads.</p>
+                  <h2 className="font-bold text-[#0F172A] text-xs uppercase tracking-wider mb-2">ATS Match Trend</h2>
+                  <p className="text-[#64748B] text-xs">Score tracking across consecutive uploads.</p>
                 </div>
 
                 <div className="h-32 w-full mt-4">
@@ -280,7 +281,7 @@ export default function DashboardPage() {
                       </LineChart>
                     </ResponsiveContainer>
                   ) : (
-                    <div className="h-full flex items-center justify-center bg-slate-50 dark:bg-slate-800 rounded-xl border border-dashed text-slate-400 text-xs">
+                    <div className="h-full flex items-center justify-center bg-[#F8FAFC] rounded-[12px] border border-dashed border-[#E2E8F0] text-[#64748B] text-xs font-semibold">
                       No scoring history. Upload a resume to start tracking.
                     </div>
                   )}
@@ -289,15 +290,15 @@ export default function DashboardPage() {
             </div>
 
             {/* Row 2: Uploaded Resumes */}
-            <div className="glass-card p-6 rounded-2xl border border-slate-200">
+            <div className="bg-white border border-[#E2E8F0] p-6 rounded-[20px] shadow-sm hover:shadow-md transition-all duration-200">
               <div className="flex justify-between items-center mb-6">
                 <div>
-                  <h2 className="font-bold text-slate-900 text-base">Your Resumes</h2>
-                  <p className="text-slate-500 text-xs">Manage uploaded copies and target positions.</p>
+                  <h2 className="font-bold text-[#0F172A] text-base">Your Resumes</h2>
+                  <p className="text-[#64748B] text-xs">Manage uploaded copies and target positions.</p>
                 </div>
                 <Link
                   href="/resume-upload"
-                  className="text-primary hover:text-blue-700 font-bold text-xs flex items-center gap-0.5 cursor-pointer"
+                  className="text-[#2563EB] hover:text-[#1D4ED8] font-bold text-xs flex items-center gap-0.5 cursor-pointer"
                 >
                   <Plus className="w-4 h-4" />
                   Add New
@@ -307,36 +308,36 @@ export default function DashboardPage() {
               {isLoadingData ? (
                 <div className="space-y-3">
                   {[...Array(2)].map((_, i) => (
-                    <div key={i} className="h-14 bg-slate-100 dark:bg-slate-800 animate-pulse rounded-xl" />
+                    <div key={i} className="h-14 bg-[#F8FAFC] border border-[#E2E8F0]/60 animate-pulse rounded-[12px]" />
                   ))}
                 </div>
               ) : resumes.length > 0 ? (
                 <div className="overflow-x-auto">
                   <table className="w-full text-left border-collapse text-xs sm:text-sm">
                     <thead>
-                      <tr className="border-b border-slate-100 text-slate-400 font-bold uppercase tracking-wider text-[10px]">
+                      <tr className="border-b border-[#E2E8F0] text-[#64748B] font-bold uppercase tracking-wider text-[10px]">
                         <th className="pb-3">File Name</th>
                         <th className="pb-3">Version</th>
                         <th className="pb-3">Uploaded</th>
                         <th className="pb-3 text-right">Actions</th>
                       </tr>
                     </thead>
-                    <tbody className="divide-y divide-slate-50 font-medium">
+                    <tbody className="divide-y divide-[#F8FAFC] font-semibold text-xs">
                       {resumes.map((res) => (
-                        <tr key={res.id} className="text-slate-700 dark:text-slate-200">
+                        <tr key={res.id} className="text-[#0F172A]">
                           <td className="py-4 flex items-center gap-2">
-                            <FileText className="w-4.5 h-4.5 text-primary" />
+                            <FileText className="w-4.5 h-4.5 text-[#2563EB]" />
                             <a
                               href={res.fileUrl}
                               target="_blank"
                               rel="noreferrer"
-                              className="font-semibold text-slate-800 hover:text-primary transition-colors"
+                              className="font-bold text-[#0F172A] hover:text-[#2563EB] transition-colors truncate max-w-[200px]"
                             >
                               {res.fileName}
                             </a>
                           </td>
-                          <td className="py-4">v{res.version}</td>
-                          <td className="py-4">
+                          <td className="py-4 text-[#64748B]">v{res.version}</td>
+                          <td className="py-4 text-[#64748B]">
                             {new Date(res.createdAt).toLocaleDateString("en-US", {
                               month: "short",
                               day: "numeric",
@@ -347,13 +348,13 @@ export default function DashboardPage() {
                             <div className="flex items-center justify-end gap-2.5">
                               <Link
                                 href={`/ats-checker?resumeId=${res.id}`}
-                                className="bg-primary/10 hover:bg-primary/20 text-primary px-3 py-1.5 rounded-lg text-xs font-bold transition-colors cursor-pointer"
+                                className="bg-[#2563EB]/5 hover:bg-[#2563EB]/10 text-[#2563EB] px-3 py-1.5 rounded-[8px] text-xs font-bold transition-colors cursor-pointer"
                               >
                                 Test ATS
                               </Link>
                               <button
                                 onClick={() => handleDeleteResume(res.id)}
-                                className="text-slate-400 hover:text-rose-600 p-1.5 rounded-lg transition-colors cursor-pointer"
+                                className="text-[#64748B] hover:text-rose-600 p-1.5 rounded-lg transition-colors cursor-pointer"
                                 title="Delete Resume"
                               >
                                 <Trash2 className="w-4 h-4" />
@@ -366,15 +367,15 @@ export default function DashboardPage() {
                   </table>
                 </div>
               ) : (
-                <div className="text-center py-10 bg-slate-50 rounded-2xl border border-dashed border-slate-200 flex flex-col items-center gap-3">
-                  <FileText className="w-10 h-10 text-slate-400" />
+                <div className="text-center py-10 bg-[#F8FAFC] rounded-[20px] border border-dashed border-[#E2E8F0] flex flex-col items-center gap-3">
+                  <FileText className="w-10 h-10 text-[#64748B]" />
                   <div>
-                    <h3 className="font-bold text-slate-700 text-sm">No resumes uploaded yet</h3>
-                    <p className="text-slate-500 text-xs mt-1">Upload a PDF or DOCX file to benchmark ATS parameters.</p>
+                    <h3 className="font-bold text-[#0F172A] text-sm">No resumes uploaded yet</h3>
+                    <p className="text-[#64748B] text-xs mt-1">Upload a PDF or DOCX file to benchmark ATS parameters.</p>
                   </div>
                   <Link
                     href="/resume-upload"
-                    className="bg-primary text-white text-xs font-bold px-4 py-2 rounded-xl mt-2 cursor-pointer"
+                    className="bg-[#2563EB] text-white text-xs font-bold px-4 py-2.5 rounded-[12px] mt-2 cursor-pointer shadow-sm hover:bg-[#1D4ED8]"
                   >
                     Upload Now
                   </Link>
@@ -383,15 +384,15 @@ export default function DashboardPage() {
             </div>
 
             {/* Row 3: Saved Jobs */}
-            <div className="glass-card p-6 rounded-2xl border border-slate-200">
+            <div className="bg-white border border-[#E2E8F0] p-6 rounded-[20px] shadow-sm hover:shadow-md transition-all duration-200">
               <div className="flex justify-between items-center mb-6">
                 <div>
-                  <h2 className="font-bold text-slate-900 text-base">Bookmarked Jobs</h2>
-                  <p className="text-slate-500 text-xs">Roles you have saved to follow up on.</p>
+                  <h2 className="font-bold text-[#0F172A] text-base">Bookmarked Jobs</h2>
+                  <p className="text-[#64748B] text-xs">Roles you have saved to follow up on.</p>
                 </div>
                 <Link
                   href="/jobs"
-                  className="text-primary hover:text-blue-700 font-bold text-xs flex items-center gap-0.5"
+                  className="text-[#2563EB] hover:text-[#1D4ED8] font-bold text-xs flex items-center gap-0.5"
                 >
                   Search Jobs
                   <ChevronRight className="w-4 h-4" />
@@ -401,7 +402,7 @@ export default function DashboardPage() {
               {isLoadingData ? (
                 <div className="space-y-3">
                   {[...Array(2)].map((_, i) => (
-                    <div key={i} className="h-12 bg-slate-100 dark:bg-slate-800 animate-pulse rounded-xl" />
+                    <div key={i} className="h-12 bg-[#F8FAFC] border border-[#E2E8F0]/60 animate-pulse rounded-[12px]" />
                   ))}
                 </div>
               ) : savedJobs.length > 0 ? (
@@ -409,13 +410,13 @@ export default function DashboardPage() {
                   {savedJobs.map((job) => (
                     <div
                       key={job.id}
-                      className="p-4 rounded-xl border border-slate-100 dark:border-slate-800 bg-white flex flex-col justify-between"
+                      className="p-4 rounded-[12px] border border-[#E2E8F0] bg-white flex flex-col justify-between"
                     >
                       <div className="space-y-2">
                         <div className="flex justify-between items-start">
                           <div>
-                            <h3 className="font-bold text-sm text-slate-800">{job.title}</h3>
-                            <p className="text-xs text-slate-500 font-semibold">{job.company} • {job.location}</p>
+                            <h3 className="font-bold text-sm text-[#0F172A]">{job.title}</h3>
+                            <p className="text-xs text-[#64748B] font-semibold">{job.company} • {job.location}</p>
                           </div>
                           {job.isRemote && (
                             <span className="bg-emerald-50 text-emerald-600 text-[10px] px-2 py-0.5 rounded-full font-bold uppercase">
@@ -423,13 +424,13 @@ export default function DashboardPage() {
                             </span>
                           )}
                         </div>
-                        <div className="text-[11px] text-slate-500 font-semibold">Salary: {job.salary}</div>
+                        <div className="text-[11px] text-[#64748B] font-semibold">Salary: {job.salary}</div>
                       </div>
                       <a
                         href={job.applyUrl}
                         target="_blank"
                         rel="noreferrer"
-                        className="mt-4 w-full bg-slate-50 hover:bg-slate-100 text-slate-700 text-center py-2 rounded-lg text-xs font-bold transition-colors flex items-center justify-center gap-1 cursor-pointer"
+                        className="mt-4 w-full bg-[#F8FAFC] hover:bg-[#F8FAFC]/80 text-[#0F172A] text-center py-2 rounded-[8px] text-xs font-bold border border-[#E2E8F0] transition-colors flex items-center justify-center gap-1 cursor-pointer"
                       >
                         Apply Now
                         <ArrowRight className="w-3.5 h-3.5" />
@@ -438,10 +439,10 @@ export default function DashboardPage() {
                   ))}
                 </div>
               ) : (
-                <div className="text-center py-8 bg-slate-50 rounded-2xl border border-dashed border-slate-200 flex flex-col items-center gap-2 text-xs">
-                  <Briefcase className="w-8 h-8 text-slate-400" />
-                  <span className="font-bold text-slate-600">No bookmarked jobs.</span>
-                  <Link href="/jobs" className="text-primary font-bold mt-1">Browse open roles</Link>
+                <div className="text-center py-8 bg-[#F8FAFC] rounded-[20px] border border-dashed border-[#E2E8F0] flex flex-col items-center gap-2 text-xs">
+                  <Briefcase className="w-8 h-8 text-[#64748B]" />
+                  <span className="font-bold text-[#64748B]">No bookmarked jobs.</span>
+                  <Link href="/jobs" className="text-[#2563EB] font-bold mt-1">Browse open roles</Link>
                 </div>
               )}
             </div>
@@ -452,26 +453,26 @@ export default function DashboardPage() {
           <div className="lg:col-span-4 space-y-6">
             
             {/* Interview Reminders / Alerts */}
-            <div className="glass-card p-6 rounded-2xl border border-slate-200 space-y-4">
-              <h2 className="font-bold text-slate-800 text-sm uppercase tracking-wider flex items-center gap-1.5">
+            <div className="bg-white border border-[#E2E8F0] p-6 rounded-[20px] space-y-4 shadow-sm hover:shadow-md transition-all duration-200">
+              <h2 className="font-bold text-[#0F172A] text-xs uppercase tracking-wider flex items-center gap-1.5">
                 <Calendar className="w-4 h-4 text-amber-500" />
                 Interviews & Alerts
               </h2>
               
               <div className="space-y-3">
-                <div className="p-3 bg-amber-50 border border-amber-100 text-amber-800 rounded-xl space-y-1">
+                <div className="p-3.5 bg-amber-50 border border-amber-100 text-amber-850 rounded-[12px] space-y-1">
                   <div className="text-xs font-bold flex items-center justify-between">
                     <span>Mock Interview Prep</span>
-                    <span className="text-[10px] font-extrabold uppercase">Pending</span>
+                    <span className="text-[9px] font-extrabold uppercase bg-amber-100 text-amber-850 px-1.5 py-0.5 rounded">Pending</span>
                   </div>
-                  <p className="text-[10px] leading-relaxed opacity-90">
+                  <p className="text-[10px] leading-relaxed opacity-90 text-amber-900 font-semibold">
                     Prepare with standard questions on the learning roadmap.
                   </p>
                 </div>
                 
-                <div className="p-3 bg-blue-50 border border-blue-100 text-blue-800 rounded-xl space-y-1">
+                <div className="p-3.5 bg-blue-50 border border-blue-100 text-blue-850 rounded-[12px] space-y-1">
                   <div className="text-xs font-bold">Resume version 1 ready</div>
-                  <p className="text-[10px] leading-relaxed opacity-90">
+                  <p className="text-[10px] leading-relaxed opacity-90 text-blue-900 font-semibold">
                     Calculated ATS profile score is active. Make key improvements to hit 85+.
                   </p>
                 </div>
@@ -479,13 +480,13 @@ export default function DashboardPage() {
             </div>
 
             {/* Skills & Gap */}
-            <div className="glass-card p-6 rounded-2xl border border-slate-200 space-y-4">
+            <div className="bg-white border border-[#E2E8F0] p-6 rounded-[20px] space-y-4 shadow-sm hover:shadow-md transition-all duration-200">
               <div className="flex justify-between items-center">
-                <h2 className="font-bold text-slate-800 text-sm uppercase tracking-wider flex items-center gap-1.5">
+                <h2 className="font-bold text-[#0F172A] text-xs uppercase tracking-wider flex items-center gap-1.5">
                   <Award className="w-4 h-4 text-emerald-500" />
                   Your Skills
                 </h2>
-                <Link href="/skill-gap" className="text-xs text-primary font-bold hover:underline">
+                <Link href="/skill-gap" className="text-xs text-[#2563EB] font-bold hover:underline">
                   Analyze Gaps
                 </Link>
               </div>
@@ -495,43 +496,43 @@ export default function DashboardPage() {
                   {skills.map((skill) => (
                     <span
                       key={skill.id}
-                      className="bg-slate-50 border border-slate-200/60 rounded-lg px-2.5 py-1 text-xs font-bold text-slate-700 flex items-center gap-1"
+                      className="bg-[#F8FAFC] border border-[#E2E8F0] rounded-[8px] px-2.5 py-1 text-xs font-bold text-[#0F172A] flex items-center gap-1"
                     >
                       {skill.name}
-                      <span className="text-[9px] text-slate-400 font-normal uppercase">({skill.proficiency})</span>
+                      <span className="text-[9px] text-[#64748B] font-normal uppercase">({skill.proficiency})</span>
                     </span>
                   ))}
                 </div>
               ) : (
-                <div className="text-xs text-slate-500">
+                <div className="text-xs text-[#64748B] font-semibold">
                   No skills listed. Click "Analyze Gaps" to enter your details.
                 </div>
               )}
             </div>
 
             {/* Recommended Learning */}
-            <div className="glass-card p-6 rounded-2xl border border-slate-200 space-y-4">
-              <h2 className="font-bold text-slate-800 text-sm uppercase tracking-wider flex items-center gap-1.5">
-                <BookOpen className="w-4 h-4 text-secondary" />
+            <div className="bg-white border border-[#E2E8F0] p-6 rounded-[20px] space-y-4 shadow-sm hover:shadow-md transition-all duration-200">
+              <h2 className="font-bold text-[#0F172A] text-xs uppercase tracking-wider flex items-center gap-1.5">
+                <BookOpen className="w-4 h-4 text-indigo-500" />
                 Target Learning
               </h2>
 
               <div className="space-y-3.5">
                 {suggestedCourses.map((course, idx) => (
-                  <div key={idx} className="space-y-1.5">
-                    <h3 className="font-bold text-slate-800 text-xs hover:text-primary transition-colors leading-relaxed">
+                  <div key={idx} className="space-y-1 bg-[#F8FAFC] p-3 border border-[#E2E8F0] rounded-[12px]">
+                    <h3 className="font-bold text-[#0F172A] text-xs hover:text-[#2563EB] transition-colors leading-relaxed">
                       {course.title}
                     </h3>
-                    <div className="flex justify-between items-center text-[10px] text-slate-400 font-bold uppercase tracking-wider">
+                    <div className="flex justify-between items-center text-[9px] text-[#64748B] font-bold uppercase tracking-wider">
                       <span>{course.provider} • {course.duration}</span>
-                      <span className="text-secondary">{course.difficulty}</span>
+                      <span className="text-indigo-600">{course.difficulty}</span>
                     </div>
                   </div>
                 ))}
               </div>
               <Link
                 href="/roadmap"
-                className="w-full bg-slate-900 hover:bg-slate-800 text-white text-center py-2.5 rounded-xl text-xs font-bold mt-4 transition-colors flex items-center justify-center gap-1 cursor-pointer"
+                className="w-full bg-[#0F172A] hover:bg-[#1E293B] text-white text-center py-2.5 rounded-[12px] text-xs font-bold mt-4 transition-colors flex items-center justify-center gap-1 cursor-pointer"
               >
                 Go to Roadmap
                 <ArrowRight className="w-3.5 h-3.5" />
@@ -539,36 +540,35 @@ export default function DashboardPage() {
             </div>
 
             {/* Recent activity log */}
-            <div className="glass-card p-6 rounded-2xl border border-slate-200 space-y-4">
-              <h2 className="font-bold text-slate-800 text-sm uppercase tracking-wider flex items-center gap-1.5">
-                <Bell className="w-4 h-4 text-primary" />
+            <div className="bg-white border border-[#E2E8F0] p-6 rounded-[20px] space-y-4 shadow-sm hover:shadow-md transition-all duration-200">
+              <h2 className="font-bold text-[#0F172A] text-xs uppercase tracking-wider flex items-center gap-1.5">
+                <Bell className="w-4 h-4 text-[#2563EB]" />
                 Recent Alerts
               </h2>
 
               {isLoadingData ? (
-                <div className="h-10 bg-slate-100 animate-pulse rounded-lg" />
+                <div className="h-10 bg-[#F8FAFC] animate-pulse rounded-lg" />
               ) : notifications.length > 0 ? (
                 <div className="space-y-3.5">
                   {notifications.slice(0, 3).map((not) => (
                     <div key={not.id} className="text-xs leading-relaxed flex gap-2">
-                      <div className="w-1.5 h-1.5 rounded-full bg-primary shrink-0 mt-1.5" />
+                      <div className="w-1.5 h-1.5 rounded-full bg-[#2563EB] shrink-0 mt-1.5" />
                       <div>
-                        <div className="font-bold text-slate-800">{not.title}</div>
-                        <div className="text-slate-500 text-[10px]">{not.message}</div>
+                        <div className="font-bold text-[#0F172A]">{not.title}</div>
+                        <div className="text-[#64748B] text-[10px] mt-0.5">{not.message}</div>
                       </div>
                     </div>
                   ))}
                 </div>
               ) : (
-                <div className="text-xs text-slate-400">No recent activity.</div>
+                <div className="text-xs text-[#64748B] font-semibold">No recent activity.</div>
               )}
             </div>
 
           </div>
 
         </div>
-
       </div>
-    </div>
+    </DashboardLayout>
   );
 }

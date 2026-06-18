@@ -4,6 +4,7 @@ import React, { useState, useEffect, Suspense } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
 import Link from "next/link";
+import DashboardLayout from "@/components/DashboardLayout";
 import {
   FileText,
   FileCheck,
@@ -112,40 +113,39 @@ function AtsCheckerContent() {
   };
 
   return (
-    <div className="flex-1 bg-brand-bg py-10 print:bg-white print:py-0">
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8 print:px-0 print:max-w-full">
-        
-        {/* Header - Hidden on print */}
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 print:hidden">
-          <div>
-            <h1 className="text-3xl font-extrabold text-slate-900">ATS Checker</h1>
-            <p className="text-slate-500 text-sm mt-1">Benchmark your CV formatting and keywords against applicant portals.</p>
-          </div>
-          <Link
-            href="/resume-upload"
-            className="bg-white hover:bg-slate-50 text-slate-700 font-bold px-4 py-2.5 rounded-xl text-xs border border-slate-200 shadow-sm flex items-center justify-center gap-1 shrink-0"
-          >
-            <RefreshCw className="w-3.5 h-3.5" />
-            Upload New Version
-          </Link>
+    <div className="max-w-4xl mx-auto space-y-6 print:px-0 print:max-w-full">
+      
+      {/* Header - Hidden on print */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 print:hidden">
+        <div>
+          <h1 className="text-2xl font-bold text-[#0F172A]">ATS Match Checker</h1>
+          <p className="text-[#64748B] text-xs font-semibold mt-1">Benchmark your CV formatting and keywords against applicant portals.</p>
         </div>
+        <Link
+          href="/resume-upload"
+          className="bg-white hover:bg-[#F8FAFC] text-[#0F172A] font-bold px-4 py-2.5 rounded-[12px] text-xs border border-[#E2E8F0] shadow-sm flex items-center justify-center gap-1 shrink-0 transition-colors"
+        >
+          <RefreshCw className="w-3.5 h-3.5" />
+          Upload New Version
+        </Link>
+      </div>
 
-        {/* Form Controls - Hidden on print */}
-        <div className="glass-card p-6 rounded-2xl border border-slate-200 space-y-6 print:hidden">
+      {/* Form Controls - Hidden on print */}
+      <div className="bg-white border border-[#E2E8F0] p-6 rounded-[20px] space-y-6 print:hidden shadow-sm">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             
             {/* Resume selector */}
             <div>
-              <label className="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-2">
+              <label className="block text-xs font-semibold text-[#0F172A] uppercase tracking-wider mb-2">
                 Select Resume Copy
               </label>
               {isLoadingResumes ? (
-                <div className="h-10 bg-slate-100 animate-pulse rounded-xl" />
+                <div className="h-10 bg-[#F8FAFC] border border-[#E2E8F0]/60 animate-pulse rounded-[12px]" />
               ) : resumes.length > 0 ? (
                 <select
                   value={selectedResumeId}
                   onChange={(e) => setSelectedResumeId(e.target.value)}
-                  className="w-full bg-slate-50 border border-slate-200 rounded-xl py-2.5 px-3.5 text-xs focus:outline-none focus:border-primary font-semibold text-slate-700 focus:bg-white transition-colors"
+                  className="w-full bg-[#F8FAFC] border border-[#E2E8F0] rounded-[12px] py-2.5 px-3.5 text-xs focus:outline-none focus:border-[#2563EB] font-semibold text-[#0F172A] focus:bg-white transition-colors"
                 >
                   {resumes.map((res) => (
                     <option key={res.id} value={res.id}>
@@ -154,11 +154,11 @@ function AtsCheckerContent() {
                   ))}
                 </select>
               ) : (
-                <div className="p-3 bg-amber-50 border border-amber-100 text-amber-700 rounded-xl text-xs flex justify-between items-center font-medium">
+                <div className="p-3 bg-amber-50 border border-amber-100 text-amber-800 rounded-[12px] text-xs flex justify-between items-center font-semibold">
                   <span>No uploaded resumes found.</span>
-                  <Link href="/resume-upload" className="text-primary font-bold hover:underline flex items-center gap-0.5">
+                  <Link href="/resume-upload" className="text-[#2563EB] font-bold hover:underline flex items-center gap-0.5">
                     Upload here
-                    <ChevronRight className="w-3 h-3" />
+                    <ChevronRight className="w-3.5 h-3.5" />
                   </Link>
                 </div>
               )}
@@ -166,7 +166,7 @@ function AtsCheckerContent() {
 
             {/* Target Job role */}
             <div>
-              <label className="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-2">
+              <label className="block text-xs font-semibold text-[#0F172A] uppercase tracking-wider mb-2">
                 Target Job Title
               </label>
               <div className="relative">
@@ -175,9 +175,9 @@ function AtsCheckerContent() {
                   value={targetRole}
                   onChange={(e) => setTargetRole(e.target.value)}
                   placeholder="e.g. Senior Frontend Engineer"
-                  className="w-full bg-slate-50 border border-slate-200 rounded-xl py-2.5 px-3.5 text-xs focus:outline-none focus:border-primary pl-9 font-semibold text-slate-700 focus:bg-white transition-colors"
+                  className="w-full bg-[#F8FAFC] border border-[#E2E8F0] rounded-[12px] py-2.5 px-3.5 text-xs focus:outline-none focus:border-[#2563EB] pl-9 font-semibold text-[#0F172A] focus:bg-white transition-colors"
                 />
-                <Search className="absolute left-3 top-3 w-4 h-4 text-slate-400" />
+                <Search className="absolute left-3 top-3 w-4 h-4 text-[#64748B]" />
               </div>
             </div>
 
@@ -186,7 +186,7 @@ function AtsCheckerContent() {
           <button
             onClick={handleRunAnalysis}
             disabled={isAnalyzing || resumes.length === 0}
-            className="w-full bg-primary hover:bg-blue-700 text-white font-bold py-3 rounded-xl shadow-md transition-colors text-xs flex items-center justify-center gap-1.5 disabled:opacity-50 cursor-pointer"
+            className="w-full bg-[#2563EB] hover:bg-[#1D4ED8] text-white font-bold py-3 rounded-[12px] shadow-sm transition-colors text-xs flex items-center justify-center gap-1.5 disabled:opacity-50 cursor-pointer"
           >
             {isAnalyzing ? (
               <>
@@ -207,7 +207,7 @@ function AtsCheckerContent() {
           <div className="space-y-6">
             
             {/* Top overview card */}
-            <div className="glass-card p-8 rounded-2xl border border-slate-200 flex flex-col md:flex-row items-center justify-between gap-6 print:border-none print:shadow-none print:p-0">
+            <div className="bg-white border border-[#E2E8F0] p-8 rounded-[20px] flex flex-col md:flex-row items-center justify-between gap-6 print:border-none print:shadow-none print:p-0 shadow-sm">
               
               {/* Left text */}
               <div className="space-y-4 text-center md:text-left flex-1">
@@ -330,7 +330,7 @@ function AtsCheckerContent() {
               </div>
 
               {/* Panel detail */}
-              <div className="md:col-span-8 glass-card p-6 rounded-2xl border border-slate-200 print:col-span-12 print:border-none print:shadow-none print:p-0 print:space-y-6">
+              <div className="md:col-span-8 premium-card p-6 rounded-card print:col-span-12 print:border-none print:shadow-none print:p-0 print:space-y-6">
                 
                 {/* Print Headers (only visible when printing) */}
                 <div className="hidden print:block border-b border-slate-200 pb-4 mb-4">
@@ -438,31 +438,32 @@ function AtsCheckerContent() {
           </div>
         ) : (
           !isAnalyzing && (
-            <div className="text-center py-16 bg-white rounded-2xl border border-slate-200 shadow-sm flex flex-col items-center gap-4">
-              <div className="w-14 h-14 bg-primary/10 rounded-full flex items-center justify-center text-primary">
+            <div className="text-center py-16 bg-white rounded-[20px] border border-[#E2E8F0] shadow-sm flex flex-col items-center gap-4">
+              <div className="w-14 h-14 bg-[#2563EB]/10 rounded-full flex items-center justify-center text-[#2563EB]">
                 <FolderOpen className="w-7 h-7" />
               </div>
               <div className="space-y-1 max-w-sm">
-                <h3 className="font-bold text-slate-800 text-base">Select parameters to calculate match percentage</h3>
-                <p className="text-slate-500 text-xs">Choose one of your saved resumes and enter your target job description to run a simulated ATS parser.</p>
+                <h3 className="font-bold text-[#0F172A] text-base">Select parameters to calculate match percentage</h3>
+                <p className="text-[#64748B] text-xs font-semibold">Choose one of your saved resumes and enter your target job description to run a simulated ATS parser.</p>
               </div>
             </div>
           )
         )}
 
       </div>
-    </div>
   );
 }
 
 export default function AtsCheckerPage() {
   return (
-    <Suspense fallback={
-      <div className="flex-1 flex items-center justify-center min-h-[60vh]">
-        <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin" />
-      </div>
-    }>
-      <AtsCheckerContent />
-    </Suspense>
+    <DashboardLayout>
+      <Suspense fallback={
+        <div className="flex-1 flex items-center justify-center min-h-[60vh] bg-[#F8FAFC]">
+          <div className="w-8 h-8 border-4 border-[#2563EB] border-t-transparent rounded-full animate-spin" />
+        </div>
+      }>
+        <AtsCheckerContent />
+      </Suspense>
+    </DashboardLayout>
   );
 }

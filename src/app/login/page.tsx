@@ -75,42 +75,42 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="flex-1 min-h-screen flex items-center justify-center py-16 px-4 sm:px-6 lg:px-8 bg-gradient-to-tr from-slate-50 via-slate-100 to-blue-50/30">
-      <div className="max-w-md w-full space-y-8">
+    <div className="flex-1 min-h-screen flex items-center justify-center py-16 px-4 bg-[#F8FAFC]">
+      <div className="w-full max-w-[480px] space-y-6">
         {/* Header */}
         <div className="text-center">
           <Link href="/" className="inline-flex items-center gap-2 group mb-4">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-primary to-secondary flex items-center justify-center text-white font-bold text-lg">
+            <div className="w-9 h-9 rounded-[10px] bg-[#2563EB] flex items-center justify-center text-white font-bold text-base">
               CM
             </div>
-            <span className="font-extrabold text-xl tracking-tight bg-gradient-to-r from-slate-900 to-slate-700 bg-clip-text text-transparent">
+            <span className="font-extrabold text-xl tracking-tight text-[#0F172A]">
               CareerMate
             </span>
           </Link>
-          <h2 className="text-3xl font-extrabold tracking-tight text-slate-900">
+          <h2 className="text-2xl font-bold tracking-tight text-[#0F172A]">
             Welcome back
           </h2>
-          <p className="mt-2 text-sm text-slate-600">
-            Or{" "}
+          <p className="mt-2 text-sm text-[#64748B]">
+            New to CareerMate?{" "}
             <Link
               href="/signup"
-              className="font-medium text-primary hover:text-blue-700 transition-colors"
+              className="font-medium text-[#2563EB] hover:text-[#1D4ED8] transition-colors underline underline-offset-4"
             >
-              create a new account for free
+              Create an account
             </Link>
           </p>
         </div>
 
         {/* Card wrapper */}
-        <div className="glass-card p-8 rounded-2xl shadow-xl space-y-6">
+        <div className="bg-white border border-[#E2E8F0] p-8 rounded-[20px] shadow-sm space-y-6">
           {/* Quick Demo Bypass */}
           <button
             type="button"
             onClick={useDemoAccount}
-            className="w-full flex items-center justify-between p-3.5 rounded-xl bg-gradient-to-r from-blue-500/10 to-indigo-500/10 border border-primary/20 hover:border-primary/40 text-primary text-xs font-semibold hover:bg-gradient-to-r hover:from-blue-500/15 hover:to-indigo-500/15 transition-all duration-300 group cursor-pointer"
+            className="w-full flex items-center justify-between p-3.5 rounded-[12px] bg-[#2563EB]/5 border border-[#2563EB]/10 hover:border-[#2563EB]/25 text-[#2563EB] text-xs font-semibold hover:bg-[#2563EB]/10 transition-all duration-200 group cursor-pointer"
           >
-            <span className="flex items-center gap-1.5 text-slate-700 dark:text-slate-200">
-              <Sparkles className="w-4 h-4 text-primary animate-pulse" />
+            <span className="flex items-center gap-1.5 text-[#0F172A]">
+              <Sparkles className="w-4 h-4 text-[#2563EB]" />
               Want a quick preview?
             </span>
             <span className="flex items-center gap-1">
@@ -123,7 +123,7 @@ export default function LoginPage() {
           <button
             onClick={() => handleOAuthLogin("google")}
             disabled={isLoading}
-            className="w-full flex items-center justify-center gap-3 bg-white hover:bg-slate-50 text-slate-700 font-semibold py-3 px-4 border border-slate-200 rounded-xl shadow-sm hover:shadow transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+            className="w-full flex items-center justify-center gap-3 bg-white hover:bg-[#F8FAFC] text-[#0F172A] font-semibold py-3 px-4 border border-[#E2E8F0] rounded-[12px] shadow-sm transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer text-sm"
           >
             <svg className="w-5 h-5" viewBox="0 0 24 24">
               <path
@@ -147,8 +147,8 @@ export default function LoginPage() {
           </button>
 
           <div className="relative flex items-center justify-center">
-            <div className="absolute inset-x-0 h-px bg-slate-200" />
-            <span className="relative px-3 bg-white text-xs text-slate-500 font-semibold uppercase">
+            <div className="absolute inset-x-0 h-px bg-[#E2E8F0]" />
+            <span className="relative px-3 bg-white text-xs text-[#64748B] font-semibold uppercase tracking-wider">
               Or continue with email
             </span>
           </div>
@@ -156,14 +156,14 @@ export default function LoginPage() {
           {/* Form */}
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
             {errorMsg && (
-              <div className="p-3 bg-rose-50 border border-rose-100 text-rose-600 rounded-xl text-xs flex items-center gap-2 font-medium">
+              <div className="p-3 bg-rose-50 border border-rose-100 text-rose-600 rounded-[12px] text-xs flex items-center gap-2 font-medium">
                 <ShieldAlert className="w-4 h-4 shrink-0" />
                 {errorMsg}
               </div>
             )}
 
-            <div>
-              <label className="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1.5">
+            <div className="space-y-1">
+              <label className="block text-xs font-semibold text-[#0F172A] uppercase tracking-wider">
                 Email Address
               </label>
               <div className="relative">
@@ -171,25 +171,25 @@ export default function LoginPage() {
                   type="email"
                   {...register("email")}
                   placeholder="alex@example.com"
-                  className="w-full bg-slate-50 border border-slate-200 rounded-xl py-3 px-4 text-sm focus:outline-none focus:border-primary focus:bg-white transition-colors pl-10"
+                  className="w-full bg-[#F8FAFC] border border-[#E2E8F0] rounded-[12px] py-3 px-4 text-sm focus:outline-none focus:border-[#2563EB] focus:bg-white transition-colors pl-10"
                 />
-                <Mail className="absolute left-3 top-3.5 w-4 h-4 text-slate-400" />
+                <Mail className="absolute left-3 top-3.5 w-4 h-4 text-[#64748B]" />
               </div>
               {errors.email && (
-                <p className="mt-1 text-xs text-rose-500 font-medium">
+                <p className="text-xs text-rose-500 font-medium">
                   {errors.email.message}
                 </p>
               )}
             </div>
 
-            <div>
-              <div className="flex justify-between items-center mb-1.5">
-                <label className="block text-xs font-semibold text-slate-700 uppercase tracking-wider">
+            <div className="space-y-1">
+              <div className="flex justify-between items-center">
+                <label className="block text-xs font-semibold text-[#0F172A] uppercase tracking-wider">
                   Password
                 </label>
                 <Link
                   href="/forgot-password"
-                  className="text-xs text-primary hover:text-blue-700 transition-colors font-semibold"
+                  className="text-xs text-[#2563EB] hover:text-[#1D4ED8] transition-colors font-semibold"
                 >
                   Forgot Password?
                 </Link>
@@ -199,19 +199,19 @@ export default function LoginPage() {
                   type={showPassword ? "text" : "password"}
                   {...register("password")}
                   placeholder="••••••••"
-                  className="w-full bg-slate-50 border border-slate-200 rounded-xl py-3 px-4 text-sm focus:outline-none focus:border-primary focus:bg-white transition-colors pl-10 pr-10"
+                  className="w-full bg-[#F8FAFC] border border-[#E2E8F0] rounded-[12px] py-3 px-4 text-sm focus:outline-none focus:border-[#2563EB] focus:bg-white transition-colors pl-10 pr-10"
                 />
-                <Lock className="absolute left-3 top-3.5 w-4 h-4 text-slate-400" />
+                <Lock className="absolute left-3 top-3.5 w-4 h-4 text-[#64748B]" />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 top-3.5 text-slate-400 hover:text-slate-600 focus:outline-none cursor-pointer"
+                  className="absolute right-3 top-3.5 text-[#64748B] hover:text-[#0F172A] focus:outline-none cursor-pointer"
                 >
                   {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                 </button>
               </div>
               {errors.password && (
-                <p className="mt-1 text-xs text-rose-500 font-medium">
+                <p className="text-xs text-rose-500 font-medium">
                   {errors.password.message}
                 </p>
               )}
@@ -221,11 +221,11 @@ export default function LoginPage() {
               <input
                 id="remember_me"
                 type="checkbox"
-                className="h-4 w-4 text-primary focus:ring-primary border-slate-300 rounded-md"
+                className="h-4 w-4 text-[#2563EB] focus:ring-[#2563EB] border-[#E2E8F0] rounded"
               />
               <label
                 htmlFor="remember_me"
-                className="ml-2 block text-xs font-semibold text-slate-600 uppercase tracking-wider"
+                className="ml-2 block text-xs font-semibold text-[#64748B] uppercase tracking-wider cursor-pointer"
               >
                 Remember me
               </label>
@@ -234,7 +234,7 @@ export default function LoginPage() {
             <button
               type="submit"
               disabled={isLoading}
-              className="w-full flex items-center justify-center gap-2 bg-primary hover:bg-blue-700 text-white font-bold py-3 px-4 rounded-xl shadow-md shadow-primary/10 hover:shadow-lg transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+              className="w-full flex items-center justify-center gap-2 bg-[#2563EB] hover:bg-[#1D4ED8] text-white font-bold py-3 px-4 rounded-[12px] shadow-sm hover:shadow-md transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer text-sm"
             >
               {isLoading ? (
                 <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />

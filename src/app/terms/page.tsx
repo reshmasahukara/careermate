@@ -6,7 +6,7 @@ import { FileText } from "lucide-react";
 export default function TermsPage() {
   return (
     <div className="flex-1 bg-brand-bg py-16 px-4">
-      <div className="max-w-3xl mx-auto glass-card p-8 sm:p-10 rounded-2xl border border-slate-200 space-y-6">
+      <div className="max-w-3xl mx-auto premium-card p-8 sm:p-10 rounded-card space-y-6">
         <div className="flex items-center gap-3">
           <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center text-primary">
             <FileText className="w-5 h-5" />

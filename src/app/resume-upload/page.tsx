@@ -19,6 +19,7 @@ import {
 } from "lucide-react";
 import { useToast } from "@/components/Providers";
 import { uploadResumeAction, getResumesAction, deleteResumeAction } from "@/app/actions/resume";
+import DashboardLayout from "@/components/DashboardLayout";
 
 export default function ResumeUploadPage() {
   const { data: session, status } = useSession();
@@ -170,8 +171,8 @@ export default function ResumeUploadPage() {
 
   if (status === "loading") {
     return (
-      <div className="flex-1 flex items-center justify-center min-h-[60vh]">
-        <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin" />
+      <div className="flex-1 flex items-center justify-center min-h-[60vh] bg-[#F8FAFC]">
+        <div className="w-8 h-8 border-4 border-[#2563EB] border-t-transparent rounded-full animate-spin" />
       </div>
     );
   }
@@ -179,19 +180,19 @@ export default function ResumeUploadPage() {
   // Fallback for unauthenticated access
   if (!session) {
     return (
-      <div className="flex-1 flex items-center justify-center bg-slate-50 py-16 px-4">
-        <div className="max-w-md w-full glass-card p-8 text-center space-y-5 border border-slate-200 shadow-xl">
-          <div className="w-14 h-14 bg-primary/10 rounded-full flex items-center justify-center mx-auto">
-            <Upload className="w-7 h-7 text-primary" />
+      <div className="flex-1 min-h-screen flex items-center justify-center bg-[#F8FAFC] py-16 px-4">
+        <div className="w-full max-w-[480px] bg-white border border-[#E2E8F0] p-8 rounded-[20px] text-center space-y-5 shadow-sm">
+          <div className="w-14 h-14 bg-[#2563EB]/10 rounded-full flex items-center justify-center mx-auto">
+            <Upload className="w-7 h-7 text-[#2563EB]" />
           </div>
-          <h2 className="text-xl font-extrabold text-slate-900">Sign in to Upload Resumes</h2>
-          <p className="text-slate-500 text-xs sm:text-sm leading-relaxed">
+          <h2 className="text-xl font-bold text-[#0F172A]">Sign in to Upload Resumes</h2>
+          <p className="text-[#64748B] text-sm leading-relaxed">
             Please log in or explore our sandbox dashboard to test resume parsing, score benchmarking, and skills validation.
           </p>
           <div className="flex flex-col gap-2">
             <button
               onClick={() => router.push("/login")}
-              className="bg-primary text-white py-2.5 rounded-xl font-bold text-xs shadow-md"
+              className="bg-[#2563EB] text-white py-2.5 rounded-[12px] font-bold text-xs shadow-sm hover:bg-[#1D4ED8] transition-colors"
             >
               Log In
             </button>
@@ -200,7 +201,7 @@ export default function ResumeUploadPage() {
                 await signIn("credentials", { redirect: false, email: "alex@example.com", password: "password123" });
                 router.refresh();
               }}
-              className="bg-slate-900 text-white py-2.5 rounded-xl font-bold text-xs"
+              className="bg-[#0F172A] text-white py-2.5 rounded-[12px] font-bold text-xs shadow-sm hover:bg-[#1E293B] transition-colors"
             >
               Explore sandbox
             </button>
@@ -211,13 +212,13 @@ export default function ResumeUploadPage() {
   }
 
   return (
-    <div className="flex-1 bg-brand-bg py-10">
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8">
+    <DashboardLayout>
+      <div className="max-w-4xl mx-auto space-y-8">
         
         {/* Header */}
         <div>
-          <h1 className="text-3xl font-extrabold text-slate-900">Resume Upload</h1>
-          <p className="text-slate-500 text-sm mt-1">Upload PDF or DOCX file to run simulated ATS scoring checks.</p>
+          <h1 className="text-2xl font-bold text-[#0F172A]">Resume Upload</h1>
+          <p className="text-[#64748B] text-xs font-semibold mt-1">Upload PDF or DOCX file to run simulated ATS scoring checks.</p>
         </div>
 
         {/* Upload Zone */}
@@ -231,10 +232,10 @@ export default function ResumeUploadPage() {
               onDragLeave={handleDrag}
               onDrop={handleDrop}
               onClick={() => !isUploading && fileInputRef.current?.click()}
-              className={`border-2 border-dashed rounded-2xl p-8 text-center transition-all duration-300 flex flex-col items-center justify-center min-h-[300px] cursor-pointer ${
+              className={`border-2 border-dashed rounded-[20px] p-8 text-center transition-all duration-300 flex flex-col items-center justify-center min-h-[300px] cursor-pointer ${
                 isDragActive
-                  ? "border-primary bg-primary/[0.02] scale-[0.99]"
-                  : "border-slate-200 bg-white hover:border-primary/60 hover:bg-slate-50/50"
+                  ? "border-[#2563EB] bg-[#2563EB]/5 scale-[0.99]"
+                  : "border-[#E2E8F0] bg-white hover:border-[#2563EB]/60 hover:bg-[#F8FAFC]/50"
               } ${isUploading ? "pointer-events-none opacity-80" : ""}`}
             >
               <input
@@ -248,21 +249,21 @@ export default function ResumeUploadPage() {
 
               {isUploading ? (
                 <div className="w-full max-w-xs space-y-4">
-                  <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center mx-auto text-primary">
+                  <div className="w-12 h-12 rounded-[12px] bg-[#2563EB]/10 flex items-center justify-center mx-auto text-[#2563EB]">
                     <RefreshCw className="w-6 h-6 animate-spin" />
                   </div>
                   <div>
-                    <h3 className="font-bold text-slate-800 text-sm">Uploading and parsing...</h3>
-                    <p className="text-[10px] text-slate-400 font-semibold mt-0.5 uppercase">Simulating Cloudinary storage pipeline</p>
+                    <h3 className="font-bold text-[#0F172A] text-sm">Uploading and parsing...</h3>
+                    <p className="text-[10px] text-[#64748B] font-bold mt-0.5 uppercase">Simulating Cloudinary storage pipeline</p>
                   </div>
                   <div className="space-y-1.5">
-                    <div className="flex justify-between text-[10px] font-bold text-slate-500 uppercase tracking-wider">
+                    <div className="flex justify-between text-[10px] font-bold text-[#64748B] uppercase tracking-wider">
                       <span>Progress</span>
                       <span>{uploadProgress}%</span>
                     </div>
-                    <div className="h-1.5 w-full bg-slate-100 rounded-full overflow-hidden">
+                    <div className="h-1.5 w-full bg-[#F8FAFC] border border-[#E2E8F0]/60 rounded-full overflow-hidden">
                       <div
-                        className="h-full bg-primary rounded-full transition-all duration-300"
+                        className="h-full bg-[#2563EB] rounded-full transition-all duration-300"
                         style={{ width: `${uploadProgress}%` }}
                       />
                     </div>
@@ -270,12 +271,12 @@ export default function ResumeUploadPage() {
                 </div>
               ) : file ? (
                 <div className="space-y-4 max-w-sm">
-                  <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center mx-auto text-primary">
+                  <div className="w-12 h-12 rounded-[12px] bg-[#2563EB]/10 flex items-center justify-center mx-auto text-[#2563EB]">
                     <FileText className="w-6 h-6" />
                   </div>
                   <div>
-                    <h3 className="font-bold text-slate-800 text-sm break-all">{file.name}</h3>
-                    <p className="text-xs text-slate-400 mt-1">{(file.size / 1024 / 1024).toFixed(2)} MB</p>
+                    <h3 className="font-bold text-[#0F172A] text-sm break-all">{file.name}</h3>
+                    <p className="text-xs text-[#64748B] mt-1 font-semibold">{(file.size / 1024 / 1024).toFixed(2)} MB</p>
                   </div>
                   
                   <div className="flex gap-2.5 justify-center">
@@ -285,7 +286,7 @@ export default function ResumeUploadPage() {
                         e.stopPropagation();
                         setFile(null);
                       }}
-                      className="px-4 py-2 border border-slate-200 rounded-xl text-slate-600 font-bold text-xs hover:bg-slate-50"
+                      className="px-4 py-2 border border-[#E2E8F0] rounded-[12px] text-[#64748B] font-bold text-xs hover:bg-[#F8FAFC]"
                     >
                       Clear File
                     </button>
@@ -295,7 +296,7 @@ export default function ResumeUploadPage() {
                         e.stopPropagation();
                         handleUploadSubmit();
                       }}
-                      className="px-4 py-2 bg-primary hover:bg-blue-700 text-white font-bold text-xs rounded-xl shadow-md transition-colors"
+                      className="px-4 py-2 bg-[#2563EB] hover:bg-[#1D4ED8] text-white font-bold text-xs rounded-[12px] shadow-sm transition-colors"
                     >
                       Parse Resume
                     </button>
@@ -303,14 +304,14 @@ export default function ResumeUploadPage() {
                 </div>
               ) : (
                 <div className="space-y-4">
-                  <div className="w-12 h-12 rounded-xl bg-slate-50 flex items-center justify-center mx-auto border shadow-sm text-slate-400">
+                  <div className="w-12 h-12 rounded-[12px] bg-[#F8FAFC] flex items-center justify-center mx-auto border border-[#E2E8F0] shadow-sm text-[#64748B]">
                     <Upload className="w-6 h-6" />
                   </div>
                   <div className="space-y-1">
-                    <h3 className="font-bold text-slate-800 text-sm">Drag and drop resume here</h3>
-                    <p className="text-slate-500 text-xs">Or click to search folders manually.</p>
+                    <h3 className="font-bold text-[#0F172A] text-sm">Drag and drop resume here</h3>
+                    <p className="text-[#64748B] text-xs font-semibold">Or click to search folders manually.</p>
                   </div>
-                  <div className="text-[10px] text-slate-400 font-semibold uppercase tracking-wider">
+                  <div className="text-[10px] text-[#64748B] font-bold uppercase tracking-wider">
                     PDF & DOCX files accepted. Size limit: 5MB.
                   </div>
                 </div>
@@ -318,7 +319,7 @@ export default function ResumeUploadPage() {
             </div>
 
             {uploadError && (
-              <div className="p-3.5 bg-rose-50 border border-rose-100 rounded-xl text-rose-600 text-xs flex items-center gap-2 font-medium">
+              <div className="p-3.5 bg-rose-50 border border-rose-100 rounded-[12px] text-rose-600 text-xs flex items-center gap-2 font-medium">
                 <AlertCircle className="w-4.5 h-4.5 shrink-0" />
                 {uploadError}
               </div>
@@ -326,12 +327,12 @@ export default function ResumeUploadPage() {
           </div>
 
           {/* Guidelines Sidebar (col 1) */}
-          <div className="glass-card p-6 rounded-2xl border border-slate-200 space-y-4">
-            <h2 className="font-bold text-slate-800 text-xs uppercase tracking-wider flex items-center gap-1">
-              <Sparkles className="w-4 h-4 text-primary" />
+          <div className="bg-white border border-[#E2E8F0] p-6 rounded-[20px] space-y-4 shadow-sm hover:shadow-md transition-all duration-200">
+            <h2 className="font-bold text-[#0F172A] text-xs uppercase tracking-wider flex items-center gap-1">
+              <Sparkles className="w-4 h-4 text-[#2563EB]" />
               Upload Checklist
             </h2>
-            <ul className="space-y-3.5 text-xs text-slate-500 leading-relaxed font-medium">
+            <ul className="space-y-3.5 text-xs text-[#64748B] leading-relaxed font-semibold">
               <li className="flex items-start gap-2">
                 <CheckCircle2 className="w-4.5 h-4.5 text-emerald-500 shrink-0 mt-0.5" />
                 <span>**Formatting**: Standard single-column styles optimize parser accuracy.</span>
@@ -342,7 +343,7 @@ export default function ResumeUploadPage() {
               </li>
               <li className="flex items-start gap-2">
                 <CheckCircle2 className="w-4.5 h-4.5 text-emerald-500 shrink-0 mt-0.5" />
-                <span>**Content**: Quantify bullets (e.g. 'Improved efficiency by 12%').</span>
+                <span>**Content**: Quantify bullets (e.g. &#39;Improved efficiency by 12%&#39;).</span>
               </li>
             </ul>
           </div>
@@ -351,15 +352,15 @@ export default function ResumeUploadPage() {
 
         {/* History Section */}
         <div className="space-y-4 pt-4">
-          <h2 className="font-bold text-slate-900 text-lg flex items-center gap-1.5">
-            <Clock className="w-5 h-5 text-slate-400" />
+          <h2 className="font-bold text-[#0F172A] text-base flex items-center gap-1.5">
+            <Clock className="w-5 h-5 text-[#64748B]" />
             Resume Upload History
           </h2>
 
           {isLoadingHistory ? (
             <div className="space-y-2">
               {[...Array(2)].map((_, i) => (
-                <div key={i} className="h-12 bg-slate-100 animate-pulse rounded-xl" />
+                <div key={i} className="h-12 bg-[#F8FAFC] animate-pulse rounded-[12px] border border-[#E2E8F0]/60" />
               ))}
             </div>
           ) : resumes.length > 0 ? (
@@ -367,17 +368,17 @@ export default function ResumeUploadPage() {
               {resumes.map((res) => (
                 <div
                   key={res.id}
-                  className="p-4 rounded-xl bg-white border border-slate-200/60 shadow-sm flex items-center justify-between gap-4"
+                  className="p-4 rounded-[12px] bg-white border border-[#E2E8F0] shadow-sm hover:shadow-md transition-all duration-200 flex items-center justify-between gap-4"
                 >
                   <div className="flex items-center gap-3">
-                    <div className="w-9 h-9 rounded-lg bg-primary/10 flex items-center justify-center text-primary shrink-0">
+                    <div className="w-9 h-9 rounded-[8px] bg-[#2563EB]/10 flex items-center justify-center text-[#2563EB] shrink-0">
                       <FileText className="w-5 h-5" />
                     </div>
                     <div className="min-w-0">
-                      <h4 className="font-bold text-slate-800 text-xs sm:text-sm truncate max-w-[180px] sm:max-w-[240px]">
+                      <h4 className="font-bold text-[#0F172A] text-xs sm:text-sm truncate max-w-[180px] sm:max-w-[240px]">
                         {res.fileName}
                       </h4>
-                      <p className="text-[10px] text-slate-400 font-semibold mt-0.5">
+                      <p className="text-[10px] text-[#64748B] font-semibold mt-0.5">
                         v{res.version} • {new Date(res.createdAt).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}
                       </p>
                     </div>
@@ -386,14 +387,14 @@ export default function ResumeUploadPage() {
                   <div className="flex items-center gap-2">
                     <Link
                       href={`/ats-checker?resumeId=${res.id}`}
-                      className="bg-primary/10 hover:bg-primary/20 text-primary p-2 rounded-lg text-xs font-bold transition-all"
+                      className="bg-[#2563EB]/10 hover:bg-[#2563EB]/25 text-[#2563EB] p-2 rounded-[8px] text-xs font-bold transition-all"
                       title="Run ATS Check"
                     >
                       <ChevronRight className="w-4 h-4" />
                     </Link>
                     <button
                       onClick={() => handleDelete(res.id)}
-                      className="text-slate-400 hover:text-rose-600 p-2 rounded-lg transition-colors cursor-pointer"
+                      className="text-[#64748B] hover:text-rose-600 p-2 rounded-[8px] transition-colors cursor-pointer"
                       title="Delete Copy"
                     >
                       <Trash2 className="w-4 h-4" />
@@ -403,13 +404,13 @@ export default function ResumeUploadPage() {
               ))}
             </div>
           ) : (
-            <div className="text-xs text-slate-500 py-4 italic">
+            <div className="text-xs text-[#64748B] py-4 italic font-semibold">
               No previous versions stored. Add a copy above to establish records.
             </div>
           )}
         </div>
 
       </div>
-    </div>
+    </DashboardLayout>
   );
 }

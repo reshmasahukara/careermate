@@ -80,7 +80,7 @@ export default function PricingPage() {
       buttonText: "Upgrade to Pro",
       badge: "Most Popular",
       actionPlan: "Pro",
-      color: "border-primary shadow-lg shadow-primary/5 relative scale-[1.02] z-10"
+      color: "border-primary ring-2 ring-primary/5 relative scale-[1.02] z-10"
     },
     {
       name: "Premium",
@@ -156,9 +156,7 @@ export default function PricingPage() {
             return (
               <div
                 key={card.name}
-                className={`glass-card p-8 rounded-2xl border flex flex-col justify-between ${card.color} ${
-                  isPro ? "bg-white" : ""
-                }`}
+                className={`premium-card p-8 rounded-card flex flex-col justify-between ${card.color}`}
               >
                 <div className="space-y-6">
                   <div className="flex justify-between items-center">

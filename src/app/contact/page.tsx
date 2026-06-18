@@ -95,7 +95,7 @@ export default function ContactPage() {
             </div>
 
             {/* Embedded Map Representation */}
-            <div className="glass-card p-6 rounded-2xl border border-slate-200 space-y-4 overflow-hidden">
+            <div className="premium-card p-6 rounded-card space-y-4 overflow-hidden">
               <h4 className="font-bold text-slate-800 text-xs uppercase tracking-wider flex items-center gap-1.5">
                 <MapPin className="w-4.5 h-4.5 text-slate-400" />
                 Office Coordinates
@@ -124,7 +124,7 @@ export default function ContactPage() {
           </div>
 
           {/* Contact Form panel (col 7) */}
-          <div className="lg:col-span-7 glass-card p-8 rounded-2xl border border-slate-200 shadow-sm">
+          <div className="lg:col-span-7 premium-card p-8 rounded-card">
             <h3 className="font-bold text-slate-900 text-lg flex items-center gap-1.5 mb-6">
               <MessageSquare className="w-5 h-5 text-primary" />
               Send Us a Message
