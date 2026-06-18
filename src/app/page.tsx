@@ -18,9 +18,7 @@ import {
   ChevronDown,
   BookOpen,
   Check,
-  ShieldCheck,
-  Plus,
-  Play
+  ShieldCheck
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
@@ -102,34 +100,91 @@ export default function HomePage() {
 
   const timelineSteps = [
     {
-      num: "01",
       title: "Upload Resume",
-      desc: "Drag & drop PDF/DOCX file.",
+      desc: "Drag & drop PDF or Word files.",
       icon: <FileText className="w-5 h-5 text-[#1E40AF]" />
     },
     {
-      num: "02",
       title: "AI Analysis",
       desc: "AI scans text for impact verbs.",
       icon: <Zap className="w-5 h-5 text-amber-500" />
     },
     {
-      num: "03",
-      title: "Get ATS Score",
-      desc: "Benchmark keyword match score.",
+      title: "Improve ATS Score",
+      desc: "Optimize missing keyword counts.",
       icon: <FileCheck className="w-5 h-5 text-[#14B8A6]" />
     },
     {
-      num: "04",
-      title: "Discover Jobs",
-      desc: "Instantly find matching roles.",
+      title: "Discover Opportunities",
+      desc: "Match jobs matching your skills.",
       icon: <Briefcase className="w-5 h-5 text-indigo-600" />
     },
     {
-      num: "05",
       title: "Build Skills & Succeed",
-      desc: "Shut gaps & land the job.",
+      desc: "Shut gap roadmaps and win roles.",
       icon: <Award className="w-5 h-5 text-emerald-600" />
+    }
+  ];
+
+  const pricingPlans = [
+    {
+      name: "Free",
+      price: "$0",
+      period: "",
+      description: "Test out basic scoring options.",
+      features: [
+        "1 resume upload limit",
+        "Basic ATS optimization score",
+        "Limited job recommendations"
+      ],
+      cta: "Register Account",
+      action: "Free",
+      highlight: false
+    },
+    {
+      name: "Pro",
+      price: "$19",
+      period: "/mo",
+      description: "Perfect for active software job hunting.",
+      features: [
+        "Unlimited resume uploads",
+        "Advanced ATS keyword suggestions",
+        "Detailed skill gap diagnostics",
+        "Advanced filterable job lists"
+      ],
+      cta: "Upgrade to Pro",
+      action: "Pro",
+      highlight: true
+    },
+    {
+      name: "Premium",
+      price: "$39",
+      period: "/mo",
+      description: "Accelerate development and leaders targets.",
+      features: [
+        "Everything in Pro plan",
+        "AI career roadmaps & tracking",
+        "Mock interview preparation",
+        "Priority support response in 2h"
+      ],
+      cta: "Get Premium",
+      action: "Premium",
+      highlight: false
+    },
+    {
+      name: "Enterprise",
+      price: "Custom",
+      period: "",
+      description: "Custom solutions for universities, career centers, and organizations.",
+      features: [
+        "Multi-user seat management",
+        "University bulk licenses",
+        "Custom database API integrations",
+        "Dedicated success manager"
+      ],
+      cta: "Contact Sales",
+      action: "Enterprise",
+      highlight: false
     }
   ];
 
@@ -163,13 +218,13 @@ export default function HomePage() {
   return (
     <div className="w-full bg-white">
       
-      {/* SECTION 2: HERO SECTION WITH DASHBOARD PREVIEW */}
-      <section className="w-full bg-gradient-to-b from-[#F5F9FF] to-[#FFFFFF] relative overflow-hidden pt-[72px]">
-        {/* Decorative blur blobs */}
+      {/* 2. HERO SECTION */}
+      <section className="w-full bg-[#F8FAFC] border-b border-[#E2E8F0]/40 relative overflow-hidden pt-[72px]">
+        {/* Subtle decorative color blobs */}
         <div className="absolute top-1/4 left-1/4 -translate-x-1/2 -translate-y-1/2 w-96 h-96 rounded-full bg-[#1E40AF]/[0.03] blur-3xl pointer-events-none" />
         <div className="absolute bottom-1/4 right-1/4 translate-x-1/2 translate-y-1/2 w-96 h-96 rounded-full bg-[#14B8A6]/[0.03] blur-3xl pointer-events-none" />
 
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 section-padding grid grid-cols-1 lg:grid-cols-12 gap-12 items-center relative z-10">
+        <div className="max-w-[1280px] px-6 mx-auto w-full py-[96px] md:py-[72px] py-[56px] grid grid-cols-1 lg:grid-cols-12 gap-12 items-center relative z-10">
           
           {/* Left Column (45%) */}
           <div className="lg:col-span-5 space-y-6 text-left">
@@ -218,7 +273,7 @@ export default function HomePage() {
             </div>
 
             {/* Mini Social Proof */}
-            <div className="flex items-center gap-3 pt-4 border-t border-slate-100">
+            <div className="flex items-center gap-3 pt-4 border-t border-slate-200/60">
               <div className="flex -space-x-2.5 overflow-hidden shrink-0">
                 <img className="inline-block h-8 w-8 rounded-full ring-2 ring-white object-cover" src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=80" alt="User 1" />
                 <img className="inline-block h-8 w-8 rounded-full ring-2 ring-white object-cover" src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=80" alt="User 2" />
@@ -231,7 +286,7 @@ export default function HomePage() {
             </div>
           </div>
 
-          {/* Right Column (55% / col-span-7) */}
+          {/* Right Column (55%) */}
           <div className="lg:col-span-7 w-full">
             {/* Dashboard Container Card */}
             <div className="premium-card rounded-[24px] bg-white shadow-xl overflow-hidden flex flex-col border border-[#E2E8F0] relative">
@@ -257,12 +312,12 @@ export default function HomePage() {
               {/* Dashboard Content Grid */}
               <div className="p-6 bg-slate-50/40 grid grid-cols-1 md:grid-cols-12 gap-5 items-stretch text-left">
                 
-                {/* Left side widgets */}
+                {/* Left widgets */}
                 <div className="md:col-span-7 space-y-5">
                   <div className="grid grid-cols-2 gap-4">
                     {/* ATS Score widget */}
                     <div className="p-4 bg-white border border-[#E2E8F0] rounded-2xl flex flex-col items-center justify-center text-center shadow-xs">
-                      <div className="w-14 h-14 rounded-full border-[4px] border-[#14B8A6] border-t-transparent flex items-center justify-center font-black text-[#0F172A] text-sm shrink-0 mb-1.5">
+                      <div className="w-14 h-14 rounded-full border-[4px] border-[#14B8A6] border-t-transparent flex items-center justify-center font-black text-[#0F172A] text-sm shrink-0 mb-1.5 font-sans">
                         92%
                       </div>
                       <h4 className="font-extrabold text-[10px] text-slate-400 uppercase tracking-wider mb-0.5">ATS Score</h4>
@@ -271,7 +326,7 @@ export default function HomePage() {
 
                     {/* Resume Match Widget */}
                     <div className="p-4 bg-white border border-[#E2E8F0] rounded-2xl flex flex-col items-center justify-center text-center shadow-xs">
-                      <div className="w-14 h-14 rounded-full border-[4px] border-[#1E40AF] border-t-transparent flex items-center justify-center font-black text-[#0F172A] text-sm shrink-0 mb-1.5">
+                      <div className="w-14 h-14 rounded-full border-[4px] border-[#1E40AF] border-t-transparent flex items-center justify-center font-black text-[#0F172A] text-sm shrink-0 mb-1.5 font-sans">
                         88%
                       </div>
                       <h4 className="font-extrabold text-[10px] text-slate-400 uppercase tracking-wider mb-0.5">Match Rate</h4>
@@ -318,7 +373,7 @@ export default function HomePage() {
                   </div>
                 </div>
 
-                {/* Right side widgets */}
+                {/* Right widgets */}
                 <div className="md:col-span-5 space-y-5">
                   {/* Recommended Jobs Widget */}
                   <div className="p-4 bg-white border border-[#E2E8F0] rounded-2xl shadow-xs space-y-3 flex flex-col justify-between h-full">
@@ -333,7 +388,7 @@ export default function HomePage() {
                             <h5 className="font-extrabold text-[10px] text-slate-800 leading-tight">Senior React Dev</h5>
                             <span className="bg-blue-50 text-[#1E40AF] font-black px-1.5 py-0.5 rounded text-[8px]">92%</span>
                           </div>
-                          <p className="text-[8px] text-slate-400 font-semibold">Stripe • Remote • $140k</p>
+                          <p className="text-[8px] text-slate-400 font-semibold font-sans">Stripe • Remote • $140k</p>
                         </div>
 
                         <div className="p-2 bg-slate-50 border border-slate-100 rounded-lg space-y-0.5">
@@ -341,16 +396,16 @@ export default function HomePage() {
                             <h5 className="font-extrabold text-[10px] text-slate-800 leading-tight">Frontend Engineer</h5>
                             <span className="bg-teal-50 text-[#14B8A6] font-black px-1.5 py-0.5 rounded text-[8px]">88%</span>
                           </div>
-                          <p className="text-[8px] text-slate-400 font-semibold">Vercel • Hybrid • $160k</p>
+                          <p className="text-[8px] text-slate-400 font-semibold font-sans">Vercel • Hybrid • $160k</p>
                         </div>
                       </div>
                     </div>
 
-                    {/* Roadmap Milestone status */}
+                    {/* Learning Roadmap Widget */}
                     <div className="pt-2 border-t border-slate-100 space-y-1.5">
                       <span className="text-[9px] font-bold text-slate-400 uppercase tracking-wider block">Learning Progress</span>
                       <div className="p-2 bg-teal-50/60 border border-teal-100 rounded-lg">
-                        <div className="font-bold text-[9px] text-teal-800 flex justify-between">
+                        <div className="font-bold text-[9px] text-teal-800 flex justify-between font-sans">
                           <span>Milestone 3 of 5</span>
                           <span>65% Done</span>
                         </div>
@@ -366,72 +421,9 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* SECTION 3: STATISTICS BAR */}
-      <section className="w-full bg-white py-6">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="premium-card py-8 px-6 bg-white rounded-[24px] border border-[#E2E8F0] shadow-md">
-            <div className="grid grid-cols-1 md:grid-cols-4 divide-y md:divide-y-0 md:divide-x divide-slate-100 text-center">
-              
-              {/* Stat 1 */}
-              <div className="py-4 md:py-0 flex flex-col items-center justify-center space-y-2">
-                <div className="w-9 h-9 rounded-full bg-blue-50 flex items-center justify-center text-[#1E40AF]">
-                  <Users className="w-4.5 h-4.5" />
-                </div>
-                <div className="space-y-0.5">
-                  <div className="text-2xl sm:text-3xl font-black text-[#0F172A] tracking-tight">
-                    <Counter value={10000} suffix="+" />
-                  </div>
-                  <p className="text-[9px] sm:text-[10px] font-bold uppercase tracking-widest text-slate-400">Active Professionals</p>
-                </div>
-              </div>
-
-              {/* Stat 2 */}
-              <div className="py-4 md:py-0 flex flex-col items-center justify-center space-y-2">
-                <div className="w-9 h-9 rounded-full bg-teal-50 flex items-center justify-center text-[#14B8A6]">
-                  <FileCheck className="w-4.5 h-4.5" />
-                </div>
-                <div className="space-y-0.5">
-                  <div className="text-2xl sm:text-3xl font-black text-[#0F172A] tracking-tight">
-                    <Counter value={50000} suffix="+" />
-                  </div>
-                  <p className="text-[9px] sm:text-[10px] font-bold uppercase tracking-widest text-slate-400">Resumes Optimized</p>
-                </div>
-              </div>
-
-              {/* Stat 3 */}
-              <div className="py-4 md:py-0 flex flex-col items-center justify-center space-y-2">
-                <div className="w-9 h-9 rounded-full bg-indigo-50 flex items-center justify-center text-indigo-600">
-                  <Briefcase className="w-4.5 h-4.5" />
-                </div>
-                <div className="space-y-0.5">
-                  <div className="text-2xl sm:text-3xl font-black text-[#0F172A] tracking-tight">
-                    <Counter value={5000} suffix="+" />
-                  </div>
-                  <p className="text-[9px] sm:text-[10px] font-bold uppercase tracking-widest text-slate-400">Opportunities Discovered</p>
-                </div>
-              </div>
-
-              {/* Stat 4 */}
-              <div className="py-4 md:py-0 flex flex-col items-center justify-center space-y-2">
-                <div className="w-9 h-9 rounded-full bg-amber-50 flex items-center justify-center text-amber-500">
-                  <Award className="w-4.5 h-4.5" />
-                </div>
-                <div className="space-y-0.5">
-                  <div className="text-2xl sm:text-3xl font-black text-[#0F172A] tracking-tight">
-                    <Counter value={95} suffix="%" />
-                  </div>
-                  <p className="text-[9px] sm:text-[10px] font-bold uppercase tracking-widest text-slate-400">Recommendation Accuracy</p>
-                </div>
-              </div>
-
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* SECTION 4: CORE FEATURES GRID */}
-      <section id="features" className="w-full bg-[#F8FAFC] border-t border-[#E2E8F0]/40 scroll-mt-24">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 section-padding space-y-12">
+      {/* 3. CORE FEATURES */}
+      <section id="features" className="w-full bg-[#FFFFFF] border-b border-[#E2E8F0]/40 scroll-mt-24">
+        <div className="max-w-[1280px] px-6 mx-auto w-full py-[96px] md:py-[72px] py-[56px] space-y-12">
           
           <div className="text-center space-y-3">
             <span className="text-[10px] font-bold text-[#1E40AF] uppercase tracking-widest bg-blue-50 border border-blue-100 px-3 py-1 rounded-full">
@@ -447,7 +439,7 @@ export default function HomePage() {
 
           {/* 6 feature cards in one row on desktop */}
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-5 items-stretch">
-            {featureCards.map((card, idx) => (
+            {featureCards.map((card) => (
               <Link
                 key={card.title}
                 href={card.href}
@@ -474,9 +466,9 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* SECTION 5: HOW CAREERMATE WORKS */}
-      <section className="w-full bg-white border-t border-[#E2E8F0]/40">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 section-padding space-y-12">
+      {/* 4. HOW CAREERMATE WORKS */}
+      <section className="w-full bg-[#F5F9FF] border-b border-[#E2E8F0]/40">
+        <div className="max-w-[1280px] px-6 mx-auto w-full py-[96px] md:py-[72px] py-[56px] space-y-12">
           
           <div className="text-center space-y-3">
             <span className="text-[10px] font-bold text-[#1E40AF] uppercase tracking-widest bg-blue-50 border border-blue-100 px-3 py-1 rounded-full">
@@ -486,47 +478,131 @@ export default function HomePage() {
               Simple Steps to Career Success
             </h2>
             <p className="text-slate-500 text-xs sm:text-sm font-semibold max-w-md mx-auto">
-              Follow our logical, step-by-step pipeline to land your next technical role.
+              A guided journey from resume optimization to career growth.
             </p>
           </div>
 
-          {/* Horizontal timeline connected by a line */}
-          <div className="relative pt-6 max-w-5xl mx-auto">
-            {/* Progress line */}
-            <div className="absolute top-[38px] left-[10%] right-[10%] h-[2px] bg-slate-100 -z-10 hidden md:block" />
+          {/* Horizontal timeline responsive with scroll on mobile */}
+          <div className="overflow-x-auto no-scrollbar pb-4 -mx-6 px-6">
+            <div className="min-w-[850px] relative">
+              {/* Continuous horizontal line crossing exactly through the circles center */}
+              <div className="absolute top-[64px] left-[10%] right-[10%] h-[2px] bg-slate-200/70 -z-10" />
 
-            <div className="grid grid-cols-1 md:grid-cols-5 gap-8 items-stretch text-center">
-              {timelineSteps.map((step, idx) => (
-                <div key={idx} className="flex flex-col items-center space-y-4 text-center">
-                  {/* Step bubble */}
-                  <div className="w-10 h-10 rounded-full border-2 border-[#E2E8F0] bg-white text-slate-700 mx-auto flex items-center justify-center font-bold text-xs relative shadow-xs shrink-0">
-                    <div className="w-8 h-8 rounded-full bg-slate-50 border border-[#E2E8F0] flex items-center justify-center">
-                      {step.icon}
-                    </div>
-                    {/* Step badge overlay */}
-                    <span className="absolute -top-1 -right-1 bg-[#1E40AF] text-white font-mono text-[8px] font-extrabold w-4 h-4 rounded-full flex items-center justify-center">
-                      {step.num}
+              <div className="grid grid-cols-5 gap-6 text-center">
+                {timelineSteps.map((step, idx) => (
+                  <div key={idx} className="flex flex-col items-center group">
+                    {/* Step Number Above Icon */}
+                    <span className="text-[10px] font-bold text-slate-400 group-hover:text-[#1E40AF] transition-colors uppercase tracking-widest block mb-3">
+                      Step {idx + 1}
                     </span>
+
+                    {/* Circular Icon Container (72px) */}
+                    <div className="w-[72px] h-[72px] rounded-full border border-slate-200 bg-white shadow-xs flex items-center justify-center transition-all duration-300 group-hover:scale-105 group-hover:border-[#1E40AF] group-hover:shadow-md cursor-pointer shrink-0">
+                      <div className="w-12 h-12 rounded-full bg-slate-50 border border-slate-100 flex items-center justify-center text-slate-500 group-hover:text-[#1E40AF] transition-colors">
+                        {step.icon}
+                      </div>
+                    </div>
+
+                    {/* Spacing 24px between icon and title */}
+                    <div className="mt-6 space-y-3">
+                      <h4 className="font-extrabold text-xs sm:text-sm text-[#0F172A] tracking-tight group-hover:text-[#1E40AF] transition-colors">
+                        {step.title}
+                      </h4>
+                      {/* Spacing 12px between title and description */}
+                      <p className="text-[11px] text-slate-400 leading-normal font-semibold max-w-[155px] mx-auto">
+                        {step.desc}
+                      </p>
+                    </div>
                   </div>
-                  
-                  {/* Content details */}
-                  <div className="space-y-1">
-                    <h4 className="font-extrabold text-xs sm:text-sm text-[#0F172A]">{step.title}</h4>
-                    <p className="text-[11px] text-slate-500 leading-relaxed font-semibold max-w-[150px] mx-auto">
-                      {step.desc}
-                    </p>
-                  </div>
-                </div>
-              ))}
+                ))}
+              </div>
             </div>
           </div>
 
         </div>
       </section>
 
-      {/* SECTION 6: TESTIMONIALS */}
-      <section className="w-full bg-[#F8FAFC] border-t border-[#E2E8F0]/40">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 section-padding space-y-12">
+      {/* 5. PRICING */}
+      <section className="w-full bg-[#FFFFFF] border-b border-[#E2E8F0]/40">
+        <div className="max-w-[1280px] px-6 mx-auto w-full py-[96px] md:py-[72px] py-[56px] space-y-12">
+          <div className="text-center space-y-3">
+            <span className="text-[10px] font-bold text-[#1E40AF] uppercase tracking-widest bg-blue-50 border border-blue-100 px-3 py-1 rounded-full">
+              Pricing Plans
+            </span>
+            <h2 className="text-2xl sm:text-3xl font-black text-[#0F172A] tracking-tight">
+              Choose the Plan That Matches Your Goals
+            </h2>
+            <p className="text-slate-500 text-xs sm:text-sm font-semibold">
+              Start free and upgrade as your career journey evolves.
+            </p>
+          </div>
+
+          {/* 4 pricing columns */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 items-stretch">
+            {pricingPlans.map((plan) => {
+              return (
+                <div
+                  key={plan.name}
+                  className={`premium-card p-6 rounded-card bg-white flex flex-col justify-between ${
+                    plan.highlight 
+                      ? "border-primary ring-2 ring-primary/5 shadow-md shadow-primary/5 bg-primary/[0.005]" 
+                      : "border-[#E2E8F0]"
+                  }`}
+                >
+                  <div className="space-y-6">
+                    <div className="flex justify-between items-center">
+                      <span className={`text-[10px] font-bold uppercase tracking-widest px-2.5 py-0.5 rounded-full ${
+                        plan.highlight ? "bg-primary/10 text-primary" : "bg-slate-100 text-slate-500"
+                      }`}>
+                        {plan.name}
+                      </span>
+                    </div>
+
+                    <div className="space-y-2">
+                      <div className="flex items-baseline">
+                        <span className="text-3xl font-black text-slate-900 font-sans">{plan.price}</span>
+                        {plan.period && (
+                          <span className="text-slate-400 font-semibold text-xs ml-1">{plan.period}</span>
+                        )}
+                      </div>
+                      <p className="text-slate-500 text-xs leading-normal font-semibold">{plan.description}</p>
+                    </div>
+
+                    <hr className="border-slate-100" />
+
+                    {/* Checklist */}
+                    <ul className="space-y-2.5">
+                      {plan.features.map((feat) => (
+                        <li key={feat} className="flex items-start gap-2 text-xs text-slate-600 font-semibold leading-relaxed text-left">
+                          <Check className="w-4 h-4 text-emerald-500 shrink-0 mt-0.5" />
+                          <span>{feat}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+
+                  <div className="pt-8">
+                    <Link
+                      href="/pricing"
+                      className={`w-full py-2.5 rounded-btn text-xs font-bold uppercase tracking-wider text-center block transition-all cursor-pointer ${
+                        plan.highlight
+                          ? "bg-primary hover:bg-blue-800 text-white shadow-sm"
+                          : "bg-slate-900 hover:bg-slate-800 text-white"
+                      }`}
+                    >
+                      {plan.cta}
+                    </Link>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      </section>
+
+      {/* 6. TESTIMONIALS */}
+      <section className="w-full bg-[#F8FAFC] border-b border-[#E2E8F0]/40">
+        <div className="max-w-[1280px] px-6 mx-auto w-full py-[96px] md:py-[72px] py-[56px] space-y-12">
           
           <div className="text-center space-y-3">
             <span className="text-[10px] font-bold text-[#1E40AF] uppercase tracking-widest bg-blue-50 border border-blue-100 px-3 py-1 rounded-full">
@@ -579,9 +655,85 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* SECTION 7: FINAL CALL-TO-ACTION BANNER */}
-      <section className="w-full bg-white py-12">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      {/* 7. STATISTICS SECTION */}
+      <section className="w-full bg-[#F5F9FF] border-b border-[#E2E8F0]/40">
+        <div className="max-w-[1280px] px-6 mx-auto w-full py-[96px] md:py-[72px] py-[56px] space-y-12">
+          
+          <div className="text-center space-y-3">
+            <span className="text-[10px] font-bold text-[#1E40AF] uppercase tracking-widest bg-blue-50 border border-blue-100 px-3 py-1 rounded-full">
+              Statistics
+            </span>
+            <h2 className="text-2xl sm:text-3xl font-black text-[#0F172A] tracking-tight">
+              Growing Careers Worldwide
+            </h2>
+            <p className="text-slate-500 text-xs sm:text-sm font-semibold max-w-md mx-auto">
+              Empowering professionals globally with quantitative credentials and opportunities.
+            </p>
+          </div>
+
+          <div className="premium-card py-12 px-6 bg-white rounded-[32px] border border-[#E2E8F0] shadow-md max-w-5xl mx-auto">
+            <div className="grid grid-cols-1 md:grid-cols-4 divide-y md:divide-y-0 md:divide-x divide-slate-100 text-center">
+              
+              {/* Stat 1 */}
+              <div className="py-6 md:py-0 flex flex-col items-center justify-center space-y-2">
+                <div className="w-9 h-9 rounded-full bg-blue-50 flex items-center justify-center text-[#1E40AF]">
+                  <Users className="w-4.5 h-4.5" />
+                </div>
+                <div className="space-y-0.5">
+                  <div className="text-2xl sm:text-3xl font-black text-[#0F172A] tracking-tight font-sans">
+                    <Counter value={10000} suffix="+" />
+                  </div>
+                  <p className="text-[9px] sm:text-[10px] font-bold uppercase tracking-widest text-slate-400">Active Professionals</p>
+                </div>
+              </div>
+
+              {/* Stat 2 */}
+              <div className="py-6 md:py-0 flex flex-col items-center justify-center space-y-2">
+                <div className="w-9 h-9 rounded-full bg-teal-50 flex items-center justify-center text-[#14B8A6]">
+                  <FileCheck className="w-4.5 h-4.5" />
+                </div>
+                <div className="space-y-0.5">
+                  <div className="text-2xl sm:text-3xl font-black text-[#0F172A] tracking-tight font-sans">
+                    <Counter value={50000} suffix="+" />
+                  </div>
+                  <p className="text-[9px] sm:text-[10px] font-bold uppercase tracking-widest text-slate-400">Resumes Optimized</p>
+                </div>
+              </div>
+
+              {/* Stat 3 */}
+              <div className="py-6 md:py-0 flex flex-col items-center justify-center space-y-2">
+                <div className="w-9 h-9 rounded-full bg-indigo-50 flex items-center justify-center text-indigo-600">
+                  <Briefcase className="w-4.5 h-4.5" />
+                </div>
+                <div className="space-y-0.5">
+                  <div className="text-2xl sm:text-3xl font-black text-[#0F172A] tracking-tight font-sans">
+                    <Counter value={5000} suffix="+" />
+                  </div>
+                  <p className="text-[9px] sm:text-[10px] font-bold uppercase tracking-widest text-slate-400">Opportunities Discovered</p>
+                </div>
+              </div>
+
+              {/* Stat 4 */}
+              <div className="py-6 md:py-0 flex flex-col items-center justify-center space-y-2">
+                <div className="w-9 h-9 rounded-full bg-amber-50 flex items-center justify-center text-amber-500">
+                  <Award className="w-4.5 h-4.5" />
+                </div>
+                <div className="space-y-0.5">
+                  <div className="text-2xl sm:text-3xl font-black text-[#0F172A] tracking-tight font-sans">
+                    <Counter value={95} suffix="%" />
+                  </div>
+                  <p className="text-[9px] sm:text-[10px] font-bold uppercase tracking-widest text-slate-400">Recommendation Accuracy</p>
+                </div>
+              </div>
+
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* 8. FINAL CTA BANNER */}
+      <section className="w-full bg-[#FFFFFF]">
+        <div className="max-w-[1280px] px-6 mx-auto w-full py-[96px] md:py-[72px] py-[56px]">
           <div className="w-full bg-gradient-to-r from-[#1E40AF] to-[#2563EB] rounded-[24px] px-8 py-10 sm:px-12 sm:py-14 text-white shadow-xl relative overflow-hidden">
             {/* Soft decorative background circles */}
             <div className="absolute top-0 right-0 w-80 h-80 rounded-full bg-white/[0.04] blur-2xl pointer-events-none" />
