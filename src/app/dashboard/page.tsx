@@ -1,213 +1,346 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
 import {
-  Upload,
-  UserCircle,
   FileText,
-  CheckCircle2,
+  Target,
+  Briefcase,
+  Zap,
   Activity,
-  ArrowRight,
-  LayoutDashboard
+  BarChart2,
+  FileSearch,
+  LayoutDashboard,
+  Upload,
 } from "lucide-react";
-import { useToast } from "@/components/Providers";
-import { getDashboardDataAction } from "@/app/actions/dashboard";
 import DashboardLayout from "@/components/DashboardLayout";
+import { getDashboardDataAction } from "@/app/actions/dashboard";
+import MetricCard from "@/components/dashboard/MetricCard";
+import ActivityTimeline from "@/components/dashboard/ActivityTimeline";
+import ATSChart from "@/components/dashboard/ATSChart";
+import ResumeInsights from "@/components/dashboard/ResumeInsights";
+import ProfileCompletion from "@/components/dashboard/ProfileCompletion";
+import ActionCenter from "@/components/dashboard/ActionCenter";
+import LearningRoadmap from "@/components/dashboard/LearningRoadmap";
+import SkillGapPreview from "@/components/dashboard/SkillGapPreview";
+import JobRecommendations from "@/components/dashboard/JobRecommendations";
 
+// ─── Skeleton loader ───────────────────────────────────────────────────────
+function Skeleton({ className = "" }: { className?: string }) {
+  return <div className={`animate-pulse bg-slate-100 rounded-xl ${className}`} />;
+}
+
+function DashboardSkeleton() {
+  return (
+    <div className="space-y-6 p-6 md:p-8 max-w-[1200px] mx-auto">
+      <Skeleton className="h-10 w-72" />
+      <Skeleton className="h-5 w-96" />
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+        {[0, 1, 2, 3].map((i) => <Skeleton key={i} className="h-32" />)}
+      </div>
+      <div className="grid grid-cols-1 lg:grid-cols-10 gap-6">
+        <div className="lg:col-span-7 space-y-6">
+          <Skeleton className="h-72" />
+          <Skeleton className="h-56" />
+        </div>
+        <div className="lg:col-span-3 space-y-6">
+          <Skeleton className="h-48" />
+          <Skeleton className="h-48" />
+          <Skeleton className="h-48" />
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ─── Section card wrapper ──────────────────────────────────────────────────
+function SectionCard({
+  title,
+  icon,
+  children,
+  action,
+}: {
+  title: string;
+  icon: React.ReactNode;
+  children: React.ReactNode;
+  action?: React.ReactNode;
+}) {
+  return (
+    <div className="bg-white border border-[#E5E7EB] rounded-2xl shadow-sm overflow-hidden">
+      <div className="flex items-center justify-between px-5 py-4 border-b border-[#E5E7EB]">
+        <h3 className="text-sm font-extrabold text-[#111827] flex items-center gap-2 uppercase tracking-wider">
+          <span className="text-emerald-500">{icon}</span> {title}
+        </h3>
+        {action}
+      </div>
+      <div className="p-5">{children}</div>
+    </div>
+  );
+}
+
+// ─── Main Dashboard Page ───────────────────────────────────────────────────
 export default function DashboardPage() {
   const { data: session, status } = useSession();
-  const router = useRouter();
-  const { toast } = useToast();
-
   const [dashboardData, setDashboardData] = useState<any>(null);
-  const [isLoadingData, setIsLoadingData] = useState(true);
+  const [isLoading, setIsLoading] = useState(true);
 
-  useEffect(() => {
-    if (session?.user) {
-      const userId = (session.user as any).id || "demo-user-123";
-      
-      const loadData = async () => {
-        setIsLoadingData(true);
-        try {
-          const data = await getDashboardDataAction(userId);
-          setDashboardData(data);
-        } catch (err) {
-          console.error("Error loading dashboard data:", err);
-        } finally {
-          setIsLoadingData(false);
-        }
-      };
-
-      loadData();
+  const loadData = useCallback(async () => {
+    if (!session?.user) return;
+    const userId = (session.user as any).id || "demo-user-123";
+    setIsLoading(true);
+    try {
+      const data = await getDashboardDataAction(userId);
+      setDashboardData(data);
+    } catch (e) {
+      console.error("Dashboard load error:", e);
+    } finally {
+      setIsLoading(false);
     }
   }, [session]);
 
-  // Safe checks for logged out users
-  if (status === "loading" || isLoadingData) {
+  useEffect(() => {
+    loadData();
+  }, [loadData]);
+
+  // ── Auth loading ─────────────────────────────────────────
+  if (status === "loading" || isLoading) {
     return (
       <DashboardLayout>
-        <div className="flex-1 flex items-center justify-center min-h-[70vh] bg-[#F8FAFC]">
-          <div className="flex flex-col items-center gap-3">
-            <div className="w-10 h-10 border-4 border-[#10B981] border-t-transparent rounded-full animate-spin" />
-            <p className="text-sm font-semibold text-[#64748B]">Loading workspace...</p>
-          </div>
-        </div>
+        <DashboardSkeleton />
       </DashboardLayout>
     );
   }
 
+  // ── Unauthenticated ──────────────────────────────────────
   if (!session) {
     return (
       <DashboardLayout>
-        <div className="flex-1 min-h-screen flex items-center justify-center px-4 bg-[#F8FAFC] py-16">
-          <div className="w-full max-w-[480px] bg-white border border-[#E2E8F0] p-8 rounded-[20px] shadow-sm text-center space-y-6">
-            <div className="w-14 h-14 bg-[#10B981]/10 rounded-full flex items-center justify-center mx-auto">
-              <LayoutDashboard className="w-7 h-7 text-[#10B981]" />
+        <div className="flex-1 min-h-screen flex items-center justify-center px-4 bg-[#F7F8FA] py-16">
+          <div className="w-full max-w-md bg-white border border-[#E5E7EB] p-10 rounded-2xl shadow-sm text-center space-y-6">
+            <div className="w-14 h-14 bg-emerald-50 rounded-full flex items-center justify-center mx-auto">
+              <LayoutDashboard className="w-7 h-7 text-emerald-500" />
             </div>
-            <h2 className="text-2xl font-bold text-[#0F172A]">Sign in to Access Dashboard</h2>
-            <p className="text-sm text-[#64748B] leading-relaxed">
-              Manage your resumes, check target ATS scores, save open roles, and track your custom learning roadmap milestones.
+            <h2 className="text-2xl font-extrabold text-[#111827]">Sign in to continue</h2>
+            <p className="text-sm text-[#64748B]">
+              Access your personalized career intelligence workspace.
             </p>
-            <div className="flex flex-col gap-3">
-              <Link
-                href="/login"
-                className="w-full bg-[#10B981] hover:bg-[#059669] text-white font-bold py-3 rounded-[12px] shadow-sm transition-all text-sm block"
-              >
-                Sign In to Your Account
-              </Link>
-            </div>
+            <Link
+              href="/login"
+              className="w-full bg-[#10B981] hover:bg-[#059669] text-white font-bold py-3 rounded-xl text-sm block shadow-sm transition-all"
+            >
+              Sign In
+            </Link>
           </div>
         </div>
       </DashboardLayout>
     );
   }
 
-  const hasData = dashboardData?.progress > 25; // Simple check if they've done anything
+  const d = dashboardData;
+  const userName = session.user?.name?.split(" ")[0] || "there";
+  const lastLogin = new Date().toLocaleDateString("en-US", {
+    weekday: "long", month: "short", day: "numeric",
+  });
+
+  // Derived metrics
+  const atsScore = d?.ats?.latest;
+  const atsHighest = d?.ats?.highest;
+  const resumeMatchRate = atsScore ? `${atsScore}%` : "—";
+  const jobsApplied = d?.stats?.atsChecks ?? 0;
+  const careerReadiness = d?.careerReadiness ?? 0;
+  const targetRole = d?.careerPath?.targetRole ?? null;
+  const missingSkillsCount = d?.ats?.keywordsMissing?.length ?? 0;
 
   return (
     <DashboardLayout>
-      <div className="p-6 md:p-10 max-w-6xl mx-auto space-y-10 min-h-screen">
-        
-        {/* Header */}
-        <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
-          <div className="space-y-1.5">
-            <h1 className="text-3xl font-extrabold text-[#0F172A] tracking-tight">
-              {hasData ? "Workspace Overview" : "Welcome to CareerMate"}
-            </h1>
-            <p className="text-[#64748B] font-medium text-sm">
-              {hasData 
-                ? "Here is what's happening with your career journey today." 
-                : "Upload your first resume to unlock personalized insights."}
-            </p>
-          </div>
-        </div>
+      <div className="min-h-screen bg-[#F7F8FA]">
+        <div className="max-w-[1200px] mx-auto px-4 sm:px-6 lg:px-8 py-6 md:py-8 space-y-6">
 
-        {!hasData ? (
-          /* Empty State */
-          <div className="bg-white border border-[#E2E8F0] rounded-2xl p-12 text-center flex flex-col items-center justify-center shadow-sm">
-            <div className="w-20 h-20 bg-emerald-50 rounded-full flex items-center justify-center mb-6">
-              <FileText className="w-10 h-10 text-emerald-500" />
+          {/* ── HEADER ──────────────────────────────────────── */}
+          <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-3">
+            <div>
+              <h1 className="text-2xl sm:text-3xl font-extrabold text-[#111827] tracking-tight">
+                Welcome back, {userName} 👋
+              </h1>
+              <p className="text-[#64748B] text-sm mt-1">
+                {missingSkillsCount > 0
+                  ? `You're ${missingSkillsCount} skills away from your target role.`
+                  : targetRole
+                  ? `Tracking toward: ${targetRole}`
+                  : "Upload your resume to unlock personalized insights."}
+              </p>
             </div>
-            <h2 className="text-xl font-bold text-[#0F172A] mb-2">No career insights yet</h2>
-            <p className="text-[#64748B] text-sm max-w-md mx-auto mb-8">
-              We need a bit more information to build your personalized career roadmap, identify skill gaps, and check ATS compatibility.
-            </p>
-            <div className="flex flex-col sm:flex-row items-center gap-4">
-              <Link
-                href="/resume-upload"
-                className="flex items-center justify-center gap-2 bg-[#10B981] hover:bg-[#059669] text-white font-bold py-3 px-6 rounded-xl shadow-sm transition-all"
-              >
-                <Upload className="w-4 h-4" />
-                Upload Resume
-              </Link>
-              <Link
-                href="/settings"
-                className="flex items-center justify-center gap-2 bg-white border border-[#E2E8F0] hover:bg-slate-50 text-[#0F172A] font-bold py-3 px-6 rounded-xl transition-all"
-              >
-                <UserCircle className="w-4 h-4" />
-                Complete Profile
-              </Link>
-            </div>
-          </div>
-        ) : (
-          /* Populated State */
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            
-            {/* Recent Activity */}
-            <div className="lg:col-span-2 bg-white border border-[#E2E8F0] rounded-2xl p-6 shadow-sm">
-              <h3 className="text-lg font-bold text-[#0F172A] flex items-center gap-2 mb-6">
-                <Activity className="w-5 h-5 text-emerald-500" />
-                Recent Activity
-              </h3>
-              <div className="space-y-4">
-                {dashboardData?.recentResumes?.length > 0 ? (
-                  dashboardData.recentResumes.map((resume: any, i: number) => (
-                    <div key={`resume-${resume.id}-${i}`} className="flex items-center justify-between p-4 bg-slate-50 rounded-xl border border-[#E2E8F0]/50">
-                      <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 rounded-full bg-emerald-100 flex items-center justify-center text-emerald-600">
-                          <FileText className="w-5 h-5" />
-                        </div>
-                        <div>
-                          <p className="text-sm font-bold text-[#0F172A]">{resume.fileName}</p>
-                          <p className="text-xs text-[#64748B]">Uploaded {new Date(resume.createdAt).toLocaleDateString()}</p>
-                        </div>
-                      </div>
-                      <Link href={`/ats-checker?resumeId=${resume.id}`} className="text-xs font-semibold text-emerald-600 hover:text-emerald-700 flex items-center gap-1">
-                        Check ATS <ArrowRight className="w-3 h-3" />
-                      </Link>
-                    </div>
-                  ))
-                ) : (
-                  <p className="text-sm text-slate-500">No resumes uploaded yet.</p>
-                )}
-              </div>
-            </div>
-
-            {/* Profile & Pending Actions */}
-            <div className="space-y-6">
-              <div className="bg-white border border-[#E2E8F0] rounded-2xl p-6 shadow-sm">
-                <h3 className="text-lg font-bold text-[#0F172A] mb-4">Profile Completion</h3>
-                <div className="space-y-2 mb-4">
-                  <div className="flex justify-between text-sm font-semibold">
-                    <span className="text-[#64748B]">Progress</span>
-                    <span className="text-emerald-600">{dashboardData?.progress}%</span>
-                  </div>
-                  <div className="w-full bg-slate-100 h-2 rounded-full overflow-hidden">
-                    <div className="bg-emerald-500 h-full rounded-full transition-all duration-500" style={{ width: `${dashboardData?.progress}%` }} />
-                  </div>
-                </div>
-                <Link href="/settings" className="block w-full text-center py-2 text-sm font-semibold text-emerald-600 bg-emerald-50 rounded-lg hover:bg-emerald-100 transition-colors">
-                  Complete Profile
+            <div className="flex items-center gap-3">
+              <span className="text-[11px] text-[#64748B] font-medium hidden sm:block">
+                {lastLogin}
+              </span>
+              {!d?.stats?.resumes && (
+                <Link
+                  href="/resume-upload"
+                  className="flex items-center gap-2 bg-[#10B981] hover:bg-[#059669] text-white font-bold px-4 py-2 rounded-xl text-sm shadow-sm transition-all shrink-0"
+                >
+                  <Upload className="w-4 h-4" /> Upload Resume
                 </Link>
-              </div>
+              )}
+            </div>
+          </div>
 
-              <div className="bg-white border border-[#E2E8F0] rounded-2xl p-6 shadow-sm">
-                <h3 className="text-lg font-bold text-[#0F172A] mb-4">Pending Actions</h3>
-                <ul className="space-y-3">
-                  {dashboardData?.pendingActions?.length > 0 ? (
-                    dashboardData.pendingActions.map((action: any, i: number) => (
-                      <li key={i} className="flex items-start gap-3">
-                        <CheckCircle2 className="w-5 h-5 text-slate-300 shrink-0 mt-0.5" />
-                        <div>
-                          <Link href={action.href} className="text-sm font-semibold text-emerald-600 hover:underline">
-                            {action.title}
-                          </Link>
-                          <p className="text-xs text-[#64748B]">{action.desc}</p>
-                        </div>
-                      </li>
-                    ))
-                  ) : (
-                    <li className="text-sm text-slate-500">All caught up!</li>
-                  )}
-                </ul>
-              </div>
+          {/* ── METRIC CARDS ────────────────────────────────── */}
+          <div className="grid grid-cols-2 xl:grid-cols-4 gap-4">
+            <MetricCard
+              title="ATS Score"
+              value={atsScore ? `${atsScore}/100` : "—"}
+              subtitle={atsScore ? "Resume vs. job description" : "No scan yet"}
+              trend={atsScore ? { value: 5, label: "this month" } : undefined}
+              icon={<FileSearch className="w-5 h-5" />}
+              href="/ats-checker"
+              accentColor="#10B981"
+              isEmpty={!atsScore}
+              emptyText="Run an ATS scan"
+            />
+            <MetricCard
+              title="Resume Match"
+              value={resumeMatchRate}
+              subtitle={targetRole ? `vs. ${targetRole}` : "Set a target role"}
+              icon={<Target className="w-5 h-5" />}
+              href="/ats-checker"
+              accentColor="#6366F1"
+              isEmpty={!atsScore}
+              emptyText="No data yet"
+            />
+            <MetricCard
+              title="Jobs Applied"
+              value={jobsApplied}
+              subtitle="Applications this month"
+              trend={jobsApplied > 0 ? { value: jobsApplied, label: "total" } : undefined}
+              icon={<Briefcase className="w-5 h-5" />}
+              href="/jobs"
+              accentColor="#F59E0B"
+              isEmpty={jobsApplied === 0}
+              emptyText="No applications yet"
+            />
+            <MetricCard
+              title="Career Readiness"
+              value={`${careerReadiness}%`}
+              subtitle="Profile, skills, resume & activity"
+              trend={careerReadiness > 0 ? { value: careerReadiness, label: "overall" } : undefined}
+              icon={<Zap className="w-5 h-5" />}
+              href="/settings"
+              accentColor="#EF4444"
+              isEmpty={careerReadiness === 0}
+              emptyText="Complete your profile"
+            />
+          </div>
+
+          {/* ── MAIN GRID ────────────────────────────────────── */}
+          <div className="grid grid-cols-1 lg:grid-cols-10 gap-6">
+
+            {/* LEFT — 70% */}
+            <div className="lg:col-span-7 space-y-6">
+
+              {/* Section 1: Activity Timeline */}
+              <SectionCard
+                title="Recent Activity"
+                icon={<Activity className="w-4 h-4" />}
+                action={
+                  d?.activityItems?.length > 0 ? (
+                    <Link href="/resume-upload" className="text-xs font-bold text-emerald-600 hover:text-emerald-700">
+                      + Add Resume
+                    </Link>
+                  ) : null
+                }
+              >
+                <ActivityTimeline items={d?.activityItems ?? []} />
+              </SectionCard>
+
+              {/* Section 2: ATS Performance Trend */}
+              <SectionCard
+                title="ATS Performance Trend"
+                icon={<BarChart2 className="w-4 h-4" />}
+                action={
+                  <Link href="/ats-checker" className="text-xs font-bold text-emerald-600 hover:text-emerald-700">
+                    Run Scan
+                  </Link>
+                }
+              >
+                <ATSChart
+                  history={d?.ats?.history ?? []}
+                  currentScore={d?.ats?.latest}
+                  highestScore={d?.ats?.highest}
+                />
+              </SectionCard>
+
+              {/* Section 3: Resume Insights */}
+              <SectionCard
+                title="Resume Insights"
+                icon={<FileText className="w-4 h-4" />}
+              >
+                <ResumeInsights
+                  latestResume={d?.latestResume}
+                  ats={{
+                    keywordsFound: d?.ats?.keywordsFound ?? [],
+                    keywordsMissing: d?.ats?.keywordsMissing ?? [],
+                    latestTargetRole: d?.ats?.latestTargetRole,
+                  }}
+                />
+              </SectionCard>
+
             </div>
 
+            {/* RIGHT — 30% */}
+            <div className="lg:col-span-3 space-y-6">
+
+              {/* Profile Completion */}
+              <SectionCard
+                title="Profile Completion"
+                icon={<Target className="w-4 h-4" />}
+              >
+                <ProfileCompletion
+                  progress={d?.progress ?? 20}
+                  stats={d?.stats ?? { resumes: 0, skills: 0, paths: 0, atsChecks: 0 }}
+                />
+              </SectionCard>
+
+              {/* Smart Action Center */}
+              <SectionCard
+                title="Action Center"
+                icon={<Zap className="w-4 h-4" />}
+              >
+                <ActionCenter actions={d?.pendingActions ?? []} />
+              </SectionCard>
+
+              {/* Learning Roadmap */}
+              <SectionCard
+                title="Learning Roadmap"
+                icon={<Activity className="w-4 h-4" />}
+              >
+                <LearningRoadmap careerPath={d?.careerPath} />
+              </SectionCard>
+
+              {/* Skill Gap Preview */}
+              <SectionCard
+                title="Skill Gap Preview"
+                icon={<BarChart2 className="w-4 h-4" />}
+              >
+                <SkillGapPreview
+                  missingKeywords={d?.ats?.keywordsMissing ?? []}
+                  atsScore={d?.ats?.latest}
+                />
+              </SectionCard>
+
+              {/* Job Recommendations */}
+              <SectionCard
+                title="Job Recommendations"
+                icon={<Briefcase className="w-4 h-4" />}
+              >
+                <JobRecommendations targetRole={targetRole} />
+              </SectionCard>
+
+            </div>
           </div>
-        )}
+
+        </div>
       </div>
     </DashboardLayout>
   );
