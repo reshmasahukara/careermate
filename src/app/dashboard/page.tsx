@@ -51,7 +51,7 @@ export default function DashboardPage() {
       <DashboardLayout>
         <div className="flex-1 flex items-center justify-center min-h-[70vh] bg-[#F8FAFC]">
           <div className="flex flex-col items-center gap-3">
-            <div className="w-10 h-10 border-4 border-[#2563EB] border-t-transparent rounded-full animate-spin" />
+            <div className="w-10 h-10 border-4 border-[#10B981] border-t-transparent rounded-full animate-spin" />
             <p className="text-sm font-semibold text-[#64748B]">Loading workspace...</p>
           </div>
         </div>
@@ -64,8 +64,8 @@ export default function DashboardPage() {
       <DashboardLayout>
         <div className="flex-1 min-h-screen flex items-center justify-center px-4 bg-[#F8FAFC] py-16">
           <div className="w-full max-w-[480px] bg-white border border-[#E2E8F0] p-8 rounded-[20px] shadow-sm text-center space-y-6">
-            <div className="w-14 h-14 bg-[#2563EB]/10 rounded-full flex items-center justify-center mx-auto">
-              <LayoutDashboard className="w-7 h-7 text-[#2563EB]" />
+            <div className="w-14 h-14 bg-[#10B981]/10 rounded-full flex items-center justify-center mx-auto">
+              <LayoutDashboard className="w-7 h-7 text-[#10B981]" />
             </div>
             <h2 className="text-2xl font-bold text-[#0F172A]">Sign in to Access Dashboard</h2>
             <p className="text-sm text-[#64748B] leading-relaxed">
@@ -74,7 +74,7 @@ export default function DashboardPage() {
             <div className="flex flex-col gap-3">
               <Link
                 href="/login"
-                className="w-full bg-[#2563EB] hover:bg-[#1D4ED8] text-white font-bold py-3 rounded-[12px] shadow-sm transition-all text-sm block"
+                className="w-full bg-[#10B981] hover:bg-[#059669] text-white font-bold py-3 rounded-[12px] shadow-sm transition-all text-sm block"
               >
                 Sign In to Your Account
               </Link>
@@ -118,7 +118,7 @@ export default function DashboardPage() {
             <div className="flex flex-col sm:flex-row items-center gap-4">
               <Link
                 href="/resume-upload"
-                className="flex items-center justify-center gap-2 bg-[#2563EB] hover:bg-[#1D4ED8] text-white font-bold py-3 px-6 rounded-xl shadow-sm transition-all"
+                className="flex items-center justify-center gap-2 bg-[#10B981] hover:bg-[#059669] text-white font-bold py-3 px-6 rounded-xl shadow-sm transition-all"
               >
                 <Upload className="w-4 h-4" />
                 Upload Resume

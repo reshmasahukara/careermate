@@ -142,7 +142,7 @@ export default function JobListingsPage() {
               </span>
               <button
                 onClick={resetFilters}
-                className="text-[10px] font-bold text-[#2563EB] hover:underline uppercase tracking-wider cursor-pointer"
+                className="text-[10px] font-bold text-[#10B981] hover:underline uppercase tracking-wider cursor-pointer"
               >
                 Clear All
               </button>

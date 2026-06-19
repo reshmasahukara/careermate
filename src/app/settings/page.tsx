@@ -111,7 +111,7 @@ export default function SettingsPage() {
   if (status === "loading") {
     return (
       <div className="flex-1 flex items-center justify-center min-h-[70vh] bg-[#F8FAFC]">
-        <div className="w-8 h-8 border-4 border-[#2563EB] border-t-transparent rounded-full animate-spin" />
+        <div className="w-8 h-8 border-4 border-[#10B981] border-t-transparent rounded-full animate-spin" />
       </div>
     );
   }
@@ -124,7 +124,7 @@ export default function SettingsPage() {
           <p className="text-[#64748B] text-sm font-semibold">Please sign in to manage account settings.</p>
           <button
             onClick={() => router.push("/login")}
-            className="w-full bg-[#2563EB] hover:bg-[#1D4ED8] text-white py-2.5 rounded-[12px] font-bold text-xs shadow-sm transition-colors"
+            className="w-full bg-[#10B981] hover:bg-[#059669] text-white py-2.5 rounded-[12px] font-bold text-xs shadow-sm transition-colors"
           >
             Sign In
           </button>
@@ -156,7 +156,7 @@ export default function SettingsPage() {
               onClick={() => setActiveTab(tab.id)}
               className={`w-full flex items-center gap-3 px-4 py-3 text-xs font-bold uppercase tracking-wider rounded-[12px] transition-all text-left cursor-pointer ${
                 activeTab === tab.id
-                  ? "bg-[#2563EB]/5 text-[#2563EB]"
+                  ? "bg-[#10B981]/5 text-[#10B981]"
                   : "text-[#64748B] hover:bg-[#F8FAFC] hover:text-[#0F172A]"
               }`}
             >
@@ -187,7 +187,7 @@ export default function SettingsPage() {
                     value={name}
                     onChange={(e) => setName(e.target.value)}
                     required
-                    className="w-full bg-[#F8FAFC] border border-[#E2E8F0] rounded-[12px] py-3 px-4 text-xs focus:outline-none focus:border-[#2563EB] focus:bg-white transition-colors"
+                    className="w-full bg-[#F8FAFC] border border-[#E2E8F0] rounded-[12px] py-3 px-4 text-xs focus:outline-none focus:border-[#10B981] focus:bg-white transition-colors"
                   />
                 </div>
 
@@ -214,7 +214,7 @@ export default function SettingsPage() {
                 <button
                   type="submit"
                   disabled={isSavingProfile}
-                  className="bg-[#2563EB] hover:bg-[#1D4ED8] text-white font-bold px-6 py-2.5 rounded-[12px] text-xs transition-colors shadow-sm disabled:opacity-50 cursor-pointer"
+                  className="bg-[#10B981] hover:bg-[#059669] text-white font-bold px-6 py-2.5 rounded-[12px] text-xs transition-colors shadow-sm disabled:opacity-50 cursor-pointer"
                 >
                   {isSavingProfile ? "Saving..." : "Save Changes"}
                 </button>
@@ -236,7 +236,7 @@ export default function SettingsPage() {
                     type="checkbox"
                     checked={emailDigest}
                     onChange={(e) => setEmailDigest(e.target.checked)}
-                    className="mt-1 h-4 w-4 text-[#2563EB] border-[#E2E8F0] rounded focus:ring-[#2563EB]"
+                    className="mt-1 h-4 w-4 text-[#10B981] border-[#E2E8F0] rounded focus:ring-[#10B981]"
                   />
                   <div>
                     <span className="text-xs font-bold text-[#0F172A] uppercase tracking-wider block">Weekly newsletter & career tips</span>
@@ -249,7 +249,7 @@ export default function SettingsPage() {
                     type="checkbox"
                     checked={atsAlerts}
                     onChange={(e) => setAtsAlerts(e.target.checked)}
-                    className="mt-1 h-4 w-4 text-[#2563EB] border-[#E2E8F0] rounded focus:ring-[#2563EB]"
+                    className="mt-1 h-4 w-4 text-[#10B981] border-[#E2E8F0] rounded focus:ring-[#10B981]"
                   />
                   <div>
                     <span className="text-xs font-bold text-[#0F172A] uppercase tracking-wider block">ATS analysis alerts</span>
@@ -262,7 +262,7 @@ export default function SettingsPage() {
                     type="checkbox"
                     checked={interviewReminders}
                     onChange={(e) => setInterviewReminders(e.target.checked)}
-                    className="mt-1 h-4 w-4 text-[#2563EB] border-[#E2E8F0] rounded focus:ring-[#2563EB]"
+                    className="mt-1 h-4 w-4 text-[#10B981] border-[#E2E8F0] rounded focus:ring-[#10B981]"
                   />
                   <div>
                     <span className="text-xs font-bold text-[#0F172A] uppercase tracking-wider block">Interview prep notifications</span>
@@ -275,7 +275,7 @@ export default function SettingsPage() {
                 <button
                   type="submit"
                   disabled={isSavingNotifications}
-                  className="bg-[#2563EB] hover:bg-[#1D4ED8] text-white font-bold px-6 py-2.5 rounded-[12px] text-xs transition-colors shadow-sm disabled:opacity-50 cursor-pointer"
+                  className="bg-[#10B981] hover:bg-[#059669] text-white font-bold px-6 py-2.5 rounded-[12px] text-xs transition-colors shadow-sm disabled:opacity-50 cursor-pointer"
                 >
                   {isSavingNotifications ? "Saving..." : "Save Preferences"}
                 </button>
@@ -302,7 +302,7 @@ export default function SettingsPage() {
                     onChange={(e) => setCurrentPassword(e.target.value)}
                     placeholder="••••••••"
                     required
-                    className="w-full bg-[#F8FAFC] border border-[#E2E8F0] rounded-[12px] py-3 px-4 text-xs focus:outline-none focus:border-[#2563EB] focus:bg-white transition-colors"
+                    className="w-full bg-[#F8FAFC] border border-[#E2E8F0] rounded-[12px] py-3 px-4 text-xs focus:outline-none focus:border-[#10B981] focus:bg-white transition-colors"
                   />
                 </div>
 
@@ -316,7 +316,7 @@ export default function SettingsPage() {
                     onChange={(e) => setNewPassword(e.target.value)}
                     placeholder="••••••••"
                     required
-                    className="w-full bg-[#F8FAFC] border border-[#E2E8F0] rounded-[12px] py-3 px-4 text-xs focus:outline-none focus:border-[#2563EB] focus:bg-white transition-colors"
+                    className="w-full bg-[#F8FAFC] border border-[#E2E8F0] rounded-[12px] py-3 px-4 text-xs focus:outline-none focus:border-[#10B981] focus:bg-white transition-colors"
                   />
                 </div>
 
@@ -330,7 +330,7 @@ export default function SettingsPage() {
                     onChange={(e) => setConfirmPassword(e.target.value)}
                     placeholder="••••••••"
                     required
-                    className="w-full bg-[#F8FAFC] border border-[#E2E8F0] rounded-[12px] py-3 px-4 text-xs focus:outline-none focus:border-[#2563EB] focus:bg-white transition-colors"
+                    className="w-full bg-[#F8FAFC] border border-[#E2E8F0] rounded-[12px] py-3 px-4 text-xs focus:outline-none focus:border-[#10B981] focus:bg-white transition-colors"
                   />
                 </div>
               </div>
@@ -339,7 +339,7 @@ export default function SettingsPage() {
                 <button
                   type="submit"
                   disabled={isSavingSecurity}
-                  className="bg-[#2563EB] hover:bg-[#1D4ED8] text-white font-bold px-6 py-2.5 rounded-[12px] text-xs transition-colors shadow-sm disabled:opacity-50 cursor-pointer"
+                  className="bg-[#10B981] hover:bg-[#059669] text-white font-bold px-6 py-2.5 rounded-[12px] text-xs transition-colors shadow-sm disabled:opacity-50 cursor-pointer"
                 >
                   {isSavingSecurity ? "Processing..." : "Update Password"}
                 </button>
@@ -378,7 +378,7 @@ export default function SettingsPage() {
               </div>
 
               {/* Plan status box */}
-              <div className="p-5 rounded-[20px] bg-gradient-to-r from-[#2563EB]/10 to-[#4F46E5]/10 border border-[#2563EB]/20 flex justify-between items-center gap-4">
+              <div className="p-5 rounded-[20px] bg-gradient-to-r from-[#10B981]/10 to-[#4F46E5]/10 border border-[#10B981]/20 flex justify-between items-center gap-4">
                 <div className="space-y-1">
                   <div className="text-[10px] font-bold text-[#64748B] uppercase tracking-widest">Active Plan</div>
                   <div className="text-xl font-extrabold text-[#0F172A]">{subscription?.plan || "Pro"}</div>
@@ -392,7 +392,7 @@ export default function SettingsPage() {
                     </p>
                   )}
                 </div>
-                <div className="flex items-center gap-1.5 text-xs text-[#2563EB] font-bold bg-white px-3 py-1.5 rounded-[12px] border border-[#E2E8F0] shadow-sm uppercase tracking-wider">
+                <div className="flex items-center gap-1.5 text-xs text-[#10B981] font-bold bg-white px-3 py-1.5 rounded-[12px] border border-[#E2E8F0] shadow-sm uppercase tracking-wider">
                   <CheckCircle className="w-4 h-4 text-emerald-500" />
                   {subscription?.status || "Active"}
                 </div>
@@ -409,7 +409,7 @@ export default function SettingsPage() {
                         key={plan}
                         className={`p-4 rounded-[12px] border flex justify-between items-center ${
                           isCurrent
-                            ? "border-[#2563EB] bg-[#2563EB]/5"
+                            ? "border-[#10B981] bg-[#10B981]/5"
                             : "border-[#E2E8F0] hover:bg-[#F8FAFC]"
                         }`}
                       >
@@ -425,7 +425,7 @@ export default function SettingsPage() {
                           className={`px-3 py-1.5 rounded-[8px] text-[10px] font-bold uppercase tracking-wider transition-all cursor-pointer ${
                             isCurrent
                               ? "bg-slate-100 text-slate-400 cursor-not-allowed"
-                              : "bg-[#2563EB] text-white hover:bg-[#1D4ED8]"
+                              : "bg-[#10B981] text-white hover:bg-[#059669]"
                           }`}
                         >
                           {isCurrent ? "Current" : "Shift"}

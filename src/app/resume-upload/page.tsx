@@ -159,7 +159,7 @@ export default function ResumeUploadPage() {
   if (status === "loading") {
     return (
       <div className="flex-1 flex items-center justify-center min-h-[60vh] bg-[#F8FAFC]">
-        <div className="w-8 h-8 border-4 border-[#2563EB] border-t-transparent rounded-full animate-spin" />
+        <div className="w-8 h-8 border-4 border-[#10B981] border-t-transparent rounded-full animate-spin" />
       </div>
     );
   }
@@ -169,8 +169,8 @@ export default function ResumeUploadPage() {
     return (
       <div className="flex-1 min-h-screen flex items-center justify-center bg-[#F8FAFC] py-16 px-4">
         <div className="w-full max-w-[480px] bg-white border border-[#E2E8F0] p-8 rounded-[20px] text-center space-y-5 shadow-sm">
-          <div className="w-14 h-14 bg-[#2563EB]/10 rounded-full flex items-center justify-center mx-auto">
-            <Upload className="w-7 h-7 text-[#2563EB]" />
+          <div className="w-14 h-14 bg-[#10B981]/10 rounded-full flex items-center justify-center mx-auto">
+            <Upload className="w-7 h-7 text-[#10B981]" />
           </div>
           <h2 className="text-xl font-bold text-[#0F172A]">Sign in to Upload Resumes</h2>
           <p className="text-[#64748B] text-sm leading-relaxed">
@@ -179,7 +179,7 @@ export default function ResumeUploadPage() {
           <div className="flex flex-col gap-2">
             <button
               onClick={() => router.push("/login")}
-              className="bg-[#2563EB] text-white py-2.5 rounded-[12px] font-bold text-xs shadow-sm hover:bg-[#1D4ED8] transition-colors"
+              className="bg-[#10B981] text-white py-2.5 rounded-[12px] font-bold text-xs shadow-sm hover:bg-[#059669] transition-colors"
             >
               Log In
             </button>
@@ -221,8 +221,8 @@ export default function ResumeUploadPage() {
               onClick={() => !isUploading && fileInputRef.current?.click()}
               className={`border-2 border-dashed rounded-[20px] p-8 text-center transition-all duration-300 flex flex-col items-center justify-center min-h-[300px] cursor-pointer ${
                 isDragActive
-                  ? "border-[#2563EB] bg-[#2563EB]/5 scale-[0.99]"
-                  : "border-[#E2E8F0] bg-white hover:border-[#2563EB]/60 hover:bg-[#F8FAFC]/50"
+                  ? "border-[#10B981] bg-[#10B981]/5 scale-[0.99]"
+                  : "border-[#E2E8F0] bg-white hover:border-[#10B981]/60 hover:bg-[#F8FAFC]/50"
               } ${isUploading ? "pointer-events-none opacity-80" : ""}`}
             >
               <input
@@ -236,7 +236,7 @@ export default function ResumeUploadPage() {
 
               {isUploading ? (
                 <div className="w-full max-w-xs space-y-4">
-                  <div className="w-12 h-12 rounded-[12px] bg-[#2563EB]/10 flex items-center justify-center mx-auto text-[#2563EB]">
+                  <div className="w-12 h-12 rounded-[12px] bg-[#10B981]/10 flex items-center justify-center mx-auto text-[#10B981]">
                     <RefreshCw className="w-6 h-6 animate-spin" />
                   </div>
                   <div>
@@ -250,7 +250,7 @@ export default function ResumeUploadPage() {
                     </div>
                     <div className="h-1.5 w-full bg-[#F8FAFC] border border-[#E2E8F0]/60 rounded-full overflow-hidden">
                       <div
-                        className="h-full bg-[#2563EB] rounded-full transition-all duration-300"
+                        className="h-full bg-[#10B981] rounded-full transition-all duration-300"
                         style={{ width: `${uploadProgress}%` }}
                       />
                     </div>
@@ -258,7 +258,7 @@ export default function ResumeUploadPage() {
                 </div>
               ) : file ? (
                 <div className="space-y-4 max-w-sm">
-                  <div className="w-12 h-12 rounded-[12px] bg-[#2563EB]/10 flex items-center justify-center mx-auto text-[#2563EB]">
+                  <div className="w-12 h-12 rounded-[12px] bg-[#10B981]/10 flex items-center justify-center mx-auto text-[#10B981]">
                     <FileText className="w-6 h-6" />
                   </div>
                   <div>
@@ -283,7 +283,7 @@ export default function ResumeUploadPage() {
                         e.stopPropagation();
                         handleUploadSubmit();
                       }}
-                      className="px-4 py-2 bg-[#2563EB] hover:bg-[#1D4ED8] text-white font-bold text-xs rounded-[12px] shadow-sm transition-colors"
+                      className="px-4 py-2 bg-[#10B981] hover:bg-[#059669] text-white font-bold text-xs rounded-[12px] shadow-sm transition-colors"
                     >
                       Parse Resume
                     </button>
@@ -316,7 +316,7 @@ export default function ResumeUploadPage() {
           {/* Guidelines Sidebar (col 1) */}
           <div className="bg-white border border-[#E2E8F0] p-6 rounded-[20px] space-y-4 shadow-sm hover:shadow-md transition-all duration-200">
             <h2 className="font-bold text-[#0F172A] text-xs uppercase tracking-wider flex items-center gap-1">
-              <Sparkles className="w-4 h-4 text-[#2563EB]" />
+              <Sparkles className="w-4 h-4 text-[#10B981]" />
               Upload Checklist
             </h2>
             <ul className="space-y-3.5 text-xs text-[#64748B] leading-relaxed font-semibold">
@@ -358,7 +358,7 @@ export default function ResumeUploadPage() {
                   className="p-4 rounded-[12px] bg-white border border-[#E2E8F0] shadow-sm hover:shadow-md transition-all duration-200 flex items-center justify-between gap-4"
                 >
                   <div className="flex items-center gap-3">
-                    <div className="w-9 h-9 rounded-[8px] bg-[#2563EB]/10 flex items-center justify-center text-[#2563EB] shrink-0">
+                    <div className="w-9 h-9 rounded-[8px] bg-[#10B981]/10 flex items-center justify-center text-[#10B981] shrink-0">
                       <FileText className="w-5 h-5" />
                     </div>
                     <div className="min-w-0">
@@ -374,7 +374,7 @@ export default function ResumeUploadPage() {
                   <div className="flex items-center gap-2">
                     <Link
                       href={`/ats-checker?resumeId=${res.id}`}
-                      className="bg-[#2563EB]/10 hover:bg-[#2563EB]/25 text-[#2563EB] p-2 rounded-[8px] text-xs font-bold transition-all"
+                      className="bg-[#10B981]/10 hover:bg-[#10B981]/25 text-[#10B981] p-2 rounded-[8px] text-xs font-bold transition-all"
                       title="Run ATS Check"
                     >
                       <ChevronRight className="w-4 h-4" />

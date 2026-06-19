@@ -88,7 +88,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
     return (
       <div className="min-h-screen bg-[#F8FAFC] flex items-center justify-center">
         <div className="flex flex-col items-center gap-3">
-          <div className="w-10 h-10 border-4 border-[#2563EB] border-t-transparent rounded-full animate-spin" />
+          <div className="w-10 h-10 border-4 border-[#10B981] border-t-transparent rounded-full animate-spin" />
           <p className="text-sm font-semibold text-[#64748B]">Loading workspace...</p>
         </div>
       </div>
@@ -186,12 +186,12 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
                       onClick={() => setDashboardSubmenuOpen(!dashboardSubmenuOpen)}
                       className={`flex items-center justify-between w-full px-3 py-2.5 rounded-[12px] text-sm font-semibold transition-all group cursor-pointer ${
                         isActive || pathname.startsWith("/dashboard/")
-                          ? "bg-[#2563EB]/5 text-[#2563EB]"
+                          ? "bg-[#10B981]/5 text-[#10B981]"
                           : "text-[#64748B] hover:text-[#0F172A] hover:bg-[#F8FAFC]"
                       }`}
                     >
                       <div className="flex items-center gap-3">
-                        <Icon className={`w-4.5 h-4.5 shrink-0 ${isActive || pathname.startsWith("/dashboard/") ? "text-[#2563EB]" : "text-[#64748B] group-hover:text-[#0F172A]"}`} />
+                        <Icon className={`w-4.5 h-4.5 shrink-0 ${isActive || pathname.startsWith("/dashboard/") ? "text-[#10B981]" : "text-[#64748B] group-hover:text-[#0F172A]"}`} />
                         <span className="truncate">{item.name}</span>
                       </div>
                       {dashboardSubmenuOpen ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
@@ -202,12 +202,12 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
                       className={`flex items-center gap-3 px-3 py-2.5 rounded-[12px] text-sm font-semibold transition-all group cursor-pointer
                         ${
                           isActive
-                            ? "bg-[#2563EB]/5 text-[#2563EB]"
+                            ? "bg-[#10B981]/5 text-[#10B981]"
                             : "text-[#64748B] hover:text-[#0F172A] hover:bg-[#F8FAFC]"
                         }
                       `}
                     >
-                      <Icon className={`w-4.5 h-4.5 shrink-0 ${isActive ? "text-[#2563EB]" : "text-[#64748B] group-hover:text-[#0F172A]"}`} />
+                      <Icon className={`w-4.5 h-4.5 shrink-0 ${isActive ? "text-[#10B981]" : "text-[#64748B] group-hover:text-[#0F172A]"}`} />
                       {(!isCollapsed || isMobileOpen) && (
                         <span className="truncate">{item.name}</span>
                       )}
@@ -220,7 +220,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
                       <Link
                         href="/dashboard"
                         className={`block px-3 py-2 rounded-[8px] text-xs font-semibold ${
-                          pathname === "/dashboard" ? "bg-[#2563EB]/10 text-[#2563EB]" : "text-[#64748B] hover:bg-[#F8FAFC] hover:text-[#0F172A]"
+                          pathname === "/dashboard" ? "bg-[#10B981]/10 text-[#10B981]" : "text-[#64748B] hover:bg-[#F8FAFC] hover:text-[#0F172A]"
                         }`}
                       >
                         Overview
@@ -228,7 +228,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
                       <Link
                         href="/dashboard/analytics"
                         className={`block px-3 py-2 rounded-[8px] text-xs font-semibold ${
-                          pathname === "/dashboard/analytics" ? "bg-[#2563EB]/10 text-[#2563EB]" : "text-[#64748B] hover:bg-[#F8FAFC] hover:text-[#0F172A]"
+                          pathname === "/dashboard/analytics" ? "bg-[#10B981]/10 text-[#10B981]" : "text-[#64748B] hover:bg-[#F8FAFC] hover:text-[#0F172A]"
                         }`}
                       >
                         Analytics
@@ -236,7 +236,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
                       <Link
                         href="/dashboard/activity"
                         className={`block px-3 py-2 rounded-[8px] text-xs font-semibold ${
-                          pathname === "/dashboard/activity" ? "bg-[#2563EB]/10 text-[#2563EB]" : "text-[#64748B] hover:bg-[#F8FAFC] hover:text-[#0F172A]"
+                          pathname === "/dashboard/activity" ? "bg-[#10B981]/10 text-[#10B981]" : "text-[#64748B] hover:bg-[#F8FAFC] hover:text-[#0F172A]"
                         }`}
                       >
                         Activity
@@ -256,7 +256,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
           {/* User Profile Card */}
           <div className="flex items-center justify-between gap-2 p-1 bg-[#F8FAFC] rounded-[16px] border border-[#E2E8F0]/40">
             <div className="flex items-center gap-2 min-w-0">
-              <div className="w-8 h-8 rounded-[10px] bg-[#2563EB]/10 flex items-center justify-center text-[#2563EB] font-bold text-xs shrink-0">
+              <div className="w-8 h-8 rounded-[10px] bg-[#10B981]/10 flex items-center justify-center text-[#10B981] font-bold text-xs shrink-0">
                 {session?.user?.name ? session.user.name.charAt(0).toUpperCase() : "A"}
               </div>
               {(!isCollapsed || isMobileOpen) && (
@@ -318,7 +318,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
               <input
                 type="text"
                 placeholder="Search dashboard..."
-                className="w-full bg-[#F8FAFC] border border-[#E2E8F0] rounded-[12px] py-2 pl-9 pr-4 text-xs font-semibold focus:outline-none focus:border-[#2563EB] focus:bg-white transition-all"
+                className="w-full bg-[#F8FAFC] border border-[#E2E8F0] rounded-[12px] py-2 pl-9 pr-4 text-xs font-semibold focus:outline-none focus:border-[#10B981] focus:bg-white transition-all"
               />
               <Search className="absolute left-3 top-2.5 w-4 h-4 text-[#64748B]" />
             </div>
@@ -330,7 +330,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
                 className="p-2.5 rounded-[12px] bg-[#F8FAFC] hover:bg-slate-100 border border-[#E2E8F0]/60 text-[#64748B] hover:text-[#0F172A] transition-colors relative cursor-pointer"
               >
                 <Bell className="w-4.5 h-4.5" />
-                {unreadCount > 0 && <span className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-[#2563EB]" />}
+                {unreadCount > 0 && <span className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-[#10B981]" />}
               </button>
 
               {/* Notification Overlay Popover */}
@@ -349,7 +349,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
                         {unreadCount > 0 && (
                           <span 
                             onClick={handleMarkAllRead}
-                            className="text-[10px] font-bold text-[#2563EB] cursor-pointer hover:underline"
+                            className="text-[10px] font-bold text-[#10B981] cursor-pointer hover:underline"
                           >
                             Mark all read
                           </span>
@@ -376,7 +376,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
             {/* Upgrade CTA */}
             <Link
               href="/pricing"
-              className="hidden md:flex items-center gap-1 bg-gradient-to-r from-[#2563EB] to-[#4F46E5] hover:opacity-95 text-white font-bold text-xs px-3.5 py-2 rounded-[12px] shadow-sm transition-all"
+              className="hidden md:flex items-center gap-1 bg-gradient-to-r from-[#10B981] to-[#4F46E5] hover:opacity-95 text-white font-bold text-xs px-3.5 py-2 rounded-[12px] shadow-sm transition-all"
             >
               <Sparkles className="w-3.5 h-3.5 text-amber-300" />
               Upgrade to Pro
