@@ -301,6 +301,37 @@ export default function ResumeUploadPage() {
                   <div className="text-[10px] text-[#64748B] font-bold uppercase tracking-wider">
                     PDF & DOCX files accepted. Size limit: 5MB.
                   </div>
+                  <div className="pt-2">
+                    <button
+                      type="button"
+                      id="load-test-resume-btn"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        const testContent = `
+                        Alex Morgan
+                        alex@example.com | 123-456-7890
+                        Professional Summary
+                        Experienced Senior React Developer with 6+ years of building web applications.
+                        Skills
+                        React, Node.js, TypeScript, Next.js, Tailwind CSS, PostgreSQL, AWS, Git, Docker, CI/CD, Agile.
+                        Experience
+                        Senior Software Engineer - Tech Corp (2020 - Present)
+                        - Developed key frontend features using React and TypeScript.
+                        - Managed AWS deployments and Docker containers.
+                        Education
+                        Bachelor of Science in Computer Science - University of State (2016 - 2020)
+                        `;
+                        const mockFile = new File([testContent], "test_resume.docx", {
+                          type: "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+                        });
+                        setFile(mockFile);
+                        toast("Loaded test resume copy!", "success");
+                      }}
+                      className="px-3 py-1.5 border border-[#10B981] text-[#10B981] hover:bg-[#10B981]/5 rounded-lg text-[10px] font-bold transition-all cursor-pointer"
+                    >
+                      Load Test Resume
+                    </button>
+                  </div>
                 </div>
               )}
             </div>

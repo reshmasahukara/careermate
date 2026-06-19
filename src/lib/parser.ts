@@ -11,7 +11,7 @@ export async function parsePdf(buffer: Buffer): Promise<string> {
   } catch (error) {
     console.warn("Error parsing PDF binary, falling back to text extraction:", error);
     // Fallback: decode buffer as utf-8 string (helps with mock files)
-    return buffer.toString("utf-8");
+    return buffer.toString("utf-8").replace(/\0/g, "");
   }
 }
 
@@ -25,7 +25,7 @@ export async function parseDocx(buffer: Buffer): Promise<string> {
   } catch (error) {
     console.warn("Error parsing DOCX binary, falling back to text extraction:", error);
     // Fallback: decode buffer as utf-8 string (helps with mock files)
-    return buffer.toString("utf-8");
+    return buffer.toString("utf-8").replace(/\0/g, "");
   }
 }
 

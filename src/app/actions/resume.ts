@@ -1,6 +1,7 @@
 "use server";
 
 import { prisma, isDbConfigured } from "@/lib/db";
+import { parseResume } from "@/lib/parser";
 
 /**
  * Server action to get all resumes for a user.
@@ -77,17 +78,29 @@ export async function processResumeUploadAction(userId: string, formData: FormDa
     const arrayBuffer = await file.arrayBuffer();
     const buffer = Buffer.from(arrayBuffer);
 
-    // 1. Upload to Cloudinary
+    // 1. Upload to Cloudinary (use only if keys are present and not default placeholders)
     let fileUrl = "";
-    if (process.env.CLOUDINARY_API_KEY) {
+    const isCloudinaryConfigured = 
+      process.env.CLOUDINARY_API_KEY && 
+      process.env.CLOUDINARY_API_KEY !== "your-cloudinary-api-key" &&
+      process.env.CLOUDINARY_API_KEY.trim() !== "";
+
+    if (isCloudinaryConfigured) {
       fileUrl = await uploadToCloudinary(buffer, file.name);
     } else {
       console.warn("Cloudinary not configured. Using mock URL.");
       fileUrl = `https://res.cloudinary.com/mock/${Date.now()}_${file.name}`;
     }
 
-    // 2. Simple mock parsing (In a real app, you'd use a PDF parser here)
-    const textContent = buffer.toString("utf-8").substring(0, 5000) + `\n\nDummy parsed text for ${file.name}. Experience in React, Tailwind, and Node.js.`;
+    // 2. Perform actual PDF/DOCX parsing using the unified resume parser engine
+    let textContent = "";
+    try {
+      textContent = await parseResume(buffer, file.type || "application/pdf", file.name);
+    } catch (parseError) {
+      console.warn("Standard parsing failed, applying sanitized fallback text:", parseError);
+      textContent = buffer.toString("utf-8").replace(/\0/g, "").substring(0, 5000) + 
+        `\n\nDummy parsed text for ${file.name}. Experience in React, Tailwind, and Node.js.`;
+    }
 
     // 3. Save to DB
     return await prisma.resume.create({
