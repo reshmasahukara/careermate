@@ -171,28 +171,16 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
                 {/* Scroller inside drawer */}
                 <nav className="p-4 space-y-2 overflow-y-auto max-h-[calc(100vh-160px)] no-scrollbar">
                   
-                  {/* Dashboard Collapsible Group */}
-                  <div>
-                    <button
-                      onClick={() => setDbGroupOpen(!dbGroupOpen)}
-                      className={`flex items-center justify-between w-full px-3 py-2.5 rounded-[12px] text-sm font-semibold transition-all group ${
-                        pathname.startsWith("/dashboard") ? "bg-[#10B981]/5 text-[#10B981]" : "text-[#64748B]"
-                      }`}
-                    >
-                      <div className="flex items-center gap-3">
-                        <LayoutDashboard className="w-4.5 h-4.5" />
-                        <span>Dashboard</span>
-                      </div>
-                      {dbGroupOpen ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
-                    </button>
-                    {dbGroupOpen && (
-                      <div className="mt-1 pl-10 space-y-1">
-                        <Link href="/dashboard" className={`block px-3 py-2 rounded-[8px] text-xs font-semibold ${pathname === "/dashboard" ? "text-[#10B981] bg-[#10B981]/10" : "text-[#64748B]"}`}>Overview</Link>
-                        <Link href="/dashboard/analytics" className={`block px-3 py-2 rounded-[8px] text-xs font-semibold ${pathname === "/dashboard/analytics" ? "text-[#10B981] bg-[#10B981]/10" : "text-[#64748B]"}`}>Analytics</Link>
-                        <Link href="/dashboard/activity" className={`block px-3 py-2 rounded-[8px] text-xs font-semibold ${pathname === "/dashboard/activity" ? "text-[#10B981] bg-[#10B981]/10" : "text-[#64748B]"}`}>Activity</Link>
-                      </div>
-                    )}
-                  </div>
+                  {/* Dashboard Link */}
+                  <Link
+                    href="/dashboard"
+                    className={`flex items-center gap-3 px-3 py-2.5 rounded-[12px] text-sm font-semibold transition-all ${
+                      pathname === "/dashboard" ? "bg-[#10B981]/5 text-[#10B981]" : "text-[#64748B]"
+                    }`}
+                  >
+                    <LayoutDashboard className="w-4.5 h-4.5" />
+                    <span>Dashboard</span>
+                  </Link>
 
                   {/* Resume Hub Collapsible Group */}
                   <div>
@@ -231,9 +219,6 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
                   </Link>
                   <Link href="/roadmap" className={`flex items-center gap-3 px-3 py-2.5 rounded-[12px] text-sm font-semibold transition-all ${pathname === "/roadmap" ? "bg-[#10B981]/5 text-[#10B981]" : "text-[#64748B]"}`}>
                     <BookOpen className="w-4.5 h-4.5" /> <span>Learning Roadmap</span>
-                  </Link>
-                  <Link href="/interview" className={`flex items-center gap-3 px-3 py-2.5 rounded-[12px] text-sm font-semibold transition-all ${pathname === "/interview" ? "bg-[#10B981]/5 text-[#10B981]" : "text-[#64748B]"}`}>
-                    <MessageSquare className="w-4.5 h-4.5" /> <span>Interview Preparation</span>
                   </Link>
                   <Link href="/career-insights" className={`flex items-center gap-3 px-3 py-2.5 rounded-[12px] text-sm font-semibold transition-all ${pathname === "/career-insights" ? "bg-[#10B981]/5 text-[#10B981]" : "text-[#64748B]"}`}>
                     <TrendingUp className="w-4.5 h-4.5" /> <span>Career Insights</span>

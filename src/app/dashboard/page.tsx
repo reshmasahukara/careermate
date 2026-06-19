@@ -352,14 +352,14 @@ export default function DashboardPage() {
                   ? "Build or Upload your resume copy"
                   : !atsScore
                   ? "Analyze your resume with ATS Match Checker"
-                  : "Practice interview rounds with AI Evaluation"}
+                  : "Review salary guides and market trends"}
               </h3>
               <p className="text-xs text-slate-400 max-w-xl font-medium">
                 {!d?.stats?.resumes
                   ? "To begin your optimized career journey, start by uploading or drafting your professional profile resume."
                   : !atsScore
                   ? "Benchmark your resume keywords and formatting layout against high-yield job role requirements."
-                  : "Leverage AI-generated questions to practice behavior scenarios and technical responses."}
+                  : "Understand industry salary benchmarks and fast-growing keywords for your target role."}
               </p>
             </div>
             <Link
@@ -368,7 +368,7 @@ export default function DashboardPage() {
                   ? "/resume-upload"
                   : !atsScore
                   ? "/ats-checker"
-                  : "/interview"
+                  : "/career-insights"
               }
               className="flex items-center gap-2 px-5 py-3 bg-[#10B981] hover:bg-[#059669] text-white font-bold text-xs rounded-xl shadow-sm transition-all shrink-0 hover:translate-x-0.5"
             >
@@ -376,7 +376,7 @@ export default function DashboardPage() {
                 ? "Get Started"
                 : !atsScore
                 ? "Scan Resume"
-                : "Practice Interviews"}
+                : "Explore Insights"}
               <ArrowRight className="w-4 h-4" />
             </Link>
           </div>

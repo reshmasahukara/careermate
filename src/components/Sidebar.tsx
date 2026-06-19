@@ -20,7 +20,6 @@ import {
   ChevronDown,
   ChevronUp,
   LogOut,
-  MessageSquare,
   TrendingUp
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
@@ -34,22 +33,12 @@ interface SidebarProps {
 
 export default function Sidebar({ session, isCollapsed, setIsCollapsed }: SidebarProps) {
   const pathname = usePathname();
-  const [dashboardOpen, setDashboardOpen] = useState(true);
   const [resumeHubOpen, setResumeHubOpen] = useState(true);
 
   // Helper to verify if route is active
   const isActive = (href: string) => {
-    if (href === "/dashboard") {
-      return pathname === "/dashboard" || pathname === "/dashboard/analytics" || pathname === "/dashboard/activity";
-    }
     return pathname === href || pathname.startsWith(href + "/");
   };
-
-  const dashboardItems = [
-    { name: "Overview", href: "/dashboard" },
-    { name: "Analytics", href: "/dashboard/analytics" },
-    { name: "Activity", href: "/dashboard/activity" }
-  ];
 
   const resumeHubItems = [
     { name: "Upload Resume", href: "/resume-upload", icon: Upload },
@@ -62,7 +51,6 @@ export default function Sidebar({ session, isCollapsed, setIsCollapsed }: Sideba
     { name: "Job Board", href: "/jobs", icon: Briefcase },
     { name: "Skill Gap Analysis", href: "/skill-gap", icon: Award },
     { name: "Learning Roadmap", href: "/roadmap", icon: BookOpen },
-    { name: "Interview Preparation", href: "/interview", icon: MessageSquare },
     { name: "Career Insights", href: "/career-insights", icon: TrendingUp }
   ];
 
@@ -102,54 +90,20 @@ export default function Sidebar({ session, isCollapsed, setIsCollapsed }: Sideba
         {/* Navigation Links */}
         <nav className="p-3.5 space-y-1.5 overflow-y-auto max-h-[calc(100vh-170px)] no-scrollbar">
           
-          {/* Dashboard Group */}
-          <div>
-            <button
-              onClick={() => !isCollapsed && setDashboardOpen(!dashboardOpen)}
-              className={`flex items-center justify-between w-full px-3 py-2.5 rounded-[12px] text-sm font-semibold transition-all group cursor-pointer ${
-                isActive("/dashboard")
+          {/* Dashboard Direct Link */}
+          <Link
+            href="/dashboard"
+            className={`flex items-center gap-3 px-3 py-2.5 rounded-[12px] text-sm font-semibold transition-all group cursor-pointer
+              ${
+                pathname === "/dashboard"
                   ? "bg-[#10B981]/5 text-[#10B981]"
                   : "text-[#64748B] hover:text-[#0F172A] hover:bg-[#F7F8FA]"
-              }`}
-            >
-              <div className="flex items-center gap-3">
-                <LayoutDashboard className={`w-4.5 h-4.5 shrink-0 ${isActive("/dashboard") ? "text-[#10B981]" : "text-[#64748B] group-hover:text-[#0F172A]"}`} />
-                {!isCollapsed && <span className="truncate">Dashboard</span>}
-              </div>
-              {!isCollapsed && (
-                dashboardOpen ? <ChevronUp className="w-4 h-4 text-[#64748B]" /> : <ChevronDown className="w-4 h-4 text-[#64748B]" />
-              )}
-            </button>
-
-            {/* Dashboard Submenu */}
-            <AnimatePresence initial={false}>
-              {dashboardOpen && !isCollapsed && (
-                <motion.div
-                  initial={{ height: 0, opacity: 0 }}
-                  animate={{ height: "auto", opacity: 1 }}
-                  exit={{ height: 0, opacity: 0 }}
-                  className="overflow-hidden mt-1 pl-10 space-y-1"
-                >
-                  {dashboardItems.map((subItem) => {
-                    const isSubActive = pathname === subItem.href;
-                    return (
-                      <Link
-                        key={subItem.href}
-                        href={subItem.href}
-                        className={`block px-3 py-2 rounded-[8px] text-xs font-semibold transition-all ${
-                          isSubActive
-                            ? "bg-[#10B981]/10 text-[#10B981]"
-                            : "text-[#64748B] hover:bg-[#F7F8FA] hover:text-[#0F172A]"
-                        }`}
-                      >
-                        {subItem.name}
-                      </Link>
-                    );
-                  })}
-                </motion.div>
-              )}
-            </AnimatePresence>
-          </div>
+              }
+            `}
+          >
+            <LayoutDashboard className={`w-4.5 h-4.5 shrink-0 ${pathname === "/dashboard" ? "text-[#10B981]" : "text-[#64748B] group-hover:text-[#0F172A]"}`} />
+            {!isCollapsed && <span className="truncate">Dashboard</span>}
+          </Link>
 
           {/* Resume Hub Group */}
           <div>

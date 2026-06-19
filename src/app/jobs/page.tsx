@@ -398,16 +398,16 @@ export default function JobListingsPage() {
             <span className="inline-block bg-emerald-500 text-white font-extrabold text-[10px] px-2.5 py-0.5 rounded-full uppercase tracking-wider">
               Recommended Next Step
             </span>
-            <h3 className="text-lg font-bold">Prepare for matching interviews with AI Mock rounds</h3>
+            <h3 className="text-lg font-bold">Explore salary benchmarks and growth trends</h3>
             <p className="text-xs text-slate-400 max-w-xl font-medium">
-              Don't apply cold. Practice technical and behavioral interview questions tailored to modern engineering roles.
+              Once you identify matching job openings, explore corresponding market salary guidelines and tech trend benchmarks.
             </p>
           </div>
           <Link
-            href="/interview"
+            href="/career-insights"
             className="flex items-center gap-2 px-5 py-3 bg-[#10B981] hover:bg-[#059669] text-white font-bold text-xs rounded-xl shadow-sm transition-all shrink-0 hover:translate-x-0.5"
           >
-            Practice Interviews
+            Career Insights
             <ArrowRight className="w-4 h-4" />
           </Link>
         </div>
