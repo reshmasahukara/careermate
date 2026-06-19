@@ -41,6 +41,11 @@ export const authOptions: NextAuthOptions = {
             throw new Error("You previously signed up with a different provider (e.g. Google). Please use that to log in.");
           }
 
+          if (!user.emailVerified) {
+            console.warn(`Auth failed: User ${credentials.email} has not verified their email.`);
+            throw new Error("Please verify your email before signing in.");
+          }
+
           const bcrypt = await import("bcryptjs");
           const isPasswordValid = await bcrypt.compare(credentials.password, user.password);
 
@@ -63,7 +68,11 @@ export const authOptions: NextAuthOptions = {
           }
 
           // If the error was one of our manually thrown user errors, pass it through.
-          if (error.message === "Invalid email or password.") {
+          if (
+            error.message === "Invalid email or password." ||
+            error.message === "Please verify your email before signing in." ||
+            error.message.includes("previously signed up")
+          ) {
             throw new Error(error.message);
           }
 

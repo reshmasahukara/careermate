@@ -98,8 +98,19 @@ export default function SignupPage() {
         return;
       }
 
-      toast("Account created successfully! Please log in.", "success");
-      router.push("/login");
+      toast("Verification code sent!", "success");
+      
+      // Store registration data in sessionStorage temporarily
+      sessionStorage.setItem(
+        "signup_data",
+        JSON.stringify({
+          name: data.name,
+          email: data.email,
+          password: data.password,
+        })
+      );
+      
+      router.push(`/verify-otp?email=${encodeURIComponent(data.email)}`);
     } catch (err) {
       toast("An unexpected error occurred during registration.", "error");
     } finally {

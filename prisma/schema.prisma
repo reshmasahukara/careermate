@@ -12,6 +12,7 @@ model User {
   name       String?
   email      String   @unique
   password   String
+  emailVerified Boolean @default(false)
   image      String?
   createdAt  DateTime @default(now())
   updatedAt  DateTime @updatedAt
@@ -195,4 +196,15 @@ model Subscription {
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@map("subscriptions")
+}
+
+model EmailVerification {
+  id         String   @id @default(cuid())
+  email      String
+  otpHash    String
+  expiresAt  DateTime
+  createdAt  DateTime @default(now())
+
+  @@index([email])
+  @@map("email_verifications")
 }

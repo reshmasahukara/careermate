@@ -33,22 +33,40 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const hashedPassword = await bcrypt.hash(password, 12);
+    // Generate a secure 6-digit OTP
+    const otp = Math.floor(100000 + Math.random() * 900000).toString();
+    const otpHash = await bcrypt.hash(otp, 12);
 
-    const user = await prisma.user.create({
+    // Delete any existing OTPs for this email
+    await prisma.emailVerification.deleteMany({
+      where: { email: email.toLowerCase() },
+    });
+
+    // Save new OTP
+    const expiresAt = new Date(Date.now() + 10 * 60 * 1000); // 10 minutes
+    await prisma.emailVerification.create({
       data: {
-        name,
         email: email.toLowerCase(),
-        password: hashedPassword,
+        otpHash,
+        expiresAt,
       },
     });
 
-    // Remove password from the response
-    const { password: _, ...userWithoutPassword } = user;
+    // Send email via Resend
+    const { sendVerificationEmail } = await import("@/lib/email");
+    const emailResult = await sendVerificationEmail(email.toLowerCase(), otp);
+
+    if (!emailResult.success) {
+      console.error("Failed to send email", emailResult.error);
+      return NextResponse.json(
+        { error: "Failed to send verification email. Please try again." },
+        { status: 500 }
+      );
+    }
 
     return NextResponse.json(
-      { message: "Account created successfully.", user: userWithoutPassword },
-      { status: 201 }
+      { message: "Verification code sent successfully.", email: email.toLowerCase() },
+      { status: 200 }
     );
   } catch (error: any) {
     console.error("Signup error:", error);
