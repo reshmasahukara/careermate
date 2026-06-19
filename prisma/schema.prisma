@@ -198,13 +198,13 @@ model Subscription {
   @@map("subscriptions")
 }
 
-model EmailVerification {
-  id         String   @id @default(cuid())
-  email      String
-  otpHash    String
-  expiresAt  DateTime
-  createdAt  DateTime @default(now())
+model VerificationOtp {
+  id        String   @id @default(cuid())
+  email     String
+  otp       String
+  expiresAt DateTime
+  createdAt DateTime @default(now())
 
   @@index([email])
-  @@map("email_verifications")
+  @@map("verification_otps")
 }

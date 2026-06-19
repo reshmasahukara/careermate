@@ -35,34 +35,35 @@ export async function POST(req: NextRequest) {
 
     // Generate a secure 6-digit OTP
     const otp = Math.floor(100000 + Math.random() * 900000).toString();
-    const otpHash = await bcrypt.hash(otp, 12);
 
     // Delete any existing OTPs for this email
-    await prisma.emailVerification.deleteMany({
+    await prisma.verificationOtp.deleteMany({
       where: { email: email.toLowerCase() },
     });
 
     // Save new OTP
     const expiresAt = new Date(Date.now() + 10 * 60 * 1000); // 10 minutes
-    await prisma.emailVerification.create({
+    await prisma.verificationOtp.create({
       data: {
         email: email.toLowerCase(),
-        otpHash,
+        otp,
         expiresAt,
       },
     });
 
-    // Send email via Resend
-    const { sendVerificationEmail } = await import("@/lib/email");
-    const emailResult = await sendVerificationEmail(email.toLowerCase(), otp);
-
-    if (!emailResult.success) {
-      console.error("Failed to send email", emailResult.error);
-      return NextResponse.json(
-        { error: "Failed to send verification email. Please try again." },
-        { status: 500 }
-      );
-    }
+    // Send email via Nodemailer
+    const { transporter } = await import("@/lib/mailer");
+    await transporter.sendMail({
+      from: `"CareerMate" <${process.env.EMAIL_USER}>`,
+      to: email.toLowerCase(),
+      subject: "Verify your CareerMate account",
+      html: `
+        <h2>Your CareerMate OTP</h2>
+        <p>Your verification code is:</p>
+        <h1>${otp}</h1>
+        <p>This code expires in 10 minutes.</p>
+      `,
+    });
 
     return NextResponse.json(
       { message: "Verification code sent successfully.", email: email.toLowerCase() },

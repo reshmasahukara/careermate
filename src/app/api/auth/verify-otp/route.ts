@@ -27,7 +27,7 @@ export async function POST(req: NextRequest) {
     }
 
     // Find the OTP record
-    const otpRecord = await prisma.emailVerification.findFirst({
+    const otpRecord = await prisma.verificationOtp.findFirst({
       where: { email: email.toLowerCase() },
       orderBy: { createdAt: "desc" },
     });
@@ -47,7 +47,7 @@ export async function POST(req: NextRequest) {
     }
 
     // Verify OTP
-    const isValid = await bcrypt.compare(otp, otpRecord.otpHash);
+    const isValid = otp === otpRecord.otp;
 
     if (!isValid) {
       return NextResponse.json(
@@ -70,7 +70,7 @@ export async function POST(req: NextRequest) {
     });
 
     // Delete the used OTP
-    await prisma.emailVerification.deleteMany({
+    await prisma.verificationOtp.deleteMany({
       where: { email: email.toLowerCase() },
     });
 
