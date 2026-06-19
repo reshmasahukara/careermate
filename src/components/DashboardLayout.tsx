@@ -103,8 +103,6 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
 
   const getPageTitle = () => {
     if (pathname === "/dashboard") return "Overview";
-    if (pathname === "/dashboard/analytics") return "Analytics";
-    if (pathname === "/dashboard/activity") return "Activity Logs";
     if (pathname === "/resume-upload") return "Upload Resume";
     if (pathname === "/resume-builder") return "Resume Builder";
     if (pathname === "/resume-analysis") return "Resume Analysis";
@@ -112,7 +110,6 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
     if (pathname === "/jobs") return "Job Board";
     if (pathname === "/skill-gap") return "Skill Gap Analysis";
     if (pathname === "/roadmap") return "Learning Roadmap";
-    if (pathname === "/interview") return "Interview Preparation";
     if (pathname === "/career-insights") return "Career Insights";
     if (pathname === "/settings") return "Settings";
     if (pathname === "/help") return "Help & Docs";

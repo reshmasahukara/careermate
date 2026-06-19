@@ -20,7 +20,7 @@ export default function MobileNavigation({ toggleMobileMenu }: MobileNavigationP
 
   const isActive = (href: string) => {
     if (href === "/dashboard") {
-      return pathname === "/dashboard" || pathname === "/dashboard/analytics" || pathname === "/dashboard/activity";
+      return pathname === "/dashboard";
     }
     if (href === "/resume-upload") {
       return pathname === "/resume-upload" || pathname === "/resume-builder" || pathname === "/resume-analysis";
