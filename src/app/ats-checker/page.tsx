@@ -115,7 +115,7 @@ export default function AtsCheckerPage() {
           <div className="lg:col-span-4 space-y-6 print:hidden">
             <div className="bg-white border border-[#E2E8F0] rounded-2xl p-6 shadow-sm">
               <h2 className="text-lg font-bold text-[#0F172A] mb-6 flex items-center gap-2">
-                <Settings2 className="w-5 h-5 text-blue-500" />
+                <Settings2 className="w-5 h-5 text-emerald-500" />
                 Analysis Settings
               </h2>
               
@@ -125,7 +125,7 @@ export default function AtsCheckerPage() {
                   <label className="text-sm font-semibold text-[#0F172A]">Select Resume</label>
                   {resumes.length > 0 ? (
                     <select 
-                      className="w-full p-3 border border-[#E2E8F0] rounded-xl text-sm outline-none focus:border-blue-500"
+                      className="w-full p-3 border border-[#E2E8F0] rounded-xl text-sm outline-none focus:border-emerald-500"
                       value={selectedResume}
                       onChange={(e) => setSelectedResume(e.target.value)}
                     >
@@ -139,10 +139,10 @@ export default function AtsCheckerPage() {
                       onDragLeave={handleDragLeave}
                       onDrop={handleDrop}
                       className={`border-2 border-dashed rounded-xl p-6 text-center transition-colors cursor-pointer ${
-                        isDragging ? "border-blue-500 bg-blue-50" : "border-[#E2E8F0] bg-slate-50 hover:bg-slate-100"
+                        isDragging ? "border-emerald-500 bg-emerald-50" : "border-[#E2E8F0] bg-slate-50 hover:bg-slate-100"
                       }`}
                     >
-                      <UploadCloud className={`w-8 h-8 mx-auto mb-2 ${isDragging ? "text-blue-500" : "text-slate-400"}`} />
+                      <UploadCloud className={`w-8 h-8 mx-auto mb-2 ${isDragging ? "text-emerald-500" : "text-slate-400"}`} />
                       <p className="text-xs font-semibold text-[#0F172A]">{isDragging ? "Drop here!" : "Drag & drop to upload"}</p>
                       <p className="text-[10px] text-[#64748B] mt-1">PDF or DOCX up to 5MB</p>
                     </div>
@@ -154,7 +154,7 @@ export default function AtsCheckerPage() {
                   <input 
                     type="text" 
                     placeholder="e.g. Senior Frontend Engineer"
-                    className="w-full p-3 border border-[#E2E8F0] rounded-xl text-sm outline-none focus:border-blue-500"
+                    className="w-full p-3 border border-[#E2E8F0] rounded-xl text-sm outline-none focus:border-emerald-500"
                     value={targetRole}
                     onChange={(e) => setTargetRole(e.target.value)}
                   />
@@ -163,7 +163,7 @@ export default function AtsCheckerPage() {
                 <div className="space-y-2">
                   <label className="text-sm font-semibold text-[#0F172A]">Industry</label>
                   <select 
-                    className="w-full p-3 border border-[#E2E8F0] rounded-xl text-sm outline-none focus:border-blue-500"
+                    className="w-full p-3 border border-[#E2E8F0] rounded-xl text-sm outline-none focus:border-emerald-500"
                     value={industry}
                     onChange={(e) => setIndustry(e.target.value)}
                   >
@@ -177,7 +177,7 @@ export default function AtsCheckerPage() {
                 <div className="space-y-2">
                   <label className="text-sm font-semibold text-[#0F172A]">Experience Level</label>
                   <select 
-                    className="w-full p-3 border border-[#E2E8F0] rounded-xl text-sm outline-none focus:border-blue-500"
+                    className="w-full p-3 border border-[#E2E8F0] rounded-xl text-sm outline-none focus:border-emerald-500"
                     value={experienceLevel}
                     onChange={(e) => setExperienceLevel(e.target.value)}
                   >
@@ -192,7 +192,7 @@ export default function AtsCheckerPage() {
                   <label className="text-sm font-semibold text-[#0F172A]">Target Skills Checklist (Optional)</label>
                   <textarea 
                     placeholder="Paste skills from job description (comma separated)"
-                    className="w-full p-3 border border-[#E2E8F0] rounded-xl text-sm outline-none focus:border-blue-500 h-20 resize-none"
+                    className="w-full p-3 border border-[#E2E8F0] rounded-xl text-sm outline-none focus:border-emerald-500 h-20 resize-none"
                     value={targetSkills}
                     onChange={(e) => setTargetSkills(e.target.value)}
                   />
@@ -201,7 +201,7 @@ export default function AtsCheckerPage() {
                 <button 
                   onClick={handleAnalyze}
                   disabled={!selectedResume || !targetRole || isAnalyzing}
-                  className="w-full py-3.5 bg-blue-600 hover:bg-blue-700 disabled:bg-slate-300 text-white font-bold rounded-xl transition-all shadow-sm flex justify-center items-center gap-2"
+                  className="w-full py-3.5 bg-emerald-600 hover:bg-emerald-700 disabled:bg-slate-300 text-white font-bold rounded-xl transition-all shadow-sm flex justify-center items-center gap-2"
                 >
                   {isAnalyzing ? (
                     <>
@@ -224,8 +224,8 @@ export default function AtsCheckerPage() {
             {!hasAnalyzed ? (
               /* Empty State */
               <div className="bg-white border border-[#E2E8F0] rounded-2xl h-full min-h-[500px] flex flex-col items-center justify-center p-8 text-center shadow-sm">
-                <div className="w-24 h-24 bg-blue-50 rounded-full flex items-center justify-center mb-6">
-                  <FileSearch className="w-12 h-12 text-blue-500" />
+                <div className="w-24 h-24 bg-emerald-50 rounded-full flex items-center justify-center mb-6">
+                  <FileSearch className="w-12 h-12 text-emerald-500" />
                 </div>
                 <h3 className="text-xl font-bold text-[#0F172A] mb-2">Ready to Analyze</h3>
                 <p className="text-[#64748B] text-sm max-w-sm">
@@ -240,7 +240,7 @@ export default function AtsCheckerPage() {
                   <button 
                     onClick={() => setActiveTab("overview")}
                     className={`flex items-center gap-2 px-6 py-4 text-sm font-bold border-b-2 transition-colors whitespace-nowrap ${
-                      activeTab === "overview" ? "border-blue-600 text-blue-600 bg-white" : "border-transparent text-slate-500 hover:text-slate-700"
+                      activeTab === "overview" ? "border-emerald-600 text-emerald-600 bg-white" : "border-transparent text-slate-500 hover:text-slate-700"
                     }`}
                   >
                     <PieChart className="w-4 h-4" /> Overview
@@ -248,7 +248,7 @@ export default function AtsCheckerPage() {
                   <button 
                     onClick={() => setActiveTab("keywords")}
                     className={`flex items-center gap-2 px-6 py-4 text-sm font-bold border-b-2 transition-colors whitespace-nowrap ${
-                      activeTab === "keywords" ? "border-blue-600 text-blue-600 bg-white" : "border-transparent text-slate-500 hover:text-slate-700"
+                      activeTab === "keywords" ? "border-emerald-600 text-emerald-600 bg-white" : "border-transparent text-slate-500 hover:text-slate-700"
                     }`}
                   >
                     <ListChecks className="w-4 h-4" /> Keywords
@@ -256,7 +256,7 @@ export default function AtsCheckerPage() {
                   <button 
                     onClick={() => setActiveTab("formatting")}
                     className={`flex items-center gap-2 px-6 py-4 text-sm font-bold border-b-2 transition-colors whitespace-nowrap ${
-                      activeTab === "formatting" ? "border-blue-600 text-blue-600 bg-white" : "border-transparent text-slate-500 hover:text-slate-700"
+                      activeTab === "formatting" ? "border-emerald-600 text-emerald-600 bg-white" : "border-transparent text-slate-500 hover:text-slate-700"
                     }`}
                   >
                     <LayoutTemplate className="w-4 h-4" /> Formatting
@@ -264,7 +264,7 @@ export default function AtsCheckerPage() {
                   <button 
                     onClick={() => setActiveTab("skills")}
                     className={`flex items-center gap-2 px-6 py-4 text-sm font-bold border-b-2 transition-colors whitespace-nowrap ${
-                      activeTab === "skills" ? "border-blue-600 text-blue-600 bg-white" : "border-transparent text-slate-500 hover:text-slate-700"
+                      activeTab === "skills" ? "border-emerald-600 text-emerald-600 bg-white" : "border-transparent text-slate-500 hover:text-slate-700"
                     }`}
                   >
                     <Briefcase className="w-4 h-4" /> Skills Match
@@ -342,7 +342,7 @@ export default function AtsCheckerPage() {
                     <div className="space-y-6 animate-in fade-in duration-300">
                       <div className="flex items-center justify-between">
                         <h3 className="text-lg font-bold text-slate-800">Keyword Analysis</h3>
-                        <div className="text-sm font-semibold px-3 py-1 bg-blue-50 text-blue-600 rounded-full">
+                        <div className="text-sm font-semibold px-3 py-1 bg-emerald-50 text-emerald-600 rounded-full">
                           {atsScore?.keywordsFound?.length} / {(atsScore?.keywordsFound?.length || 0) + (atsScore?.keywordsMissing?.length || 0)} Matched
                         </div>
                       </div>
@@ -425,10 +425,10 @@ export default function AtsCheckerPage() {
                           <div>
                             <div className="flex justify-between items-center mb-2">
                               <span className="font-bold text-slate-800 text-sm">Hard Skills (Technical)</span>
-                              <span className="text-sm font-bold text-blue-600">75% Match</span>
+                              <span className="text-sm font-bold text-emerald-600">75% Match</span>
                             </div>
                             <div className="w-full bg-slate-200 rounded-full h-2">
-                              <div className="bg-blue-600 h-2 rounded-full" style={{ width: "75%" }}></div>
+                              <div className="bg-emerald-600 h-2 rounded-full" style={{ width: "75%" }}></div>
                             </div>
                           </div>
                           

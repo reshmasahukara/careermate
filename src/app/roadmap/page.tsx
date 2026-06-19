@@ -143,7 +143,7 @@ export default function LearningRoadmapPage() {
                     placeholder="e.g. Frontend Engineer, Product Manager"
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
-                    className="w-full bg-[#F8FAFC] border border-[#E2E8F0] rounded-xl py-3 px-4 text-sm focus:outline-none focus:border-blue-500 pl-10 transition-colors"
+                    className="w-full bg-[#F8FAFC] border border-[#E2E8F0] rounded-xl py-3 px-4 text-sm focus:outline-none focus:border-emerald-500 pl-10 transition-colors"
                   />
                   <Search className="absolute left-3.5 top-3.5 w-4.5 h-4.5 text-slate-400" />
                 </div>
@@ -153,7 +153,7 @@ export default function LearningRoadmapPage() {
                 <select
                   value={filterDomain}
                   onChange={(e) => setFilterDomain(e.target.value)}
-                  className="w-full bg-[#F8FAFC] border border-[#E2E8F0] rounded-xl py-3 px-4 text-sm focus:outline-none focus:border-blue-500 transition-colors"
+                  className="w-full bg-[#F8FAFC] border border-[#E2E8F0] rounded-xl py-3 px-4 text-sm focus:outline-none focus:border-emerald-500 transition-colors"
                 >
                   <option value="">All Domains</option>
                   <option value="Engineering">Engineering</option>
@@ -168,7 +168,7 @@ export default function LearningRoadmapPage() {
                 <select
                   value={filterDuration}
                   onChange={(e) => setFilterDuration(e.target.value)}
-                  className="w-full bg-[#F8FAFC] border border-[#E2E8F0] rounded-xl py-3 px-4 text-sm focus:outline-none focus:border-blue-500 transition-colors"
+                  className="w-full bg-[#F8FAFC] border border-[#E2E8F0] rounded-xl py-3 px-4 text-sm focus:outline-none focus:border-emerald-500 transition-colors"
                 >
                   <option value="">Any Length</option>
                   <option value="Short (< 12 weeks)">Short (&lt; 12 weeks)</option>
@@ -181,7 +181,7 @@ export default function LearningRoadmapPage() {
                 <select
                   value={filterDifficulty}
                   onChange={(e) => setFilterDifficulty(e.target.value)}
-                  className="w-full bg-[#F8FAFC] border border-[#E2E8F0] rounded-xl py-3 px-4 text-sm focus:outline-none focus:border-blue-500 transition-colors"
+                  className="w-full bg-[#F8FAFC] border border-[#E2E8F0] rounded-xl py-3 px-4 text-sm focus:outline-none focus:border-emerald-500 transition-colors"
                 >
                   <option value="">All Levels</option>
                   <option value="Beginner">Beginner</option>
@@ -196,15 +196,15 @@ export default function LearningRoadmapPage() {
               {filteredPaths.map((path) => {
                 const { difficulty, domain, duration, estWeeks } = getDerivedFields(path.targetRole);
                 return (
-                  <div key={path.id} className="bg-white border border-[#E2E8F0] rounded-[20px] p-6 shadow-sm hover:shadow-md hover:border-blue-200 transition-all flex flex-col justify-between">
+                  <div key={path.id} className="bg-white border border-[#E2E8F0] rounded-[20px] p-6 shadow-sm hover:shadow-md hover:border-emerald-200 transition-all flex flex-col justify-between">
                     <div>
                       <div className="flex items-start justify-between mb-4">
-                        <div className="w-12 h-12 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center shrink-0">
+                        <div className="w-12 h-12 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center shrink-0">
                           <Compass className="w-6 h-6" />
                         </div>
                         <span className={`text-[10px] font-bold uppercase tracking-wider px-2 py-1 rounded-[6px] ${
                           difficulty === "Advanced" ? "bg-purple-100 text-purple-700" :
-                          difficulty === "Beginner" ? "bg-emerald-100 text-emerald-700" : "bg-blue-100 text-blue-700"
+                          difficulty === "Beginner" ? "bg-emerald-100 text-emerald-700" : "bg-emerald-100 text-emerald-700"
                         }`}>
                           {difficulty}
                         </span>
@@ -280,7 +280,7 @@ export default function LearningRoadmapPage() {
                         {/* Timeline Node */}
                         <div className={`relative z-10 w-8 h-8 md:w-20 md:h-20 shrink-0 rounded-full flex items-center justify-center border-4 border-white ${
                           isCompleted ? "bg-emerald-500 text-white" :
-                          isInProgress ? "bg-blue-500 text-white shadow-[0_0_0_4px_rgba(59,130,246,0.1)]" : "bg-slate-200 text-slate-400"
+                          isInProgress ? "bg-emerald-500 text-white shadow-[0_0_0_4px_rgba(59,130,246,0.1)]" : "bg-slate-200 text-slate-400"
                         }`}>
                           {isCompleted ? <CheckCircle2 className="w-4 h-4 md:w-8 md:h-8" /> : 
                            isInProgress ? <PlayCircle className="w-4 h-4 md:w-8 md:h-8" /> : 
@@ -290,14 +290,14 @@ export default function LearningRoadmapPage() {
                         {/* Content Card */}
                         <div className={`flex-1 p-6 rounded-2xl border transition-all ${
                           isCompleted ? "bg-emerald-50/30 border-emerald-100" :
-                          isInProgress ? "bg-white border-blue-200 shadow-md" : "bg-white border-slate-100 hover:border-slate-300"
+                          isInProgress ? "bg-white border-emerald-200 shadow-md" : "bg-white border-slate-100 hover:border-slate-300"
                         }`}>
                           <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4 mb-4">
                             <div>
                               <div className="flex items-center gap-2 mb-1">
                                 <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Module {milestone.week}</span>
                                 {isCompleted && <span className="text-[10px] font-bold bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded">Completed</span>}
-                                {isInProgress && <span className="text-[10px] font-bold bg-blue-100 text-blue-700 px-2 py-0.5 rounded">In Progress</span>}
+                                {isInProgress && <span className="text-[10px] font-bold bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded">In Progress</span>}
                               </div>
                               <h3 className={`text-lg font-bold ${isCompleted ? "text-slate-600 line-through decoration-emerald-300" : "text-[#0F172A]"}`}>
                                 {milestone.title}
@@ -307,7 +307,7 @@ export default function LearningRoadmapPage() {
                               onClick={() => toggleMilestoneStatus(milestone.week)}
                               className={`shrink-0 px-4 py-2 rounded-xl text-xs font-bold border transition-colors ${
                                 isCompleted ? "bg-white text-slate-500 border-slate-200 hover:bg-slate-50" :
-                                isInProgress ? "bg-blue-600 text-white border-blue-600 hover:bg-blue-700" : "bg-white text-blue-600 border-blue-200 hover:bg-blue-50"
+                                isInProgress ? "bg-emerald-600 text-white border-emerald-600 hover:bg-emerald-700" : "bg-white text-emerald-600 border-emerald-200 hover:bg-emerald-50"
                               }`}
                             >
                               {isCompleted ? "Mark Incomplete" : isInProgress ? "Complete Module" : "Start Module"}
@@ -321,7 +321,7 @@ export default function LearningRoadmapPage() {
                           {!isCompleted && (
                             <div className="mt-4 pt-4 border-t border-slate-100">
                               <p className="text-xs font-bold text-slate-800 mb-2 flex items-center gap-1.5">
-                                <Layers className="w-3.5 h-3.5 text-blue-500" /> Recommended Resource
+                                <Layers className="w-3.5 h-3.5 text-emerald-500" /> Recommended Resource
                               </p>
                               <a href="#" className="flex items-center justify-between p-3 bg-slate-50 rounded-xl hover:bg-slate-100 transition-colors border border-slate-100">
                                 <div className="flex items-center gap-3">
@@ -357,11 +357,11 @@ export default function LearningRoadmapPage() {
                 <div className="space-y-2">
                   <div className="flex justify-between text-sm font-bold">
                     <span className="text-slate-600">Completion</span>
-                    <span className="text-blue-600">{Math.round((milestones.filter(m => m.status === 'completed').length / milestones.length) * 100) || 0}%</span>
+                    <span className="text-emerald-600">{Math.round((milestones.filter(m => m.status === 'completed').length / milestones.length) * 100) || 0}%</span>
                   </div>
                   <div className="w-full bg-slate-100 h-3 rounded-full overflow-hidden">
                     <div 
-                      className="bg-blue-500 h-full rounded-full transition-all duration-500"
+                      className="bg-emerald-500 h-full rounded-full transition-all duration-500"
                       style={{ width: `${(milestones.filter(m => m.status === 'completed').length / milestones.length) * 100}%` }}
                     />
                   </div>

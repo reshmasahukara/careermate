@@ -108,8 +108,8 @@ export default function DashboardPage() {
         {!hasData ? (
           /* Empty State */
           <div className="bg-white border border-[#E2E8F0] rounded-2xl p-12 text-center flex flex-col items-center justify-center shadow-sm">
-            <div className="w-20 h-20 bg-blue-50 rounded-full flex items-center justify-center mb-6">
-              <FileText className="w-10 h-10 text-blue-500" />
+            <div className="w-20 h-20 bg-emerald-50 rounded-full flex items-center justify-center mb-6">
+              <FileText className="w-10 h-10 text-emerald-500" />
             </div>
             <h2 className="text-xl font-bold text-[#0F172A] mb-2">No career insights yet</h2>
             <p className="text-[#64748B] text-sm max-w-md mx-auto mb-8">
@@ -139,7 +139,7 @@ export default function DashboardPage() {
             {/* Recent Activity */}
             <div className="lg:col-span-2 bg-white border border-[#E2E8F0] rounded-2xl p-6 shadow-sm">
               <h3 className="text-lg font-bold text-[#0F172A] flex items-center gap-2 mb-6">
-                <Activity className="w-5 h-5 text-blue-500" />
+                <Activity className="w-5 h-5 text-emerald-500" />
                 Recent Activity
               </h3>
               <div className="space-y-4">
@@ -147,7 +147,7 @@ export default function DashboardPage() {
                   dashboardData.recentResumes.map((resume: any, i: number) => (
                     <div key={`resume-${resume.id}-${i}`} className="flex items-center justify-between p-4 bg-slate-50 rounded-xl border border-[#E2E8F0]/50">
                       <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center text-blue-600">
+                        <div className="w-10 h-10 rounded-full bg-emerald-100 flex items-center justify-center text-emerald-600">
                           <FileText className="w-5 h-5" />
                         </div>
                         <div>
@@ -155,7 +155,7 @@ export default function DashboardPage() {
                           <p className="text-xs text-[#64748B]">Uploaded {new Date(resume.createdAt).toLocaleDateString()}</p>
                         </div>
                       </div>
-                      <Link href={`/ats-checker?resumeId=${resume.id}`} className="text-xs font-semibold text-blue-600 hover:text-blue-700 flex items-center gap-1">
+                      <Link href={`/ats-checker?resumeId=${resume.id}`} className="text-xs font-semibold text-emerald-600 hover:text-emerald-700 flex items-center gap-1">
                         Check ATS <ArrowRight className="w-3 h-3" />
                       </Link>
                     </div>
@@ -173,13 +173,13 @@ export default function DashboardPage() {
                 <div className="space-y-2 mb-4">
                   <div className="flex justify-between text-sm font-semibold">
                     <span className="text-[#64748B]">Progress</span>
-                    <span className="text-blue-600">{dashboardData?.progress}%</span>
+                    <span className="text-emerald-600">{dashboardData?.progress}%</span>
                   </div>
                   <div className="w-full bg-slate-100 h-2 rounded-full overflow-hidden">
-                    <div className="bg-blue-500 h-full rounded-full transition-all duration-500" style={{ width: `${dashboardData?.progress}%` }} />
+                    <div className="bg-emerald-500 h-full rounded-full transition-all duration-500" style={{ width: `${dashboardData?.progress}%` }} />
                   </div>
                 </div>
-                <Link href="/settings" className="block w-full text-center py-2 text-sm font-semibold text-blue-600 bg-blue-50 rounded-lg hover:bg-blue-100 transition-colors">
+                <Link href="/settings" className="block w-full text-center py-2 text-sm font-semibold text-emerald-600 bg-emerald-50 rounded-lg hover:bg-emerald-100 transition-colors">
                   Complete Profile
                 </Link>
               </div>
@@ -192,7 +192,7 @@ export default function DashboardPage() {
                       <li key={i} className="flex items-start gap-3">
                         <CheckCircle2 className="w-5 h-5 text-slate-300 shrink-0 mt-0.5" />
                         <div>
-                          <Link href={action.href} className="text-sm font-semibold text-blue-600 hover:underline">
+                          <Link href={action.href} className="text-sm font-semibold text-emerald-600 hover:underline">
                             {action.title}
                           </Link>
                           <p className="text-xs text-[#64748B]">{action.desc}</p>

@@ -179,7 +179,7 @@ export default function ResumeAnalysisPage() {
           <button
             onClick={handleRunAnalysis}
             disabled={isAnalyzing || resumes.length === 0}
-            className="w-full sm:w-auto bg-primary hover:bg-blue-700 text-white font-bold py-3 px-8 rounded-xl shadow-md transition-colors text-xs flex items-center justify-center gap-1.5 shrink-0 disabled:opacity-50 cursor-pointer self-end"
+            className="w-full sm:w-auto bg-primary hover:bg-emerald-700 text-white font-bold py-3 px-8 rounded-xl shadow-md transition-colors text-xs flex items-center justify-center gap-1.5 shrink-0 disabled:opacity-50 cursor-pointer self-end"
           >
             {isAnalyzing ? (
               <>
@@ -231,7 +231,7 @@ export default function ResumeAnalysisPage() {
                         ? "bg-rose-50 border-rose-100 text-rose-800"
                         : change.level.includes("Medium")
                         ? "bg-amber-50 border-amber-100 text-amber-800"
-                        : "bg-blue-50 border-blue-100 text-blue-800"
+                        : "bg-emerald-50 border-emerald-100 text-emerald-800"
                     }`}
                   >
                     <div>

@@ -82,14 +82,14 @@ function ToastItem({ toast, onClose }: { toast: Toast; onClose: () => void }) {
     success: <CheckCircle2 className="w-5 h-5 text-emerald-500 shrink-0" />,
     error: <XCircle className="w-5 h-5 text-rose-500 shrink-0" />,
     warning: <AlertTriangle className="w-5 h-5 text-amber-500 shrink-0" />,
-    info: <Info className="w-5 h-5 text-blue-500 shrink-0" />,
+    info: <Info className="w-5 h-5 text-emerald-500 shrink-0" />,
   };
 
   const borderColors = {
     success: "border-emerald-500/30",
     error: "border-rose-500/30",
     warning: "border-amber-500/30",
-    info: "border-blue-500/30",
+    info: "border-emerald-500/30",
   };
 
   return (

@@ -11,7 +11,7 @@ export default function HelpCenterPage() {
   const categories = [
     {
       title: "Getting Started",
-      icon: <Zap className="w-6 h-6 text-blue-500" />,
+      icon: <Zap className="w-6 h-6 text-emerald-500" />,
       articles: [
         { title: "How to upload your first resume", href: "/help/upload-resume" },
         { title: "Understanding your Dashboard", href: "/help/dashboard-guide" },
@@ -79,7 +79,7 @@ export default function HelpCenterPage() {
               placeholder="Search for articles, guides, and FAQs..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full bg-white border border-[#E2E8F0] shadow-sm rounded-full py-4 px-6 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 pl-14 transition-all"
+              className="w-full bg-white border border-[#E2E8F0] shadow-sm rounded-full py-4 px-6 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 pl-14 transition-all"
             />
             <Search className="absolute left-5 top-4 w-5 h-5 text-slate-400" />
           </div>
@@ -97,14 +97,14 @@ export default function HelpCenterPage() {
               <ul className="space-y-3">
                 {category.articles.map((article, aIdx) => (
                   <li key={aIdx}>
-                    <Link href={article.href} className="text-sm font-medium text-slate-600 hover:text-blue-600 flex items-center gap-2 group">
-                      <BookOpen className="w-3.5 h-3.5 text-slate-400 group-hover:text-blue-500 transition-colors" />
+                    <Link href={article.href} className="text-sm font-medium text-slate-600 hover:text-emerald-600 flex items-center gap-2 group">
+                      <BookOpen className="w-3.5 h-3.5 text-slate-400 group-hover:text-emerald-500 transition-colors" />
                       {article.title}
                     </Link>
                   </li>
                 ))}
               </ul>
-              <Link href={`/help/category/${category.title.toLowerCase().replace(/\s+/g, '-')}`} className="inline-flex items-center gap-1 text-xs font-bold text-blue-600 mt-6 hover:text-blue-700">
+              <Link href={`/help/category/${category.title.toLowerCase().replace(/\s+/g, '-')}`} className="inline-flex items-center gap-1 text-xs font-bold text-emerald-600 mt-6 hover:text-emerald-700">
                 View all <ArrowRight className="w-3 h-3" />
               </Link>
             </div>

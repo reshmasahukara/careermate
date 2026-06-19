@@ -98,7 +98,7 @@ export default function SkillGapPage() {
                 placeholder="e.g. Senior Full Stack Engineer"
                 value={targetRole}
                 onChange={(e) => setTargetRole(e.target.value)}
-                className="w-full bg-[#F8FAFC] border border-[#E2E8F0] rounded-xl py-3 px-4 text-sm focus:outline-none focus:border-blue-500 pl-10 transition-colors"
+                className="w-full bg-[#F8FAFC] border border-[#E2E8F0] rounded-xl py-3 px-4 text-sm focus:outline-none focus:border-emerald-500 pl-10 transition-colors"
               />
               <Target className="absolute left-3.5 top-3.5 w-4.5 h-4.5 text-slate-400" />
             </div>
@@ -106,7 +106,7 @@ export default function SkillGapPage() {
           <button
             onClick={handleAnalyze}
             disabled={!targetRole || isAnalyzing}
-            className="w-full md:w-auto px-8 py-3 bg-blue-600 hover:bg-blue-700 disabled:bg-slate-300 text-white font-bold rounded-xl transition-all shadow-sm flex justify-center items-center gap-2"
+            className="w-full md:w-auto px-8 py-3 bg-emerald-600 hover:bg-emerald-700 disabled:bg-slate-300 text-white font-bold rounded-xl transition-all shadow-sm flex justify-center items-center gap-2"
           >
             {isAnalyzing ? (
               <>
@@ -122,8 +122,8 @@ export default function SkillGapPage() {
         {!hasAnalyzed ? (
           /* Empty State */
           <div className="bg-white border border-[#E2E8F0] rounded-[20px] min-h-[500px] flex flex-col items-center justify-center p-8 text-center shadow-sm">
-            <div className="w-24 h-24 bg-blue-50 rounded-full flex items-center justify-center mb-6">
-              <TrendingUp className="w-12 h-12 text-blue-500" />
+            <div className="w-24 h-24 bg-emerald-50 rounded-full flex items-center justify-center mb-6">
+              <TrendingUp className="w-12 h-12 text-emerald-500" />
             </div>
             <h3 className="text-xl font-bold text-[#0F172A] mb-2">Identify Your Skill Gaps</h3>
             <p className="text-[#64748B] text-sm max-w-sm">
@@ -143,7 +143,7 @@ export default function SkillGapPage() {
                   <button 
                     onClick={() => setActiveTab("technical")}
                     className={`flex items-center gap-2 px-6 py-4 text-sm font-bold border-b-2 transition-colors whitespace-nowrap ${
-                      activeTab === "technical" ? "border-blue-600 text-blue-600 bg-white" : "border-transparent text-slate-500 hover:text-slate-700"
+                      activeTab === "technical" ? "border-emerald-600 text-emerald-600 bg-white" : "border-transparent text-slate-500 hover:text-slate-700"
                     }`}
                   >
                     <Zap className="w-4 h-4" /> Technical Skills
@@ -151,7 +151,7 @@ export default function SkillGapPage() {
                   <button 
                     onClick={() => setActiveTab("soft")}
                     className={`flex items-center gap-2 px-6 py-4 text-sm font-bold border-b-2 transition-colors whitespace-nowrap ${
-                      activeTab === "soft" ? "border-blue-600 text-blue-600 bg-white" : "border-transparent text-slate-500 hover:text-slate-700"
+                      activeTab === "soft" ? "border-emerald-600 text-emerald-600 bg-white" : "border-transparent text-slate-500 hover:text-slate-700"
                     }`}
                   >
                     <Users className="w-4 h-4" /> Soft Skills
@@ -159,7 +159,7 @@ export default function SkillGapPage() {
                   <button 
                     onClick={() => setActiveTab("certifications")}
                     className={`flex items-center gap-2 px-6 py-4 text-sm font-bold border-b-2 transition-colors whitespace-nowrap ${
-                      activeTab === "certifications" ? "border-blue-600 text-blue-600 bg-white" : "border-transparent text-slate-500 hover:text-slate-700"
+                      activeTab === "certifications" ? "border-emerald-600 text-emerald-600 bg-white" : "border-transparent text-slate-500 hover:text-slate-700"
                     }`}
                   >
                     <Award className="w-4 h-4" /> Certifications
@@ -202,7 +202,7 @@ export default function SkillGapPage() {
                       {/* Skills Comparison Grid Table */}
                       <div className="space-y-4">
                         <h4 className="font-bold text-slate-800 flex items-center gap-2">
-                          <PieChart className="w-4 h-4 text-blue-500" /> Comparison Grid
+                          <PieChart className="w-4 h-4 text-emerald-500" /> Comparison Grid
                         </h4>
                         <div className="overflow-x-auto border border-[#E2E8F0] rounded-xl">
                           <table className="w-full text-left border-collapse text-xs sm:text-sm">
@@ -290,14 +290,14 @@ export default function SkillGapPage() {
                       <p className="text-sm text-slate-500 mb-6">Industry recognized credentials that boost your match rate for {targetRole}.</p>
                       
                       <div className="space-y-4">
-                        <div className="p-5 border border-[#E2E8F0] rounded-xl flex items-start gap-4 hover:border-blue-200 transition-colors">
+                        <div className="p-5 border border-[#E2E8F0] rounded-xl flex items-start gap-4 hover:border-emerald-200 transition-colors">
                           <div className="w-6 h-6 rounded-md border-2 border-slate-300 shrink-0 mt-0.5" />
                           <div>
                             <h4 className="font-bold text-slate-800 text-sm">AWS Certified Solutions Architect – Associate</h4>
                             <p className="text-xs text-slate-500 mt-1 leading-relaxed">Highly requested for Cloud/DevOps requirements in modern software stacks.</p>
                           </div>
                         </div>
-                        <div className="p-5 border border-[#E2E8F0] rounded-xl flex items-start gap-4 hover:border-blue-200 transition-colors">
+                        <div className="p-5 border border-[#E2E8F0] rounded-xl flex items-start gap-4 hover:border-emerald-200 transition-colors">
                           <div className="w-6 h-6 rounded-md border-2 border-slate-300 shrink-0 mt-0.5" />
                           <div>
                             <h4 className="font-bold text-slate-800 text-sm">Certified Kubernetes Administrator (CKA)</h4>
@@ -317,17 +317,17 @@ export default function SkillGapPage() {
               
               <div className="bg-white border border-[#E2E8F0] rounded-[20px] shadow-sm p-6 space-y-4">
                 <h3 className="text-sm font-bold text-slate-800 uppercase tracking-wider flex items-center gap-2">
-                  <Layers className="w-4 h-4 text-blue-500" />
+                  <Layers className="w-4 h-4 text-emerald-500" />
                   Action Plan
                 </h3>
                 <p className="text-sm text-slate-600">Based on your gaps, we recommend the following learning roadmap updates.</p>
                 
                 <div className="space-y-3 pt-2">
                   {getMissingSkillsArray().map((skill: any, i: number) => (
-                    <div key={i} className="p-3 bg-blue-50/50 border border-blue-100 rounded-xl text-sm">
+                    <div key={i} className="p-3 bg-emerald-50/50 border border-emerald-100 rounded-xl text-sm">
                       <p className="font-bold text-slate-800 mb-1">Add {skill.name} Basics</p>
                       <p className="text-xs text-slate-500 mb-3">Priority: {skill.importance}</p>
-                      <button className="w-full py-2 bg-blue-600 text-white font-bold rounded-lg text-xs hover:bg-blue-700 transition-colors">
+                      <button className="w-full py-2 bg-emerald-600 text-white font-bold rounded-lg text-xs hover:bg-emerald-700 transition-colors">
                         Add to Roadmap
                       </button>
                     </div>
