@@ -98,20 +98,8 @@ export default function SignupPage() {
         return;
       }
 
-      // If registration is successful, log them in using NextAuth
-      const loginResult = await signIn("credentials", {
-        redirect: false,
-        email: data.email,
-        password: data.password,
-      });
-
-      if (loginResult?.error) {
-        toast(loginResult.error, "error");
-      } else {
-        toast("Account created successfully! Welcome to CareerMate.", "success");
-        router.push("/dashboard");
-        router.refresh();
-      }
+      toast("Account created successfully! Please log in.", "success");
+      router.push("/login");
     } catch (err) {
       toast("An unexpected error occurred during registration.", "error");
     } finally {
