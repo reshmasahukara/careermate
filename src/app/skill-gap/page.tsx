@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import { useSession } from "next-auth/react";
+import Link from "next/link";
 import DashboardLayout from "@/components/DashboardLayout";
 import {
   Target,
@@ -342,6 +343,27 @@ export default function SkillGapPage() {
 
           </div>
         )}
+
+        {/* ── NEXT STEP CTA SECTION ── */}
+        <div className="bg-gradient-to-r from-[#0F172A] to-[#1E293B] rounded-[24px] p-6 sm:p-8 text-white flex flex-col sm:flex-row items-center justify-between gap-6 shadow-md mt-8">
+          <div className="space-y-1.5">
+            <span className="inline-block bg-emerald-500 text-white font-extrabold text-[10px] px-2.5 py-0.5 rounded-full uppercase tracking-wider">
+              Recommended Next Step
+            </span>
+            <h3 className="text-lg font-bold">Generate a personalized Learning Roadmap</h3>
+            <p className="text-xs text-slate-400 max-w-xl font-medium">
+              Create a weeks-based milestone timeline with course material recommendations specifically structured to bridge your priority skill gaps.
+            </p>
+          </div>
+          <Link
+            href="/roadmap"
+            className="flex items-center gap-2 px-5 py-3 bg-[#10B981] hover:bg-[#059669] text-white font-bold text-xs rounded-xl shadow-sm transition-all shrink-0 hover:translate-x-0.5"
+          >
+            Create Learning Path
+            <ArrowRight className="w-4 h-4" />
+          </Link>
+        </div>
+
       </div>
     </DashboardLayout>
   );

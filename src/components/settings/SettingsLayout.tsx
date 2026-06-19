@@ -1,7 +1,8 @@
 "use client";
 
 import React, { useState } from "react";
-import { User, Shield, Lock, Palette, CreditCard } from "lucide-react";
+import { User, Shield, Lock, Palette, CreditCard, ArrowRight } from "lucide-react";
+import Link from "next/link";
 import ProfileSettings from "./ProfileSettings";
 import AccountSettings from "./AccountSettings";
 import PrivacySettings from "./PrivacySettings";
@@ -92,8 +93,28 @@ export default function SettingsLayout({ user, subscription }: SettingsLayoutPro
         </div>
 
         {/* Main Content Area */}
-        <div className="flex-1 w-full min-w-0 pb-20">
+        <div className="flex-1 w-full min-w-0 pb-20 space-y-8">
           {renderActiveSection()}
+
+          {/* ── NEXT STEP CTA SECTION ── */}
+          <div className="bg-gradient-to-r from-[#0F172A] to-[#1E293B] rounded-[24px] p-6 sm:p-8 text-white flex flex-col sm:flex-row items-center justify-between gap-6 shadow-md mt-8">
+            <div className="space-y-1.5">
+              <span className="inline-block bg-emerald-500 text-white font-extrabold text-[10px] px-2.5 py-0.5 rounded-full uppercase tracking-wider">
+                Recommended Next Step
+              </span>
+              <h3 className="text-lg font-bold">Check your updated Profile Completion Index</h3>
+              <p className="text-xs text-slate-400 max-w-xl font-medium">
+                Verify how your profile updates have impacted your overall career readiness index metrics on the dashboard.
+              </p>
+            </div>
+            <Link
+              href="/dashboard"
+              className="flex items-center gap-2 px-5 py-3 bg-[#10B981] hover:bg-[#059669] text-white font-bold text-xs rounded-xl shadow-sm transition-all shrink-0 hover:translate-x-0.5"
+            >
+              Go to Dashboard
+              <ArrowRight className="w-4 h-4" />
+            </Link>
+          </div>
         </div>
       </div>
     </div>

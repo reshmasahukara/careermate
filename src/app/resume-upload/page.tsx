@@ -397,6 +397,26 @@ export default function ResumeUploadPage() {
           )}
         </div>
 
+        {/* ── NEXT STEP CTA SECTION ── */}
+        <div className="bg-gradient-to-r from-[#0F172A] to-[#1E293B] rounded-[24px] p-6 sm:p-8 text-white flex flex-col sm:flex-row items-center justify-between gap-6 shadow-md mt-8">
+          <div className="space-y-1.5">
+            <span className="inline-block bg-emerald-500 text-white font-extrabold text-[10px] px-2.5 py-0.5 rounded-full uppercase tracking-wider">
+              Recommended Next Step
+            </span>
+            <h3 className="text-lg font-bold">Audit your uploaded resume with the ATS Checker</h3>
+            <p className="text-xs text-slate-400 max-w-xl font-medium">
+              Run comparative keyword scans and formatting checks against your target job descriptions to identify structural optimizations.
+            </p>
+          </div>
+          <Link
+            href="/ats-checker"
+            className="flex items-center gap-2 px-5 py-3 bg-[#10B981] hover:bg-[#059669] text-white font-bold text-xs rounded-xl shadow-sm transition-all shrink-0 hover:translate-x-0.5"
+          >
+            ATS Checker
+            <ArrowRight className="w-4 h-4" />
+          </Link>
+        </div>
+
       </div>
     </DashboardLayout>
   );

@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import { useSession } from "next-auth/react";
+import Link from "next/link";
 import DashboardLayout from "@/components/DashboardLayout";
 import {
   FileText,
@@ -14,7 +15,8 @@ import {
   Settings2,
   ListChecks,
   PieChart,
-  LayoutTemplate
+  LayoutTemplate,
+  ArrowRight
 } from "lucide-react";
 import { getResumesAction } from "@/app/actions/resume";
 import { analyzeResumeAction } from "@/app/actions/ats";
@@ -457,6 +459,27 @@ export default function AtsCheckerPage() {
             )}
           </div>
         </div>
+
+        {/* ── NEXT STEP CTA SECTION ── */}
+        <div className="bg-gradient-to-r from-[#0F172A] to-[#1E293B] rounded-[24px] p-6 sm:p-8 text-white flex flex-col sm:flex-row items-center justify-between gap-6 shadow-md mt-8">
+          <div className="space-y-1.5">
+            <span className="inline-block bg-emerald-500 text-white font-extrabold text-[10px] px-2.5 py-0.5 rounded-full uppercase tracking-wider">
+              Recommended Next Step
+            </span>
+            <h3 className="text-lg font-bold">Bridge your missing skills in the Skill Gap Analysis</h3>
+            <p className="text-xs text-slate-400 max-w-xl font-medium">
+              Map your current capabilities against target role requirements, identify exactly what's missing, and load automated recommendations.
+            </p>
+          </div>
+          <Link
+            href="/skill-gap"
+            className="flex items-center gap-2 px-5 py-3 bg-[#10B981] hover:bg-[#059669] text-white font-bold text-xs rounded-xl shadow-sm transition-all shrink-0 hover:translate-x-0.5"
+          >
+            Bridge Skill Gaps
+            <ArrowRight className="w-4 h-4" />
+          </Link>
+        </div>
+
       </div>
     </DashboardLayout>
   );

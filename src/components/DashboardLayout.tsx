@@ -2,34 +2,36 @@
 
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
-import { usePathname, useRouter } from "next/navigation";
+import { usePathname } from "next/navigation";
 import { useSession, signOut } from "next-auth/react";
 import {
   LayoutDashboard,
   Upload,
+  Sparkles,
+  FileSearch,
   FileCheck,
   Briefcase,
   Award,
   BookOpen,
-  Heart,
-  Bell,
+  HelpCircle,
   Settings,
   ChevronLeft,
   ChevronRight,
   LogOut,
+  Bell,
+  Search,
   Menu,
   X,
-  Search,
-  User,
-  Sparkles,
-  HelpCircle,
-  ChevronDown,
-  ChevronUp
+  MessageSquare,
+  TrendingUp,
+  ChevronUp,
+  ChevronDown
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import Logo from "@/components/Logo";
-import { hasResumesAction } from "@/app/actions/resume";
 import { getNotificationsAction, markNotificationsAsReadAction } from "@/app/actions/settings";
+import Sidebar from "./Sidebar";
+import MobileNavigation from "./MobileNavigation";
 
 interface DashboardLayoutProps {
   children: React.ReactNode;
@@ -38,24 +40,23 @@ interface DashboardLayoutProps {
 export default function DashboardLayout({ children }: DashboardLayoutProps) {
   const { data: session, status } = useSession();
   const pathname = usePathname();
-  const router = useRouter();
-  
+
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [isMobileOpen, setIsMobileOpen] = useState(false);
   const [showNotifications, setShowNotifications] = useState(false);
   const [notifications, setNotifications] = useState<any[]>([]);
-  const [hasResumes, setHasResumes] = useState(false);
-  const [dashboardSubmenuOpen, setDashboardSubmenuOpen] = useState(true);
 
-  // Close mobile sidebar on navigation
+  // Mobile Drawer collapsible states
+  const [dbGroupOpen, setDbGroupOpen] = useState(true);
+  const [rhGroupOpen, setRhGroupOpen] = useState(true);
+
+  // Close mobile drawer on navigation
   useEffect(() => {
     setIsMobileOpen(false);
   }, [pathname]);
 
-  // Fetch whether the user has resumes to determine if we should show the submenu
   useEffect(() => {
     if ((session?.user as any)?.id) {
-      hasResumesAction((session?.user as any).id).then(setHasResumes);
       loadNotifications();
     }
   }, [(session?.user as any)?.id]);
@@ -86,7 +87,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
 
   if (status === "loading") {
     return (
-      <div className="min-h-screen bg-[#F8FAFC] flex items-center justify-center">
+      <div className="min-h-screen bg-[#F7F8FA] flex items-center justify-center">
         <div className="flex flex-col items-center gap-3">
           <div className="w-10 h-10 border-4 border-[#10B981] border-t-transparent rounded-full animate-spin" />
           <p className="text-sm font-semibold text-[#64748B]">Loading workspace...</p>
@@ -97,228 +98,214 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
 
   // If not logged in, render child directly so it can show its own login fallback screen
   if (!session) {
-    return <div className="min-h-screen bg-[#F8FAFC]">{children}</div>;
+    return <div className="min-h-screen bg-[#F7F8FA]">{children}</div>;
   }
-
-  const menuItems = [
-    { name: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
-    { name: "Resume Upload", href: "/resume-upload", icon: Upload },
-    { name: "ATS Checker", href: "/ats-checker", icon: FileCheck },
-    { name: "Job Board", href: "/jobs", icon: Briefcase },
-    { name: "Skill Gap Analysis", href: "/skill-gap", icon: Award },
-    { name: "Learning Roadmap", href: "/roadmap", icon: BookOpen },
-    { name: "Help & Docs", href: "/help", icon: HelpCircle },
-    { name: "Settings", href: "/settings", icon: Settings },
-  ];
-
-  const toggleSidebar = () => setIsCollapsed(!isCollapsed);
-  const toggleMobileSidebar = () => setIsMobileOpen(!isMobileOpen);
 
   const getPageTitle = () => {
     if (pathname === "/dashboard") return "Overview";
-    if (pathname === "/resume-upload") return "Resume Upload";
-    if (pathname === "/ats-checker") return "ATS Match Checker";
-    if (pathname === "/jobs") return "Job Listings";
+    if (pathname === "/dashboard/analytics") return "Analytics";
+    if (pathname === "/dashboard/activity") return "Activity Logs";
+    if (pathname === "/resume-upload") return "Upload Resume";
+    if (pathname === "/resume-builder") return "Resume Builder";
+    if (pathname === "/resume-analysis") return "Resume Analysis";
+    if (pathname === "/ats-checker") return "ATS Checker";
+    if (pathname === "/jobs") return "Job Board";
     if (pathname === "/skill-gap") return "Skill Gap Analysis";
     if (pathname === "/roadmap") return "Learning Roadmap";
-    if (pathname === "/settings") return "Account Settings";
-    return "Dashboard";
+    if (pathname === "/interview") return "Interview Preparation";
+    if (pathname === "/career-insights") return "Career Insights";
+    if (pathname === "/settings") return "Settings";
+    if (pathname === "/help") return "Help & Docs";
+    return "Workspace";
   };
 
   return (
-    <div className="min-h-screen bg-[#F8FAFC] text-[#0F172A] flex relative">
+    <div className="min-h-screen bg-[#F7F8FA] text-[#0F172A] flex relative">
       
-      {/* Mobile Sidebar Overlay */}
+      {/* ── Desktop Sidebar Navigation ── */}
+      <Sidebar
+        session={session}
+        isCollapsed={isCollapsed}
+        setIsCollapsed={setIsCollapsed}
+      />
+
+      {/* ── Mobile/Tablet Slide-out Drawer ── */}
       <AnimatePresence>
         {isMobileOpen && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 0.4 }}
-            exit={{ opacity: 0 }}
-            onClick={toggleMobileSidebar}
-            className="fixed inset-0 bg-[#0F172A] z-40 lg:hidden"
-          />
-        )}
-      </AnimatePresence>
-
-      {/* Sidebar Container */}
-      <aside
-        className={`fixed top-0 bottom-0 left-0 bg-white border-r border-[#E2E8F0] z-50 transition-all duration-300 flex flex-col justify-between 
-          ${isCollapsed ? "w-[72px]" : "w-[260px]"} 
-          ${isMobileOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"}
-        `}
-      >
-        {/* Top Branding Section */}
-        <div>
-          <div className="h-[72px] border-b border-[#E2E8F0] flex items-center justify-between px-4">
-            <div className="flex items-center gap-1">
-              <Link href="/" className="p-1.5 rounded-lg hover:bg-[#F8FAFC] text-[#64748B] hover:text-[#0F172A] cursor-pointer" title="Back to Home">
-                <ChevronLeft className="w-5 h-5" />
-              </Link>
-              <Link href="/dashboard" className="flex items-center gap-2 group shrink-0 overflow-hidden">
-                <Logo className="w-6.5 h-6.5" hideWordmark={isCollapsed} />
-              </Link>
-            </div>
-
-            {/* Mobile Close Button */}
-            <button
-              onClick={toggleMobileSidebar}
-              className="lg:hidden p-1.5 rounded-lg hover:bg-[#F8FAFC] text-[#64748B] hover:text-[#0F172A]"
+          <>
+            {/* Backdrop */}
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 0.4 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setIsMobileOpen(false)}
+              className="fixed inset-0 bg-[#0F172A] z-40 lg:hidden"
+            />
+            {/* Drawer Container */}
+            <motion.aside
+              initial={{ x: "-100%" }}
+              animate={{ x: 0 }}
+              exit={{ x: "-100%" }}
+              transition={{ type: "tween", duration: 0.25 }}
+              className="fixed top-0 bottom-0 left-0 bg-white border-r border-[#E5E7EB] z-50 w-[280px] flex flex-col justify-between lg:hidden"
             >
-              <X className="w-5 h-5" />
-            </button>
-          </div>
+              <div>
+                {/* Header inside drawer */}
+                <div className="h-[76px] border-b border-[#E5E7EB] flex items-center justify-between px-4">
+                  <div className="flex items-center gap-1.5">
+                    <Link href="/" className="p-1.5 rounded-lg hover:bg-[#F2F5F9] text-[#64748B] hover:text-[#0F172A]" title="Back to Home">
+                      <ChevronLeft className="w-5 h-5" />
+                    </Link>
+                    <Link href="/dashboard" className="flex items-center gap-2 group">
+                      <Logo className="w-7 h-7" hideWordmark={false} />
+                    </Link>
+                  </div>
+                  <button
+                    onClick={() => setIsMobileOpen(false)}
+                    className="p-1.5 rounded-lg hover:bg-[#F2F5F9] text-[#64748B] hover:text-[#0F172A]"
+                  >
+                    <X className="w-5 h-5" />
+                  </button>
+                </div>
 
-          {/* Navigation Links */}
-          <nav className="p-3.5 space-y-1 overflow-y-auto">
-            {menuItems.map((item, index) => {
-              const Icon = item.icon;
-              const isDashboard = item.href === "/dashboard";
-              
-              // We only consider it active if it EXACTLY matches the parent or a sub-route,
-              // but we need to handle submenus carefully.
-              const isActive = pathname === item.href || (item.href !== "/dashboard" && pathname.startsWith(item.href.split("?")[0]));
-
-              return (
-                <div key={`menu-${item.name}-${index}`}>
-                  {isDashboard && hasResumes && (!isCollapsed || isMobileOpen) ? (
+                {/* Scroller inside drawer */}
+                <nav className="p-4 space-y-2 overflow-y-auto max-h-[calc(100vh-160px)] no-scrollbar">
+                  
+                  {/* Dashboard Collapsible Group */}
+                  <div>
                     <button
-                      onClick={() => setDashboardSubmenuOpen(!dashboardSubmenuOpen)}
-                      className={`flex items-center justify-between w-full px-3 py-2.5 rounded-[12px] text-sm font-semibold transition-all group cursor-pointer ${
-                        isActive || pathname.startsWith("/dashboard/")
-                          ? "bg-[#10B981]/5 text-[#10B981]"
-                          : "text-[#64748B] hover:text-[#0F172A] hover:bg-[#F8FAFC]"
+                      onClick={() => setDbGroupOpen(!dbGroupOpen)}
+                      className={`flex items-center justify-between w-full px-3 py-2.5 rounded-[12px] text-sm font-semibold transition-all group ${
+                        pathname.startsWith("/dashboard") ? "bg-[#10B981]/5 text-[#10B981]" : "text-[#64748B]"
                       }`}
                     >
                       <div className="flex items-center gap-3">
-                        <Icon className={`w-4.5 h-4.5 shrink-0 ${isActive || pathname.startsWith("/dashboard/") ? "text-[#10B981]" : "text-[#64748B] group-hover:text-[#0F172A]"}`} />
-                        <span className="truncate">{item.name}</span>
+                        <LayoutDashboard className="w-4.5 h-4.5" />
+                        <span>Dashboard</span>
                       </div>
-                      {dashboardSubmenuOpen ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+                      {dbGroupOpen ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
                     </button>
-                  ) : (
-                    <Link
-                      href={item.href}
-                      className={`flex items-center gap-3 px-3 py-2.5 rounded-[12px] text-sm font-semibold transition-all group cursor-pointer
-                        ${
-                          isActive
-                            ? "bg-[#10B981]/5 text-[#10B981]"
-                            : "text-[#64748B] hover:text-[#0F172A] hover:bg-[#F8FAFC]"
-                        }
-                      `}
+                    {dbGroupOpen && (
+                      <div className="mt-1 pl-10 space-y-1">
+                        <Link href="/dashboard" className={`block px-3 py-2 rounded-[8px] text-xs font-semibold ${pathname === "/dashboard" ? "text-[#10B981] bg-[#10B981]/10" : "text-[#64748B]"}`}>Overview</Link>
+                        <Link href="/dashboard/analytics" className={`block px-3 py-2 rounded-[8px] text-xs font-semibold ${pathname === "/dashboard/analytics" ? "text-[#10B981] bg-[#10B981]/10" : "text-[#64748B]"}`}>Analytics</Link>
+                        <Link href="/dashboard/activity" className={`block px-3 py-2 rounded-[8px] text-xs font-semibold ${pathname === "/dashboard/activity" ? "text-[#10B981] bg-[#10B981]/10" : "text-[#64748B]"}`}>Activity</Link>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Resume Hub Collapsible Group */}
+                  <div>
+                    <button
+                      onClick={() => setRhGroupOpen(!rhGroupOpen)}
+                      className={`flex items-center justify-between w-full px-3 py-2.5 rounded-[12px] text-sm font-semibold transition-all group ${
+                        pathname === "/resume-upload" || pathname === "/resume-builder" || pathname === "/resume-analysis" ? "bg-[#10B981]/5 text-[#10B981]" : "text-[#64748B]"
+                      }`}
                     >
-                      <Icon className={`w-4.5 h-4.5 shrink-0 ${isActive ? "text-[#10B981]" : "text-[#64748B] group-hover:text-[#0F172A]"}`} />
-                      {(!isCollapsed || isMobileOpen) && (
-                        <span className="truncate">{item.name}</span>
-                      )}
-                    </Link>
-                  )}
+                      <div className="flex items-center gap-3">
+                        <Upload className="w-4.5 h-4.5" />
+                        <span>Resume Hub</span>
+                      </div>
+                      {rhGroupOpen ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+                    </button>
+                    {rhGroupOpen && (
+                      <div className="mt-1 pl-10 space-y-1">
+                        <Link href="/resume-upload" className={`flex items-center gap-2 px-3 py-2 rounded-[8px] text-xs font-semibold ${pathname === "/resume-upload" ? "text-[#10B981] bg-[#10B981]/10" : "text-[#64748B]"}`}><Upload className="w-3.5 h-3.5" /> Upload Resume</Link>
+                        <Link href="/resume-builder" className={`flex items-center gap-2 px-3 py-2 rounded-[8px] text-xs font-semibold ${pathname === "/resume-builder" ? "text-[#10B981] bg-[#10B981]/10" : "text-[#64748B]"}`}><Sparkles className="w-3.5 h-3.5" /> Resume Builder</Link>
+                        <Link href="/resume-analysis" className={`flex items-center gap-2 px-3 py-2 rounded-[8px] text-xs font-semibold ${pathname === "/resume-analysis" ? "text-[#10B981] bg-[#10B981]/10" : "text-[#64748B]"}`}><FileSearch className="w-3.5 h-3.5" /> Resume Analysis</Link>
+                      </div>
+                    )}
+                  </div>
 
-                  {/* Submenu rendering */}
-                  {isDashboard && hasResumes && dashboardSubmenuOpen && (!isCollapsed || isMobileOpen) && (
-                    <div className="mt-1 pl-10 space-y-1">
-                      <Link
-                        href="/dashboard"
-                        className={`block px-3 py-2 rounded-[8px] text-xs font-semibold ${
-                          pathname === "/dashboard" ? "bg-[#10B981]/10 text-[#10B981]" : "text-[#64748B] hover:bg-[#F8FAFC] hover:text-[#0F172A]"
-                        }`}
-                      >
-                        Overview
-                      </Link>
-                      <Link
-                        href="/dashboard/analytics"
-                        className={`block px-3 py-2 rounded-[8px] text-xs font-semibold ${
-                          pathname === "/dashboard/analytics" ? "bg-[#10B981]/10 text-[#10B981]" : "text-[#64748B] hover:bg-[#F8FAFC] hover:text-[#0F172A]"
-                        }`}
-                      >
-                        Analytics
-                      </Link>
-                      <Link
-                        href="/dashboard/activity"
-                        className={`block px-3 py-2 rounded-[8px] text-xs font-semibold ${
-                          pathname === "/dashboard/activity" ? "bg-[#10B981]/10 text-[#10B981]" : "text-[#64748B] hover:bg-[#F8FAFC] hover:text-[#0F172A]"
-                        }`}
-                      >
-                        Activity
-                      </Link>
-                    </div>
-                  )}
-                </div>
-              );
-            })}
-          </nav>
-        </div>
+                  <div className="h-px bg-[#E5E7EB] my-2" />
 
-        {/* Footer Area with Collapse & User Options */}
-        <div className="border-t border-[#E2E8F0] p-3.5 space-y-2">
+                  {/* Rest of the links */}
+                  <Link href="/ats-checker" className={`flex items-center gap-3 px-3 py-2.5 rounded-[12px] text-sm font-semibold transition-all ${pathname === "/ats-checker" ? "bg-[#10B981]/5 text-[#10B981]" : "text-[#64748B]"}`}>
+                    <FileCheck className="w-4.5 h-4.5" /> <span>ATS Checker</span>
+                  </Link>
+                  <Link href="/jobs" className={`flex items-center gap-3 px-3 py-2.5 rounded-[12px] text-sm font-semibold transition-all ${pathname === "/jobs" ? "bg-[#10B981]/5 text-[#10B981]" : "text-[#64748B]"}`}>
+                    <Briefcase className="w-4.5 h-4.5" /> <span>Job Board</span>
+                  </Link>
+                  <Link href="/skill-gap" className={`flex items-center gap-3 px-3 py-2.5 rounded-[12px] text-sm font-semibold transition-all ${pathname === "/skill-gap" ? "bg-[#10B981]/5 text-[#10B981]" : "text-[#64748B]"}`}>
+                    <Award className="w-4.5 h-4.5" /> <span>Skill Gap Analysis</span>
+                  </Link>
+                  <Link href="/roadmap" className={`flex items-center gap-3 px-3 py-2.5 rounded-[12px] text-sm font-semibold transition-all ${pathname === "/roadmap" ? "bg-[#10B981]/5 text-[#10B981]" : "text-[#64748B]"}`}>
+                    <BookOpen className="w-4.5 h-4.5" /> <span>Learning Roadmap</span>
+                  </Link>
+                  <Link href="/interview" className={`flex items-center gap-3 px-3 py-2.5 rounded-[12px] text-sm font-semibold transition-all ${pathname === "/interview" ? "bg-[#10B981]/5 text-[#10B981]" : "text-[#64748B]"}`}>
+                    <MessageSquare className="w-4.5 h-4.5" /> <span>Interview Preparation</span>
+                  </Link>
+                  <Link href="/career-insights" className={`flex items-center gap-3 px-3 py-2.5 rounded-[12px] text-sm font-semibold transition-all ${pathname === "/career-insights" ? "bg-[#10B981]/5 text-[#10B981]" : "text-[#64748B]"}`}>
+                    <TrendingUp className="w-4.5 h-4.5" /> <span>Career Insights</span>
+                  </Link>
 
+                  <div className="h-px bg-[#E5E7EB] my-2" />
 
-          {/* User Profile Card */}
-          <div className="flex items-center justify-between gap-2 p-1 bg-[#F8FAFC] rounded-[16px] border border-[#E2E8F0]/40">
-            <div className="flex items-center gap-2 min-w-0">
-              <div className="w-8 h-8 rounded-[10px] bg-[#10B981]/10 flex items-center justify-center text-[#10B981] font-bold text-xs shrink-0">
-                {session?.user?.name ? session.user.name.charAt(0).toUpperCase() : "A"}
+                  <Link href="/help" className={`flex items-center gap-3 px-3 py-2.5 rounded-[12px] text-sm font-semibold transition-all ${pathname === "/help" ? "bg-[#10B981]/5 text-[#10B981]" : "text-[#64748B]"}`}>
+                    <HelpCircle className="w-4.5 h-4.5" /> <span>Help & Docs</span>
+                  </Link>
+                  <Link href="/settings" className={`flex items-center gap-3 px-3 py-2.5 rounded-[12px] text-sm font-semibold transition-all ${pathname === "/settings" ? "bg-[#10B981]/5 text-[#10B981]" : "text-[#64748B]"}`}>
+                    <Settings className="w-4.5 h-4.5" /> <span>Settings</span>
+                  </Link>
+
+                </nav>
               </div>
-              {(!isCollapsed || isMobileOpen) && (
-                <div className="min-w-0 pr-1">
-                  <p className="text-xs font-bold text-[#0F172A] truncate leading-tight">
-                    {session?.user?.name || "Alex Morgan"}
-                  </p>
-                  <p className="text-[10px] text-[#64748B] truncate leading-tight mt-0.5">
-                    {session?.user?.email || "alex@example.com"}
-                  </p>
+
+              {/* Drawer User Card */}
+              <div className="border-t border-[#E5E7EB] p-4 bg-slate-50 flex items-center justify-between">
+                <div className="flex items-center gap-2 min-w-0">
+                  <div className="w-8 h-8 rounded-full bg-[#10B981]/10 text-[#10B981] flex items-center justify-center font-bold text-xs">
+                    {session?.user?.name ? session.user.name.charAt(0).toUpperCase() : "A"}
+                  </div>
+                  <div className="min-w-0">
+                    <p className="text-xs font-bold text-[#0F172A] truncate leading-none">{session?.user?.name || "Alex Morgan"}</p>
+                    <p className="text-[10px] text-[#64748B] truncate mt-1 leading-none">{session?.user?.email || "alex@example.com"}</p>
+                  </div>
                 </div>
-              )}
-            </div>
+                <button
+                  onClick={() => signOut({ callbackUrl: "/" })}
+                  className="p-1.5 rounded-lg hover:bg-white text-rose-500 transition-colors"
+                >
+                  <LogOut className="w-4 h-4" />
+                </button>
+              </div>
+            </motion.aside>
+          </>
+        )}
+      </AnimatePresence>
 
-            {/* Logout Button in Compact / Expanded View */}
-            {(!isCollapsed || isMobileOpen) && (
-              <button
-                onClick={() => signOut({ callbackUrl: "/" })}
-                className="p-1.5 rounded-lg hover:bg-white text-[#64748B] hover:text-rose-600 transition-colors shrink-0 cursor-pointer"
-                title="Log Out"
-              >
-                <LogOut className="w-4 h-4" />
-              </button>
-            )}
-          </div>
-
-
-        </div>
-      </aside>
-
-      {/* Main Workspace Frame */}
+      {/* ── Main Workspace Frame ── */}
       <div
-        className={`flex-1 flex flex-col min-w-0 min-h-screen transition-all duration-300 
-          ${isCollapsed ? "lg:pl-[72px]" : "lg:pl-[260px]"}
+        className={`flex-1 flex flex-col min-w-0 min-h-screen transition-all duration-300 pb-16 lg:pb-0
+          ${isCollapsed ? "lg:pl-[76px]" : "lg:pl-[270px]"}
         `}
       >
         {/* Global Dashboard Top Navbar */}
-        <header className="h-[72px] bg-white border-b border-[#E2E8F0] px-6 flex items-center justify-between sticky top-0 z-30">
+        <header className="h-[76px] bg-white border-b border-[#E5E7EB] px-6 flex items-center justify-between sticky top-0 z-30">
           <div className="flex items-center gap-3">
             {/* Hamburger Toggle (Mobile Only) */}
             <button
-              onClick={toggleMobileSidebar}
-              className="lg:hidden p-2 -ml-2 rounded-lg hover:bg-[#F8FAFC] text-[#64748B] hover:text-[#0F172A] cursor-pointer"
+              onClick={() => setIsMobileOpen(true)}
+              className="lg:hidden p-2 -ml-2 rounded-lg hover:bg-[#F7F8FA] text-[#64748B] hover:text-[#0F172A] cursor-pointer"
             >
               <Menu className="w-5.5 h-5.5" />
             </button>
             
             {/* Breadcrumb / Title */}
             <div>
-              <h2 className="text-lg font-bold text-[#0F172A]">{getPageTitle()}</h2>
+              <h2 className="text-lg font-bold text-[#0F172A] tracking-tight">{getPageTitle()}</h2>
             </div>
           </div>
 
           {/* Actions & Profiles */}
           <div className="flex items-center gap-4">
             
-            {/* Global Search (Simulated) */}
+            {/* Global Search (Preserved) */}
             <div className="hidden sm:block relative w-64">
               <input
                 type="text"
                 placeholder="Search dashboard..."
-                className="w-full bg-[#F8FAFC] border border-[#E2E8F0] rounded-[12px] py-2 pl-9 pr-4 text-xs font-semibold focus:outline-none focus:border-[#10B981] focus:bg-white transition-all"
+                className="w-full bg-[#F7F8FA] border border-[#E5E7EB] rounded-[12px] py-2 pl-9 pr-4 text-xs font-semibold focus:outline-none focus:border-[#10B981] focus:bg-white transition-all text-[#0F172A]"
               />
               <Search className="absolute left-3 top-2.5 w-4 h-4 text-[#64748B]" />
             </div>
@@ -327,7 +314,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
             <div className="relative">
               <button
                 onClick={() => setShowNotifications(!showNotifications)}
-                className="p-2.5 rounded-[12px] bg-[#F8FAFC] hover:bg-slate-100 border border-[#E2E8F0]/60 text-[#64748B] hover:text-[#0F172A] transition-colors relative cursor-pointer"
+                className="p-2.5 rounded-[12px] bg-[#F7F8FA] hover:bg-[#F2F5F9] border border-[#E5E7EB]/60 text-[#64748B] hover:text-[#0F172A] transition-colors relative cursor-pointer"
               >
                 <Bell className="w-4.5 h-4.5" />
                 {unreadCount > 0 && <span className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-[#10B981]" />}
@@ -342,9 +329,9 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
                       initial={{ opacity: 0, y: 10 }}
                       animate={{ opacity: 1, y: 0 }}
                       exit={{ opacity: 0, y: 10 }}
-                      className="absolute right-0 mt-2 w-80 bg-white border border-[#E2E8F0] rounded-[20px] shadow-lg py-4 px-4 z-40 space-y-3"
+                      className="absolute right-0 mt-2 w-80 bg-white border border-[#E5E7EB] rounded-[20px] shadow-lg py-4 px-4 z-40 space-y-3"
                     >
-                      <div className="flex items-center justify-between pb-2 border-b border-[#E2E8F0]/60">
+                      <div className="flex items-center justify-between pb-2 border-b border-[#E5E7EB]/60">
                         <span className="text-xs font-extrabold text-[#0F172A] uppercase tracking-wider">Recent Alerts</span>
                         {unreadCount > 0 && (
                           <span 
@@ -376,7 +363,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
             {/* Upgrade CTA */}
             <Link
               href="/pricing"
-              className="hidden md:flex items-center gap-1 bg-gradient-to-r from-[#10B981] to-[#4F46E5] hover:opacity-95 text-white font-bold text-xs px-3.5 py-2 rounded-[12px] shadow-sm transition-all"
+              className="hidden md:flex items-center gap-1.5 bg-gradient-to-r from-[#10B981] to-[#6366F1] hover:opacity-95 text-white font-bold text-xs px-3.5 py-2.5 rounded-[12px] shadow-sm transition-all"
             >
               <Sparkles className="w-3.5 h-3.5 text-amber-300" />
               Upgrade to Pro
@@ -385,12 +372,15 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
         </header>
 
         {/* Dynamic Workspace Container */}
-        <main className="flex-1 p-6 sm:p-8">
+        <main className="flex-1 p-4 sm:p-6 lg:p-8">
           <div className="max-w-[1280px] mx-auto">
             {children}
           </div>
         </main>
       </div>
+
+      {/* ── Mobile/Tablet Bottom Navigation Bar ── */}
+      <MobileNavigation toggleMobileMenu={() => setIsMobileOpen(!isMobileOpen)} />
 
     </div>
   );

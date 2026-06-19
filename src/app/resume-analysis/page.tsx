@@ -21,6 +21,7 @@ import {
 } from "lucide-react";
 import { useToast } from "@/components/Providers";
 import { getResumesAction } from "@/app/actions/resume";
+import DashboardLayout from "@/components/DashboardLayout";
 
 export default function ResumeAnalysisPage() {
   const { data: session } = useSession();
@@ -136,19 +137,19 @@ export default function ResumeAnalysisPage() {
   };
 
   return (
-    <div className="flex-1 bg-brand-bg py-10">
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8">
+    <DashboardLayout>
+      <div className="flex-1 py-6 md:py-8 max-w-4xl mx-auto space-y-8">
         
         {/* Header */}
         <div>
-          <h1 className="text-3xl font-extrabold text-slate-900">Resume Analysis</h1>
-          <p className="text-slate-500 text-sm mt-1">Get section-by-section AI evaluations and semantic content improvements.</p>
+          <h1 className="text-2xl font-bold text-[#0F172A]">Resume Analysis</h1>
+          <p className="text-[#64748B] text-xs font-semibold mt-1">Get section-by-section AI evaluations and semantic content improvements.</p>
         </div>
 
         {/* Form selection */}
-        <div className="premium-card p-6 rounded-card flex flex-col sm:flex-row items-center gap-4">
+        <div className="bg-white border border-[#E5E7EB] p-6 rounded-[20px] flex flex-col sm:flex-row items-center gap-4 shadow-sm">
           <div className="flex-1 w-full">
-            <label className="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-2">
+            <label className="block text-[11px] font-bold text-slate-500 uppercase mb-2">
               Select Resume Version
             </label>
             {isLoadingResumes ? (
@@ -157,7 +158,7 @@ export default function ResumeAnalysisPage() {
               <select
                 value={selectedResumeId}
                 onChange={(e) => setSelectedResumeId(e.target.value)}
-                className="w-full bg-slate-50 border border-slate-200 rounded-xl py-2.5 px-3.5 text-xs focus:outline-none focus:border-primary font-semibold text-slate-700 focus:bg-white transition-colors"
+                className="w-full bg-slate-50 border border-[#E5E7EB] rounded-xl py-2.5 px-3.5 text-xs focus:outline-none focus:border-emerald-500 font-semibold text-slate-700 focus:bg-white transition-colors"
               >
                 {resumes.map((res) => (
                   <option key={res.id} value={res.id}>
@@ -168,7 +169,7 @@ export default function ResumeAnalysisPage() {
             ) : (
               <div className="p-3 bg-amber-50 border border-amber-100 text-amber-700 rounded-xl text-xs font-semibold">
                 No resumes uploaded yet. Click{" "}
-                <Link href="/resume-upload" className="text-primary hover:underline">
+                <Link href="/resume-upload" className="text-[#10B981] hover:underline font-bold">
                   Upload
                 </Link>{" "}
                 to start.
@@ -179,7 +180,7 @@ export default function ResumeAnalysisPage() {
           <button
             onClick={handleRunAnalysis}
             disabled={isAnalyzing || resumes.length === 0}
-            className="w-full sm:w-auto bg-primary hover:bg-emerald-700 text-white font-bold py-3 px-8 rounded-xl shadow-md transition-colors text-xs flex items-center justify-center gap-1.5 shrink-0 disabled:opacity-50 cursor-pointer self-end"
+            className="w-full sm:w-auto bg-[#10B981] hover:bg-[#059669] text-white font-bold py-3 px-8 rounded-xl shadow-sm transition-colors text-xs flex items-center justify-center gap-1.5 shrink-0 disabled:opacity-50 cursor-pointer self-end"
           >
             {isAnalyzing ? (
               <>
@@ -200,7 +201,7 @@ export default function ResumeAnalysisPage() {
           <div className="space-y-6">
             
             {/* Top Score Box */}
-            <div className="premium-card p-6 rounded-card flex flex-col sm:flex-row items-center justify-between gap-6">
+            <div className="bg-white border border-[#E5E7EB] p-6 rounded-[20px] shadow-sm flex flex-col sm:flex-row items-center justify-between gap-6">
               <div className="space-y-2 flex-1">
                 <div className="flex items-center gap-2">
                   <h2 className="text-xl font-extrabold text-slate-900">Overall Structure Score</h2>
@@ -213,7 +214,7 @@ export default function ResumeAnalysisPage() {
                 </p>
               </div>
 
-              <div className="w-24 h-24 rounded-2xl bg-gradient-to-tr from-primary to-secondary flex flex-col items-center justify-center text-white shrink-0 shadow-md">
+              <div className="w-24 h-24 rounded-2xl bg-gradient-to-tr from-[#10B981] to-[#6366F1] flex flex-col items-center justify-center text-white shrink-0 shadow-md">
                 <span className="text-3xl font-black">{analysisResult.score}</span>
                 <span className="text-[9px] font-extrabold uppercase tracking-widest opacity-80">Structure</span>
               </div>
@@ -260,7 +261,7 @@ export default function ResumeAnalysisPage() {
                   return (
                     <div
                       key={section.id}
-                      className="border border-slate-200 rounded-card overflow-hidden bg-white shadow-sm"
+                      className="border border-[#E5E7EB] rounded-[20px] overflow-hidden bg-white shadow-sm"
                     >
                       <button
                         onClick={() => setOpenSection(isOpen ? null : section.id)}
@@ -324,7 +325,7 @@ export default function ResumeAnalysisPage() {
                             <ul className="space-y-2">
                               {section.improvements.map((imp: string, idx: number) => (
                                 <li key={idx} className="text-xs text-slate-600 flex items-start gap-2 leading-relaxed">
-                                  <span className="w-1.5 h-1.5 rounded-full bg-primary shrink-0 mt-1.5" />
+                                  <span className="w-1.5 h-1.5 rounded-full bg-[#10B981] shrink-0 mt-1.5" />
                                   <span>{imp}</span>
                                 </li>
                               ))}
@@ -342,8 +343,8 @@ export default function ResumeAnalysisPage() {
           </div>
         ) : (
           !isAnalyzing && (
-            <div className="text-center py-16 bg-white rounded-card border border-slate-200 shadow-sm flex flex-col items-center gap-4">
-              <div className="w-14 h-14 bg-primary/10 rounded-full flex items-center justify-center text-primary">
+            <div className="text-center py-16 bg-white rounded-[20px] border border-[#E5E7EB] shadow-sm flex flex-col items-center gap-4">
+              <div className="w-14 h-14 bg-emerald-50 rounded-full flex items-center justify-center text-[#10B981]">
                 <BarChart className="w-7 h-7" />
               </div>
               <div className="space-y-1 max-w-sm">
@@ -354,7 +355,27 @@ export default function ResumeAnalysisPage() {
           )
         )}
 
+        {/* ── NEXT STEP CTA SECTION ── */}
+        <div className="bg-gradient-to-r from-[#0F172A] to-[#1E293B] rounded-[24px] p-6 sm:p-8 text-white flex flex-col sm:flex-row items-center justify-between gap-6 shadow-md mt-8">
+          <div className="space-y-1.5">
+            <span className="inline-block bg-emerald-500 text-white font-extrabold text-[10px] px-2.5 py-0.5 rounded-full uppercase tracking-wider">
+              Recommended Next Step
+            </span>
+            <h3 className="text-lg font-bold">Check ATS Match Percentage</h3>
+            <p className="text-xs text-slate-400 max-w-xl font-medium">
+              Validate your resume keywords against specific target job requirements to optimize parsing success.
+            </p>
+          </div>
+          <Link
+            href="/ats-checker"
+            className="flex items-center gap-2 px-5 py-3 bg-[#10B981] hover:bg-[#059669] text-white font-bold text-xs rounded-xl shadow-sm transition-all shrink-0 hover:translate-x-0.5"
+          >
+            Run ATS Scan
+            <ArrowRight className="w-4 h-4" />
+          </Link>
+        </div>
+
       </div>
-    </div>
+    </DashboardLayout>
   );
 }
