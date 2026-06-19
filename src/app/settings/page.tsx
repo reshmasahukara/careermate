@@ -37,9 +37,7 @@ export default async function SettingsPage() {
 
   return (
     <DashboardLayout>
-      <div className="min-h-screen bg-[#F7F8FA] p-4 sm:p-6 lg:p-8">
-        <SettingsLayout user={dbUser} subscription={subscription} />
-      </div>
+      <SettingsLayout user={dbUser} subscription={subscription} />
     </DashboardLayout>
   );
 }

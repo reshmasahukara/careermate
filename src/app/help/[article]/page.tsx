@@ -9,7 +9,7 @@ export default function HelpArticlePage({ params }: { params: { article: string 
 
   return (
     <DashboardLayout>
-      <div className="p-6 md:p-10 max-w-4xl mx-auto space-y-8">
+      <div className="max-w-3xl mx-auto space-y-8">
         
         <div>
           <div className="flex items-center gap-3 text-sm font-semibold text-blue-600 mb-4 bg-blue-50 w-fit px-3 py-1 rounded-lg">

@@ -135,10 +135,9 @@ export default function ResumeAnalysisPage() {
       toast("Detailed section analysis complete!", "success");
     }, 1200);
   };
-
   return (
     <DashboardLayout>
-      <div className="flex-1 py-6 md:py-8 max-w-4xl mx-auto space-y-8">
+      <div className="max-w-4xl mx-auto space-y-8">
         
         {/* Header */}
         <div>

@@ -155,8 +155,7 @@ export default function DashboardPage() {
 
   return (
     <DashboardLayout>
-      <div className="min-h-screen bg-[#F7F8FA]">
-        <div className="max-w-[1200px] mx-auto px-4 sm:px-6 lg:px-8 py-6 md:py-8 space-y-6">
+      <div className="max-w-[1200px] mx-auto space-y-6">
 
           {/* ── HEADER ──────────────────────────────────────── */}
           <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-3">
@@ -382,7 +381,6 @@ export default function DashboardPage() {
           </div>
 
         </div>
-      </div>
     </DashboardLayout>
   );
 }

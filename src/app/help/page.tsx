@@ -67,7 +67,7 @@ export default function HelpCenterPage() {
 
   return (
     <DashboardLayout>
-      <div className="p-6 md:p-10 max-w-5xl mx-auto space-y-10">
+      <div className="max-w-4xl mx-auto space-y-10">
         
         <div className="text-center space-y-4 max-w-2xl mx-auto pt-8">
           <h1 className="text-4xl font-extrabold text-[#0F172A] tracking-tight">How can we help?</h1>
