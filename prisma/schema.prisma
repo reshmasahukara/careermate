@@ -25,6 +25,7 @@ model User {
   notifications Notification[]
   subscriptions Subscription[]
   learningResources LearningResource[]
+  atsAnalyses   ATSAnalysis[]
 
   // Extended Profile Settings
   jobTitle             String?
@@ -223,3 +224,25 @@ model VerificationOtp {
   @@index([email])
   @@map("verification_otps")
 }
+
+model ATSAnalysis {
+  id                String   @id @default(cuid())
+  userId            String
+  resumeName        String
+  atsScore          Int
+  keywordScore      Int
+  skillsScore       Int
+  experienceScore   Int
+  educationScore    Int
+  formattingScore   Int
+  matchedKeywords   String[]
+  missingKeywords   String[]
+  recommendations   Json
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("ats_analyses")
+}
+
