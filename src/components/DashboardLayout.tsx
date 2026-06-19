@@ -246,14 +246,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
 
         {/* Footer Area with Collapse & User Options */}
         <div className="border-t border-[#E2E8F0] p-3.5 space-y-2">
-          {/* Quick Help Link */}
-          <Link
-            href="/about"
-            className="flex items-center gap-3 px-3 py-2 rounded-[12px] text-xs font-bold uppercase tracking-wider text-[#64748B] hover:text-[#0F172A] hover:bg-[#F8FAFC] transition-colors"
-          >
-            <HelpCircle className="w-4 h-4 shrink-0" />
-            {(!isCollapsed || isMobileOpen) && <span>Help & Docs</span>}
-          </Link>
+
 
           {/* User Profile Card */}
           <div className="flex items-center justify-between gap-2 p-1 bg-[#F8FAFC] rounded-[16px] border border-[#E2E8F0]/40">
