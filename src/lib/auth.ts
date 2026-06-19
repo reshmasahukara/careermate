@@ -3,6 +3,10 @@ import CredentialsProvider from "next-auth/providers/credentials";
 import GoogleProvider from "next-auth/providers/google";
 import { prisma, isDbConfigured } from "@/lib/db";
 
+if (!process.env.NEXTAUTH_SECRET) {
+  throw new Error("NEXTAUTH_SECRET is missing");
+}
+
 export const authOptions: NextAuthOptions = {
   session: {
     strategy: "jwt",
@@ -99,5 +103,5 @@ export const authOptions: NextAuthOptions = {
     signIn: "/login",
     signOut: "/",
   },
-  secret: process.env.NEXTAUTH_SECRET || "careermate-super-secret-key-123456",
+  secret: process.env.NEXTAUTH_SECRET,
 };
