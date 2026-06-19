@@ -84,7 +84,7 @@ export async function POST(req: NextRequest) {
   } catch (error: any) {
     console.error("Verification error:", error);
     return NextResponse.json(
-      { error: "Something went wrong. Please try again." },
+      { error: error.message || "Verification failed." },
       { status: 500 }
     );
   }

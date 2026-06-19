@@ -71,7 +71,7 @@ export async function POST(req: NextRequest) {
   } catch (error: any) {
     console.error("Signup error:", error);
     return NextResponse.json(
-      { error: "Something went wrong. Please try again.", details: error.message, stack: error.stack },
+      { error: error.message || "Signup failed." },
       { status: 500 }
     );
   }
