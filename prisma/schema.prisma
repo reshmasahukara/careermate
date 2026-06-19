@@ -26,6 +26,21 @@ model User {
   subscriptions Subscription[]
   learningResources LearningResource[]
 
+  // Extended Profile Settings
+  jobTitle             String?
+  experienceLevel      String?
+  location             String?
+  bio                  String?
+
+  // Notification Settings
+  emailNotifications   Boolean @default(true)
+  jobAlerts            Boolean @default(true)
+  atsAnalysisUpdates   Boolean @default(true)
+  weeklyCareerInsights Boolean @default(true)
+
+  // Security Settings
+  twoFactorEnabled     Boolean @default(false)
+
   @@map("users")
 }
 

@@ -2,16 +2,60 @@
 
 import { prisma, isDbConfigured } from "@/lib/db";
 
-export async function updateProfileAction(userId: string, name: string) {
+export async function updateProfileAction(
+  userId: string,
+  data: {
+    name?: string;
+    jobTitle?: string;
+    experienceLevel?: string;
+    location?: string;
+    bio?: string;
+  }
+) {
   isDbConfigured();
   try {
     return await prisma.user.update({
       where: { id: userId },
-      data: { name },
+      data,
     });
   } catch (e) {
-    console.error("Prisma error updating user name:", e);
+    console.error("Prisma error updating user profile:", e);
     throw new Error("Failed to update profile.");
+  }
+}
+
+export async function updateNotificationsAction(
+  userId: string,
+  data: {
+    emailNotifications: boolean;
+    jobAlerts: boolean;
+    atsAnalysisUpdates: boolean;
+    weeklyCareerInsights: boolean;
+  }
+) {
+  isDbConfigured();
+  try {
+    return await prisma.user.update({
+      where: { id: userId },
+      data,
+    });
+  } catch (e) {
+    console.error("Prisma error updating notifications:", e);
+    throw new Error("Failed to update notifications.");
+  }
+}
+
+export async function deleteAccountAction(userId: string) {
+  isDbConfigured();
+  try {
+    // Delete the user and let cascade handle related records
+    await prisma.user.delete({
+      where: { id: userId },
+    });
+    return true;
+  } catch (e) {
+    console.error("Prisma error deleting account:", e);
+    throw new Error("Failed to delete account.");
   }
 }
 
