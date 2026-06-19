@@ -51,14 +51,15 @@ export async function POST(req: NextRequest) {
       },
     });
 
-    // Send email via Nodemailer
-    const { getTransporter } = await import("@/lib/mailer");
-    const transporter = getTransporter();
-    
-    if (!process.env.EMAIL_USER || !process.env.EMAIL_APP_PASSWORD) {
-      throw new Error(`Email environment variables missing. USER: ${!!process.env.EMAIL_USER}, PASS: ${!!process.env.EMAIL_APP_PASSWORD}`);
-    }
+    // Debug logging for OTP configuration
+    console.log({
+      userLoaded: !!process.env.EMAIL_USER,
+      passwordLoaded: !!process.env.EMAIL_APP_PASSWORD,
+    });
 
+    // Send email via Nodemailer
+    const { transporter } = await import("@/lib/mailer");
+    
     await transporter.sendMail({
       from: `"CareerMate" <${process.env.EMAIL_USER}>`,
       to: email.toLowerCase(),
