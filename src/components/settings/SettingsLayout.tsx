@@ -1,13 +1,11 @@
 "use client";
 
 import React, { useState } from "react";
-import { User, Shield, Bell, Lock, Palette, Link as LinkIcon, CreditCard } from "lucide-react";
+import { User, Shield, Lock, Palette, CreditCard } from "lucide-react";
 import ProfileSettings from "./ProfileSettings";
 import AccountSettings from "./AccountSettings";
-import NotificationSettings from "./NotificationSettings";
 import PrivacySettings from "./PrivacySettings";
 import AppearanceSettings from "./AppearanceSettings";
-import IntegrationSettings from "./IntegrationSettings";
 import SubscriptionSettings from "./SubscriptionSettings";
 
 interface SettingsLayoutProps {
@@ -18,10 +16,8 @@ interface SettingsLayoutProps {
 const TABS = [
   { id: "profile", label: "Profile", icon: <User className="w-4 h-4" /> },
   { id: "account", label: "Account", icon: <Shield className="w-4 h-4" /> },
-  { id: "notifications", label: "Notifications", icon: <Bell className="w-4 h-4" /> },
   { id: "privacy", label: "Privacy & Security", icon: <Lock className="w-4 h-4" /> },
   { id: "appearance", label: "Appearance", icon: <Palette className="w-4 h-4" /> },
-  { id: "integrations", label: "Integrations", icon: <LinkIcon className="w-4 h-4" /> },
   { id: "subscription", label: "Subscription", icon: <CreditCard className="w-4 h-4" /> },
 ];
 
@@ -34,14 +30,10 @@ export default function SettingsLayout({ user, subscription }: SettingsLayoutPro
         return <ProfileSettings user={user} />;
       case "account":
         return <AccountSettings user={user} />;
-      case "notifications":
-        return <NotificationSettings user={user} />;
       case "privacy":
         return <PrivacySettings />;
       case "appearance":
         return <AppearanceSettings />;
-      case "integrations":
-        return <IntegrationSettings />;
       case "subscription":
         return <SubscriptionSettings subscription={subscription} user={user} />;
       default:

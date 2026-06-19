@@ -24,7 +24,31 @@ export default function RootLayout({
     <html
       lang="en"
       className={`${inter.variable} h-full antialiased`}
+      suppressHydrationWarning
     >
+      <head>
+        {/* Inline script to apply dark class before first paint (prevents flash) */}
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              (function() {
+                try {
+                  var theme = localStorage.getItem('cm-theme') || 'system';
+                  if (theme === 'dark') {
+                    document.documentElement.classList.add('dark');
+                  } else if (theme === 'system') {
+                    var prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+                    if (prefersDark) document.documentElement.classList.add('dark');
+                  }
+                  if (localStorage.getItem('cm-compact') === 'true') {
+                    document.documentElement.classList.add('compact');
+                  }
+                } catch(e) {}
+              })();
+            `,
+          }}
+        />
+      </head>
       <body className="min-h-full flex flex-col bg-brand-bg text-brand-text">
         <Providers>
           <Navbar />
