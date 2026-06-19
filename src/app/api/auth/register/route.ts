@@ -58,7 +58,8 @@ export async function POST(req: NextRequest) {
     });
 
     // Send email via Nodemailer
-    const { transporter } = await import("@/lib/mailer");
+    const { getTransporter } = await import("@/lib/mailer");
+    const transporter = getTransporter();
     
     await transporter.sendMail({
       from: `"CareerMate" <${process.env.EMAIL_USER}>`,
