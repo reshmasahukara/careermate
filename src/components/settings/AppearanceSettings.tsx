@@ -1,161 +1,161 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { Sun, Moon, Monitor, Palette, Layout } from "lucide-react";
+import { Sun, Moon, Palette, Layout } from "lucide-react";
 import { useToast } from "@/components/Providers";
 
 export default function AppearanceSettings() {
   const { toast } = useToast();
-  const [theme, setTheme] = useState<"light" | "dark" | "system">("system");
+  const [theme, setTheme] = useState<"light" | "dark">("light");
   const [isCompact, setIsCompact] = useState(false);
+  const [mounted, setMounted] = useState(false);
 
-  // On mount: read saved preferences from localStorage and apply them
+  // Read saved theme on mount
   useEffect(() => {
-    const savedTheme = (localStorage.getItem("cm-theme") as "light" | "dark" | "system") || "system";
-    const savedCompact = localStorage.getItem("cm-compact") === "true";
-    setTheme(savedTheme);
-    setIsCompact(savedCompact);
-    applyTheme(savedTheme);
-    if (savedCompact) document.documentElement.classList.add("compact");
+    setMounted(true);
+    const saved = (localStorage.getItem("cm-theme") as "light" | "dark") || "light";
+    setTheme(saved);
+    setIsCompact(localStorage.getItem("cm-compact") === "true");
   }, []);
 
-  const applyTheme = (newTheme: "light" | "dark" | "system") => {
+  const applyTheme = (newTheme: "light" | "dark") => {
     const html = document.documentElement;
     if (newTheme === "dark") {
       html.classList.add("dark");
-    } else if (newTheme === "light") {
-      html.classList.remove("dark");
     } else {
-      // System: follow OS preference
-      const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
-      if (prefersDark) {
-        html.classList.add("dark");
-      } else {
-        html.classList.remove("dark");
-      }
+      html.classList.remove("dark");
     }
-  };
-
-  const handleThemeChange = (newTheme: "light" | "dark" | "system") => {
-    setTheme(newTheme);
     localStorage.setItem("cm-theme", newTheme);
-    applyTheme(newTheme);
-    toast(`Theme switched to ${newTheme} mode.`, "success");
+    setTheme(newTheme);
+    toast(`Switched to ${newTheme} mode`, "success");
   };
 
   const toggleCompact = () => {
-    const newValue = !isCompact;
-    setIsCompact(newValue);
-    localStorage.setItem("cm-compact", String(newValue));
-    if (newValue) {
+    const next = !isCompact;
+    setIsCompact(next);
+    if (next) {
       document.documentElement.classList.add("compact");
     } else {
       document.documentElement.classList.remove("compact");
     }
-    toast(`Compact mode ${newValue ? "enabled" : "disabled"}.`, "success");
+    localStorage.setItem("cm-compact", String(next));
+    toast(`Compact mode ${next ? "enabled" : "disabled"}`, "success");
   };
 
-  const themeOptions = [
-    {
-      id: "light" as const,
-      label: "Light",
-      icon: Sun,
-      preview: (
-        <div className="w-full h-12 rounded-lg bg-white border border-slate-200 flex items-center justify-center gap-1 mb-3">
-          <div className="w-2 h-2 rounded-full bg-emerald-500" />
-          <div className="w-8 h-1.5 rounded bg-slate-200" />
-          <div className="w-4 h-1.5 rounded bg-slate-100" />
-        </div>
-      ),
-    },
-    {
-      id: "dark" as const,
-      label: "Dark",
-      icon: Moon,
-      preview: (
-        <div className="w-full h-12 rounded-lg bg-slate-900 border border-slate-700 flex items-center justify-center gap-1 mb-3">
-          <div className="w-2 h-2 rounded-full bg-emerald-400" />
-          <div className="w-8 h-1.5 rounded bg-slate-600" />
-          <div className="w-4 h-1.5 rounded bg-slate-700" />
-        </div>
-      ),
-    },
-    {
-      id: "system" as const,
-      label: "System",
-      icon: Monitor,
-      preview: (
-        <div className="w-full h-12 rounded-lg border border-slate-200 overflow-hidden flex mb-3">
-          <div className="w-1/2 bg-white flex items-center justify-center">
-            <Sun className="w-4 h-4 text-amber-400" />
-          </div>
-          <div className="w-1/2 bg-slate-900 flex items-center justify-center">
-            <Moon className="w-4 h-4 text-slate-300" />
-          </div>
-        </div>
-      ),
-    },
-  ];
+  if (!mounted) return null;
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-6">
       <div>
-        <h3 className="font-bold text-[#0F172A] dark:text-slate-100 text-xl">Appearance</h3>
-        <p className="text-[#64748B] text-sm mt-1">Customize how CareerMate looks on your device.</p>
+        <h3 className="font-bold text-[#0F172A] text-xl">Appearance</h3>
+        <p className="text-[#64748B] text-sm mt-1">
+          Choose how CareerMate looks. Theme applies across the whole site.
+        </p>
       </div>
 
-      {/* Theme Selector */}
-      <div className="bg-white dark:bg-slate-800 border border-[#E5E7EB] dark:border-slate-700 rounded-2xl p-6 shadow-sm">
-        <h4 className="font-bold text-[#0F172A] dark:text-slate-100 flex items-center gap-2 mb-6">
-          <Palette className="w-5 h-5 text-emerald-500" /> Theme
+      {/* Theme toggle */}
+      <div className="bg-white border border-[#E5E7EB] rounded-2xl p-6 shadow-sm">
+        <h4 className="font-bold text-[#0F172A] flex items-center gap-2 mb-6">
+          <Palette className="w-5 h-5 text-emerald-500" />
+          Theme
         </h4>
 
-        <div className="grid grid-cols-3 gap-4">
-          {themeOptions.map((opt) => {
-            const Icon = opt.icon;
-            const isActive = theme === opt.id;
-            return (
-              <button
-                key={opt.id}
-                onClick={() => handleThemeChange(opt.id)}
-                className={`flex flex-col items-center p-4 rounded-xl border-2 transition-all ${
-                  isActive
-                    ? "border-emerald-500 bg-emerald-50 dark:bg-emerald-900/20"
-                    : "border-[#E5E7EB] dark:border-slate-600 hover:border-slate-300 bg-[#FAFBFC] dark:bg-slate-700/40"
-                }`}
-              >
-                {opt.preview}
-                <Icon
-                  className={`w-5 h-5 mb-2 ${isActive ? "text-emerald-600" : "text-slate-400"}`}
-                />
-                <span
-                  className={`text-sm font-bold ${
-                    isActive ? "text-emerald-700 dark:text-emerald-400" : "text-[#0F172A] dark:text-slate-300"
-                  }`}
-                >
-                  {opt.label}
-                </span>
-                {isActive && (
-                  <span className="mt-1.5 text-[10px] font-bold bg-emerald-500 text-white px-2 py-0.5 rounded-full uppercase tracking-wider">
-                    Active
-                  </span>
-                )}
-              </button>
-            );
-          })}
+        <div className="grid grid-cols-2 gap-4 max-w-sm">
+          {/* Light */}
+          <button
+            onClick={() => applyTheme("light")}
+            className={`group relative flex flex-col items-center p-5 rounded-2xl border-2 transition-all cursor-pointer ${
+              theme === "light"
+                ? "border-emerald-500 bg-emerald-50 shadow-md shadow-emerald-100"
+                : "border-[#E5E7EB] bg-slate-50 hover:border-slate-300 hover:bg-slate-100"
+            }`}
+          >
+            {/* Mini preview */}
+            <div className="w-full h-14 rounded-xl bg-white border border-slate-200 flex flex-col justify-start p-2 mb-4 overflow-hidden">
+              <div className="w-full h-2 rounded bg-slate-100 mb-1.5" />
+              <div className="flex gap-1">
+                <div className="w-1/3 h-6 rounded bg-slate-100" />
+                <div className="flex-1 space-y-1">
+                  <div className="w-full h-1.5 rounded bg-slate-200" />
+                  <div className="w-2/3 h-1.5 rounded bg-slate-100" />
+                </div>
+              </div>
+            </div>
+
+            <Sun
+              className={`w-6 h-6 mb-2 transition-colors ${
+                theme === "light" ? "text-emerald-500" : "text-slate-400"
+              }`}
+            />
+            <span
+              className={`text-sm font-bold transition-colors ${
+                theme === "light" ? "text-emerald-700" : "text-[#0F172A]"
+              }`}
+            >
+              Light
+            </span>
+
+            {theme === "light" && (
+              <span className="absolute top-2 right-2 w-2.5 h-2.5 rounded-full bg-emerald-500" />
+            )}
+          </button>
+
+          {/* Dark */}
+          <button
+            onClick={() => applyTheme("dark")}
+            className={`group relative flex flex-col items-center p-5 rounded-2xl border-2 transition-all cursor-pointer ${
+              theme === "dark"
+                ? "border-emerald-500 bg-slate-900 shadow-md shadow-emerald-900/20"
+                : "border-[#E5E7EB] bg-slate-50 hover:border-slate-300 hover:bg-slate-100"
+            }`}
+          >
+            {/* Mini preview */}
+            <div className="w-full h-14 rounded-xl bg-slate-900 border border-slate-700 flex flex-col justify-start p-2 mb-4 overflow-hidden">
+              <div className="w-full h-2 rounded bg-slate-700 mb-1.5" />
+              <div className="flex gap-1">
+                <div className="w-1/3 h-6 rounded bg-slate-800" />
+                <div className="flex-1 space-y-1">
+                  <div className="w-full h-1.5 rounded bg-slate-600" />
+                  <div className="w-2/3 h-1.5 rounded bg-slate-700" />
+                </div>
+              </div>
+            </div>
+
+            <Moon
+              className={`w-6 h-6 mb-2 transition-colors ${
+                theme === "dark" ? "text-emerald-400" : "text-slate-400"
+              }`}
+            />
+            <span
+              className={`text-sm font-bold transition-colors ${
+                theme === "dark" ? "text-emerald-400" : "text-[#0F172A]"
+              }`}
+            >
+              Dark
+            </span>
+
+            {theme === "dark" && (
+              <span className="absolute top-2 right-2 w-2.5 h-2.5 rounded-full bg-emerald-500" />
+            )}
+          </button>
         </div>
+
+        <p className="mt-4 text-xs text-slate-500">
+          Your preference is saved and applied across the entire site automatically.
+        </p>
       </div>
 
       {/* Compact Mode */}
-      <div className="bg-white dark:bg-slate-800 border border-[#E5E7EB] dark:border-slate-700 rounded-2xl p-6 shadow-sm">
-        <h4 className="font-bold text-[#0F172A] dark:text-slate-100 flex items-center gap-2 mb-4">
-          <Layout className="w-5 h-5 text-emerald-500" /> Layout Density
+      <div className="bg-white border border-[#E5E7EB] rounded-2xl p-6 shadow-sm">
+        <h4 className="font-bold text-[#0F172A] flex items-center gap-2 mb-4">
+          <Layout className="w-5 h-5 text-emerald-500" />
+          Layout Density
         </h4>
         <div className="flex items-center justify-between">
           <div>
-            <p className="text-sm font-bold text-[#0F172A] dark:text-slate-200">Compact Mode</p>
+            <p className="text-sm font-bold text-[#0F172A]">Compact Mode</p>
             <p className="text-xs text-slate-500 mt-1">
-              Reduce padding and spacing to fit more content on screen.
+              Reduce padding and spacing for a denser interface.
             </p>
           </div>
           <button
@@ -163,12 +163,12 @@ export default function AppearanceSettings() {
             role="switch"
             aria-checked={isCompact}
             onClick={toggleCompact}
-            className={`relative inline-flex h-6 w-11 shrink-0 items-center rounded-full transition-colors ${
-              isCompact ? "bg-emerald-500" : "bg-slate-200 dark:bg-slate-600"
+            className={`relative inline-flex h-7 w-12 shrink-0 items-center rounded-full transition-colors duration-200 ${
+              isCompact ? "bg-emerald-500" : "bg-slate-200"
             }`}
           >
             <span
-              className={`inline-block h-4 w-4 transform rounded-full bg-white shadow transition-transform ${
+              className={`inline-block h-5 w-5 transform rounded-full bg-white shadow-md transition-transform duration-200 ${
                 isCompact ? "translate-x-6" : "translate-x-1"
               }`}
             />
@@ -176,18 +176,19 @@ export default function AppearanceSettings() {
         </div>
       </div>
 
-      {/* Accent Color Preview */}
-      <div className="bg-white dark:bg-slate-800 border border-[#E5E7EB] dark:border-slate-700 rounded-2xl p-6 shadow-sm">
-        <h4 className="font-bold text-[#0F172A] dark:text-slate-100 flex items-center gap-2 mb-4">
-          <Palette className="w-5 h-5 text-emerald-500" /> Accent Color
+      {/* Accent color info */}
+      <div className="bg-white border border-[#E5E7EB] rounded-2xl p-6 shadow-sm">
+        <h4 className="font-bold text-[#0F172A] flex items-center gap-2 mb-4">
+          <Palette className="w-5 h-5 text-emerald-500" />
+          Accent Color
         </h4>
         <div className="flex items-center gap-4">
-          <div className="w-10 h-10 rounded-xl bg-emerald-500 shadow-sm shadow-emerald-200" />
+          <div className="w-12 h-12 rounded-xl bg-emerald-500 shadow-sm" />
           <div>
-            <p className="text-sm font-bold text-[#0F172A] dark:text-slate-200">Emerald Green</p>
-            <p className="text-xs text-slate-500">#10B981 — CareerMate brand accent</p>
+            <p className="text-sm font-bold text-[#0F172A]">Emerald Green</p>
+            <p className="text-xs text-slate-500 mt-0.5">#10B981 — CareerMate brand color</p>
           </div>
-          <span className="ml-auto text-[10px] font-bold bg-emerald-100 text-emerald-700 px-2 py-1 rounded-lg uppercase tracking-wider">
+          <span className="ml-auto text-[10px] font-bold bg-emerald-100 text-emerald-700 px-2.5 py-1 rounded-full uppercase tracking-wider">
             Active
           </span>
         </div>

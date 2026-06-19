@@ -33,12 +33,11 @@ export default function RootLayout({
             __html: `
               (function() {
                 try {
-                  var theme = localStorage.getItem('cm-theme') || 'system';
+                  var theme = localStorage.getItem('cm-theme') || 'light';
                   if (theme === 'dark') {
                     document.documentElement.classList.add('dark');
-                  } else if (theme === 'system') {
-                    var prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-                    if (prefersDark) document.documentElement.classList.add('dark');
+                  } else {
+                    document.documentElement.classList.remove('dark');
                   }
                   if (localStorage.getItem('cm-compact') === 'true') {
                     document.documentElement.classList.add('compact');

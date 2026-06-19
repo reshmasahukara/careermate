@@ -20,73 +20,26 @@
 }
 
 :root {
-  --background: 210 20% 98.4%; /* Off White (#FAFBFC) */
+  --background: 210 20% 98.4%;
   --foreground: 222.2 84% 4.9%;
-
   --card: 0 0% 100%;
   --card-foreground: 222.2 84% 4.9%;
-
   --popover: 0 0% 100%;
   --popover-foreground: 222.2 84% 4.9%;
-
-  --primary: 215 25% 17.2%; /* Midnight Navy (#1E293B) */
+  --primary: 215 25% 17.2%;
   --primary-foreground: 210 40% 98%;
-
-  --secondary: 215 16% 34%; /* Slate Gray (#475569) */
+  --secondary: 215 16% 34%;
   --secondary-foreground: 210 40% 98%;
-
   --muted: 210 40% 96.1%;
   --muted-foreground: 215.4 16.3% 46.9%;
-
-  --accent: 161 84% 40%; /* Emerald (#10B981) */
-  --accent-foreground: 210 40% 98%;
-
-  --destructive: 0 84.2% 60.2%;
-  --destructive-foreground: 210 40% 98%;
-
-  --border: 220 14% 91%; /* Border (#E5E7EB) */
-  --input: 220 14% 91%;
-  --ring: 215 25% 17.2%;
-
-  --radius: 20px;
-}
-
-/* ===== DARK MODE ===== */
-html.dark {
-  --background: 222.2 47.4% 11.2%;
-  --foreground: 210 40% 98%;
-  --card: 222.2 47.4% 11.2%;
-  --card-foreground: 210 40% 98%;
-  --popover: 222.2 47.4% 11.2%;
-  --popover-foreground: 210 40% 98%;
-  --primary: 210 40% 98%;
-  --primary-foreground: 222.2 47.4% 11.2%;
-  --secondary: 217.2 32.6% 17.5%;
-  --secondary-foreground: 210 40% 98%;
-  --muted: 217.2 32.6% 17.5%;
-  --muted-foreground: 215 20.2% 65.1%;
   --accent: 161 84% 40%;
   --accent-foreground: 210 40% 98%;
-  --destructive: 0 62.8% 30.6%;
+  --destructive: 0 84.2% 60.2%;
   --destructive-foreground: 210 40% 98%;
-  --border: 217.2 32.6% 17.5%;
-  --input: 217.2 32.6% 17.5%;
-  --ring: 212.7 26.8% 83.9%;
-}
-
-html.dark body {
-  background-color: #0F172A;
-  color: #F1F5F9;
-}
-
-html.dark .premium-card {
-  background-color: #1E293B;
-  border-color: #334155;
-}
-
-html.dark .premium-navbar-solid {
-  background-color: rgba(15, 23, 42, 0.95);
-  border-bottom-color: #334155;
+  --border: 220 14% 91%;
+  --input: 220 14% 91%;
+  --ring: 215 25% 17.2%;
+  --radius: 20px;
 }
 
 * {
@@ -99,9 +52,164 @@ html, body {
   color: #0F172A;
   font-family: var(--font-sans);
   scroll-behavior: smooth;
+  transition: background-color 0.3s ease, color 0.2s ease;
 }
 
-/* Premium clean SaaS surface styles */
+/* ================================================================
+   DARK MODE — overrides every hardcoded color used in the app
+   ================================================================ */
+
+html.dark,
+html.dark body {
+  background-color: #0F172A !important;
+  color: #E2E8F0 !important;
+}
+
+/* Page-level backgrounds */
+html.dark [class*="bg-white"],
+html.dark [class*="bg-\[#FFFFFF\]"],
+html.dark [class*="bg-\[#fff\]"] {
+  background-color: #1E293B !important;
+}
+
+html.dark [class*="bg-\[#F8FAFC\]"],
+html.dark [class*="bg-\[#FAFBFC\]"],
+html.dark [class*="bg-\[#F7F8FA\]"],
+html.dark [class*="bg-\[#F2F5F9\]"],
+html.dark [class*="bg-slate-50"],
+html.dark [class*="bg-slate-100"] {
+  background-color: #0F172A !important;
+}
+
+/* Cards / raised surfaces */
+html.dark [class*="bg-white"],
+html.dark div[class*="border"][class*="rounded"] {
+  background-color: #1E293B;
+}
+
+/* Text colors */
+html.dark [class*="text-\[#0F172A\]"],
+html.dark [class*="text-\[#1E293B\]"] {
+  color: #F1F5F9 !important;
+}
+
+html.dark [class*="text-\[#64748B\]"],
+html.dark [class*="text-slate-500"],
+html.dark [class*="text-slate-600"] {
+  color: #94A3B8 !important;
+}
+
+html.dark [class*="text-\[#475569\]"],
+html.dark [class*="text-slate-700"] {
+  color: #CBD5E1 !important;
+}
+
+/* Borders */
+html.dark [class*="border-\[#E2E8F0\]"],
+html.dark [class*="border-\[#E5E7EB\]"],
+html.dark * {
+  border-color: #334155;
+}
+
+/* Inputs */
+html.dark input,
+html.dark textarea,
+html.dark select {
+  background-color: #0F172A !important;
+  color: #E2E8F0 !important;
+  border-color: #334155 !important;
+}
+
+html.dark input::placeholder,
+html.dark textarea::placeholder {
+  color: #475569 !important;
+}
+
+html.dark input:focus,
+html.dark textarea:focus,
+html.dark select:focus {
+  background-color: #1E293B !important;
+  border-color: #10B981 !important;
+}
+
+/* Navbar */
+html.dark .premium-navbar-solid,
+html.dark nav[class*="border-b"] {
+  background-color: rgba(15, 23, 42, 0.97) !important;
+  border-bottom-color: #1E293B !important;
+}
+
+/* Sidebar */
+html.dark aside,
+html.dark [class*="sidebar"] {
+  background-color: #1E293B !important;
+  border-color: #334155 !important;
+}
+
+/* Cards / sections */
+html.dark .premium-card {
+  background-color: #1E293B !important;
+  border-color: #334155 !important;
+}
+
+/* Disabled / read-only inputs */
+html.dark input:disabled,
+html.dark input[disabled],
+html.dark input[class*="bg-slate-100"],
+html.dark input[class*="cursor-not-allowed"] {
+  background-color: #0F172A !important;
+  color: #475569 !important;
+}
+
+/* Hover states on buttons/links */
+html.dark [class*="hover:bg-\[#F8FAFC\]"]:hover,
+html.dark [class*="hover:bg-slate-50"]:hover {
+  background-color: #1E293B !important;
+}
+
+html.dark [class*="hover:text-\[#0F172A\]"]:hover {
+  color: #F1F5F9 !important;
+}
+
+/* Dividers */
+html.dark hr,
+html.dark [class*="border-t"],
+html.dark [class*="border-b"],
+html.dark [class*="divide-y"] > * {
+  border-color: #334155 !important;
+}
+
+/* Badges / pills */
+html.dark [class*="bg-emerald-100"] {
+  background-color: rgba(16, 185, 129, 0.15) !important;
+}
+
+html.dark [class*="bg-rose-50"],
+html.dark [class*="bg-rose-100"] {
+  background-color: rgba(244, 63, 94, 0.1) !important;
+}
+
+html.dark [class*="bg-amber-50"],
+html.dark [class*="bg-amber-100"] {
+  background-color: rgba(245, 158, 11, 0.1) !important;
+}
+
+/* Scrollbars in dark */
+html.dark ::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+html.dark ::-webkit-scrollbar-track {
+  background: #0F172A;
+}
+html.dark ::-webkit-scrollbar-thumb {
+  background: #334155;
+  border-radius: 3px;
+}
+
+/* ================================================================
+   LIGHT MODE STYLES
+   ================================================================ */
 .premium-card {
   background-color: #FFFFFF;
   border: 1px solid #E5E7EB;
@@ -121,7 +229,7 @@ html, body {
   border-bottom: 1px solid #E5E7EB;
 }
 
-/* Redesign section padding variables */
+/* Section padding */
 .section-padding {
   padding-top: 88px;
   padding-bottom: 88px;
@@ -142,10 +250,12 @@ html, body {
 }
 
 /* Hide scrollbar utility */
-.no-scrollbar::-webkit-scrollbar {
+.no-scrollbar::-webkit-scrollbar,
+.scrollbar-hide::-webkit-scrollbar {
   display: none;
 }
-.no-scrollbar {
+.no-scrollbar,
+.scrollbar-hide {
   -ms-overflow-style: none;
   scrollbar-width: none;
 }
