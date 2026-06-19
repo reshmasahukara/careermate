@@ -151,9 +151,14 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
         {/* Top Branding Section */}
         <div>
           <div className="h-[72px] border-b border-[#E2E8F0] flex items-center justify-between px-4">
-            <Link href="/dashboard" className="flex items-center gap-2 group shrink-0 overflow-hidden">
-              <Logo className="w-6.5 h-6.5" hideWordmark={isCollapsed} />
-            </Link>
+            <div className="flex items-center gap-1">
+              <Link href="/" className="p-1.5 rounded-lg hover:bg-[#F8FAFC] text-[#64748B] hover:text-[#0F172A] cursor-pointer" title="Back to Home">
+                <ChevronLeft className="w-5 h-5" />
+              </Link>
+              <Link href="/dashboard" className="flex items-center gap-2 group shrink-0 overflow-hidden">
+                <Logo className="w-6.5 h-6.5" hideWordmark={isCollapsed} />
+              </Link>
+            </div>
 
             {/* Mobile Close Button */}
             <button
@@ -278,20 +283,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
             )}
           </div>
 
-          {/* Desktop Toggle Button */}
-          <button
-            onClick={toggleSidebar}
-            className="hidden lg:flex w-full items-center justify-center gap-2 py-2 border border-[#E2E8F0] hover:bg-[#F8FAFC] rounded-[12px] text-[#64748B] hover:text-[#0F172A] transition-colors cursor-pointer"
-          >
-            {isCollapsed ? (
-              <ChevronRight className="w-4 h-4" />
-            ) : (
-              <>
-                <ChevronLeft className="w-4 h-4" />
-                <span className="text-xs font-bold uppercase tracking-wider">Collapse Menu</span>
-              </>
-            )}
-          </button>
+
         </div>
       </aside>
 
