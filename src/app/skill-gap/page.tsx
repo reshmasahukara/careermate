@@ -25,7 +25,6 @@ import { useToast } from "@/components/Providers";
 import { 
   getUserSkillsAction, 
   getLatestSkillGapAction,
-  getLearningRoadmapAction,
   addUserSkillAction,
   removeUserSkillAction
 } from "@/app/actions/skills";
@@ -53,7 +52,6 @@ export default function SkillGapPage() {
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   
   const [skillGap, setSkillGap] = useState<any>(null);
-  const [roadmap, setRoadmap] = useState<any[]>([]);
   const [jobInsights, setJobInsights] = useState<any>(null);
 
   const [newSkill, setNewSkill] = useState("");
@@ -80,8 +78,6 @@ export default function SkillGapPage() {
       if (latestGap) {
         setTargetRole(latestGap.targetRole);
         setSkillGap(latestGap);
-        const map = await getLearningRoadmapAction(userId, latestGap.targetRole);
-        setRoadmap(map);
         fetchJobInsights(latestGap.targetRole);
       }
     } catch (e) {
@@ -175,8 +171,6 @@ export default function SkillGapPage() {
       const skills = await getUserSkillsAction(userId);
       setUserSkills(skills);
 
-      const map = await getLearningRoadmapAction(userId, finalRole);
-      setRoadmap(map);
       fetchJobInsights(finalRole);
       
       toast("Skill Gap Analysis Complete!", "success");
@@ -369,7 +363,7 @@ export default function SkillGapPage() {
             </div>
 
             {/* Overview Cards */}
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div className="bg-white p-5 border border-[#E2E8F0] rounded-[20px] shadow-sm flex flex-col justify-center">
                 <p className="text-xs font-bold text-[#64748B] uppercase tracking-wider mb-1">Match Score</p>
                 <div className="flex items-end gap-2">
@@ -382,13 +376,6 @@ export default function SkillGapPage() {
                 <div className="flex items-end gap-2">
                   <h3 className="text-3xl font-black text-[#0F172A]">{skillGap.criticalSkills.length + skillGap.recommendedSkills.length}</h3>
                   <AlertCircle className="w-5 h-5 mb-1.5 text-rose-500" />
-                </div>
-              </div>
-              <div className="bg-white p-5 border border-[#E2E8F0] rounded-[20px] shadow-sm flex flex-col justify-center">
-                <p className="text-xs font-bold text-[#64748B] uppercase tracking-wider mb-1">Est. Learning Time</p>
-                <div className="flex items-end gap-2">
-                  <h3 className="text-3xl font-black text-[#0F172A]">{roadmap.length}</h3>
-                  <span className="text-sm font-bold text-slate-500 mb-1">weeks</span>
                 </div>
               </div>
               <div className="bg-white p-5 border border-[#E2E8F0] rounded-[20px] shadow-sm flex flex-col justify-center">
@@ -453,42 +440,6 @@ export default function SkillGapPage() {
                       </div>
                     </div>
                   </div>
-                </div>
-
-                {/* Learning Roadmap */}
-                <div className="bg-white border border-[#E2E8F0] rounded-[20px] shadow-sm p-6">
-                  <h3 className="text-lg font-bold text-[#0F172A] mb-6 flex items-center gap-2">
-                    <BookOpen className="w-5 h-5 text-emerald-500" /> Personalized Learning Roadmap
-                  </h3>
-                  
-                  <div className="space-y-0 relative before:absolute before:inset-0 before:ml-5 before:-translate-x-px md:before:mx-auto md:before:translate-x-0 before:h-full before:w-0.5 before:bg-gradient-to-b before:from-transparent before:via-slate-300 before:to-transparent">
-                    {roadmap.map((step: any, index: number) => (
-                      <div key={step.id} className="relative flex items-center justify-between md:justify-normal md:odd:flex-row-reverse group is-active py-4">
-                        <div className="flex items-center justify-center w-10 h-10 rounded-full border border-white bg-emerald-100 text-emerald-600 shadow shrink-0 md:order-1 md:group-odd:-translate-x-1/2 md:group-even:translate-x-1/2 z-10">
-                          <span className="font-bold text-sm">{step.week}</span>
-                        </div>
-                        <div className="w-[calc(100%-4rem)] md:w-[calc(50%-2.5rem)] bg-white border border-[#E2E8F0] p-4 rounded-xl shadow-sm hover:border-emerald-300 transition-colors">
-                          <div className="flex items-center justify-between mb-1">
-                            <h4 className="font-bold text-slate-800 text-sm">{step.title}</h4>
-                            <span className="text-[10px] font-bold uppercase tracking-wider text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-md">Week {step.week}</span>
-                          </div>
-                          <p className="text-xs text-slate-500 mb-3">{step.description}</p>
-                          <div className="space-y-1.5">
-                            {step.resources.map((res: string, i: number) => (
-                              <a key={i} href={res} target="_blank" rel="noreferrer" className="flex items-center gap-1.5 text-[11px] font-bold text-blue-600 hover:text-blue-800 transition-colors">
-                                <ArrowRight className="w-3 h-3" /> External Resource {i+1}
-                              </a>
-                            ))}
-                          </div>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                  {roadmap.length === 0 && (
-                    <div className="text-center py-8 text-slate-500 text-sm font-medium">
-                      You are fully equipped for this role! No specific roadmap generated.
-                    </div>
-                  )}
                 </div>
 
               </div>
