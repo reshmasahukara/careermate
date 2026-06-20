@@ -6,7 +6,7 @@ export const getTransporter = () => {
   
   const host = process.env.EMAIL_HOST || "smtp.gmail.com";
   const port = parseInt(process.env.EMAIL_PORT || "465");
-  const secure = process.env.EMAIL_SECURE !== "false";
+  const secure = process.env.EMAIL_SECURE ? process.env.EMAIL_SECURE === "true" : port === 465;
 
   if (process.env.EMAIL_HOST) {
     return nodemailer.createTransport({

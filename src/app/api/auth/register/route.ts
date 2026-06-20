@@ -73,6 +73,7 @@ export async function POST(req: NextRequest) {
 
       await transporter.sendMail({
         from: `"CareerMate" <${process.env.EMAIL_USER}>`,
+        replyTo: process.env.EMAIL_USER,
         to: email.toLowerCase(),
         subject: "Verify your CareerMate account",
         text: `Welcome to CareerMate! Your verification code is ${otp}. This code will expire in 10 minutes. If you did not request this, please ignore this email.`,
