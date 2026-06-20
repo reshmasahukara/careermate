@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useSession } from "next-auth/react";
 import Link from "next/link";
 import DashboardLayout from "@/components/DashboardLayout";
@@ -14,18 +14,16 @@ import {
   Layers,
   Award,
   Zap,
-  Users,
   Briefcase,
-  Clock,
   BookOpen,
-  RefreshCw,
-  Plus
+  Plus,
+  UploadCloud,
+  FileText,
+  X
 } from "lucide-react";
 import { useToast } from "@/components/Providers";
 import { 
   getUserSkillsAction, 
-  analyzeSkillGapAction,
-  syncSkillsFromResumeAction,
   getLatestSkillGapAction,
   getLearningRoadmapAction,
   addUserSkillAction,
@@ -51,14 +49,19 @@ export default function SkillGapPage() {
 
   const [userSkills, setUserSkills] = useState<any[]>([]);
   const [targetRole, setTargetRole] = useState("");
+  const [customRole, setCustomRole] = useState("");
   const [isAnalyzing, setIsAnalyzing] = useState(false);
-  const [isSyncing, setIsSyncing] = useState(false);
   
   const [skillGap, setSkillGap] = useState<any>(null);
   const [roadmap, setRoadmap] = useState<any[]>([]);
   const [jobInsights, setJobInsights] = useState<any>(null);
 
   const [newSkill, setNewSkill] = useState("");
+  
+  // File Upload State
+  const [file, setFile] = useState<File | null>(null);
+  const [isDragging, setIsDragging] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const userId = (session?.user as any)?.id || "demo-user-123";
 
@@ -86,24 +89,6 @@ export default function SkillGapPage() {
     }
   };
 
-  const handleSyncResume = async () => {
-    setIsSyncing(true);
-    try {
-      const success = await syncSkillsFromResumeAction(userId);
-      if (success) {
-        const skills = await getUserSkillsAction(userId);
-        setUserSkills(skills);
-        toast("Successfully extracted skills from your resume", "success");
-      } else {
-        toast("Could not find a parsed resume. Please upload one first.", "error");
-      }
-    } catch (error) {
-      toast("Failed to sync skills", "error");
-    } finally {
-      setIsSyncing(false);
-    }
-  };
-
   const handleAddSkill = async () => {
     if (!newSkill.trim()) return;
     try {
@@ -127,19 +112,77 @@ export default function SkillGapPage() {
     }
   };
 
+  // Drag and drop handlers
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragging(true);
+  };
+  const handleDragLeave = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragging(false);
+  };
+  const handleDrop = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragging(false);
+    if (e.dataTransfer.files && e.dataTransfer.files[0]) {
+      validateAndSetFile(e.dataTransfer.files[0]);
+    }
+  };
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files[0]) {
+      validateAndSetFile(e.target.files[0]);
+    }
+  };
+  const validateAndSetFile = (selectedFile: File) => {
+    const validTypes = ["application/pdf", "application/vnd.openxmlformats-officedocument.wordprocessingml.document"];
+    if (!validTypes.includes(selectedFile.type) && !selectedFile.name.endsWith(".pdf") && !selectedFile.name.endsWith(".docx")) {
+      toast("Please upload a PDF or DOCX file.", "error");
+      return;
+    }
+    if (selectedFile.size > 5 * 1024 * 1024) {
+      toast("File must be less than 5MB.", "error");
+      return;
+    }
+    setFile(selectedFile);
+  };
+  const handleRemoveFile = () => {
+    setFile(null);
+    if (fileInputRef.current) fileInputRef.current.value = "";
+  };
+
   const handleAnalyze = async () => {
-    if (!targetRole) return;
+    const finalRole = targetRole === "Custom" ? customRole : targetRole;
+    if (!finalRole || !file) {
+      toast("Please upload a resume and select a target role.", "error");
+      return;
+    }
+    
     setIsAnalyzing(true);
     try {
-      const gap = await analyzeSkillGapAction(userId, targetRole);
-      setSkillGap(gap);
-      const map = await getLearningRoadmapAction(userId, targetRole);
+      const formData = new FormData();
+      formData.append("file", file);
+      formData.append("targetRole", finalRole);
+
+      const response = await fetch("/api/skill-gap/analyze", {
+        method: "POST",
+        body: formData,
+      });
+
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.error);
+
+      setSkillGap(data.gap);
+      const skills = await getUserSkillsAction(userId);
+      setUserSkills(skills);
+
+      const map = await getLearningRoadmapAction(userId, finalRole);
       setRoadmap(map);
-      fetchJobInsights(targetRole);
+      fetchJobInsights(finalRole);
+      
       toast("Skill Gap Analysis Complete!", "success");
-    } catch (e) {
+    } catch (e: any) {
       console.error(e);
-      toast("Failed to analyze skill gap", "error");
+      toast(e.message || "Failed to analyze skill gap", "error");
     } finally {
       setIsAnalyzing(false);
     }
@@ -151,7 +194,7 @@ export default function SkillGapPage() {
       if (res.ok) {
         const data = await res.json();
         setJobInsights({
-          count: data.total > 500 ? "500+" : data.total,
+          count: data.total > 0 ? data.total : 0,
           salary: role.includes("Data") || role.includes("Engineer") ? "$110k - $160k" : "$90k - $140k",
           topCompanies: ["Google", "Amazon", "Microsoft", "Meta"]
         });
@@ -169,105 +212,162 @@ export default function SkillGapPage() {
         <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
           <div>
             <h1 className="text-2xl font-bold text-[#0F172A]">Skill Gap Analysis</h1>
-            <p className="text-[#64748B] text-sm font-semibold mt-1">Discover your missing skills and get a personalized learning path.</p>
+            <p className="text-[#64748B] text-sm font-semibold mt-1">Discover missing skills and create a personalized learning plan.</p>
           </div>
-          <button 
-            onClick={handleSyncResume}
-            disabled={isSyncing}
-            className="flex items-center gap-2 bg-white border border-[#E2E8F0] hover:bg-slate-50 text-[#0F172A] font-bold px-4 py-2 rounded-xl text-sm transition-all shadow-sm disabled:opacity-50"
-          >
-            <RefreshCw className={`w-4 h-4 ${isSyncing ? 'animate-spin' : ''}`} />
-            Sync from Resume
-          </button>
         </div>
 
-        {/* Configuration Row */}
-        <div className="bg-white p-6 border border-[#E2E8F0] rounded-[20px] shadow-sm flex flex-col md:flex-row gap-4 items-end">
-          <div className="w-full md:flex-1 space-y-2">
-            <label className="text-sm font-semibold text-[#0F172A]">Target Role</label>
-            <div className="relative">
-              <select
-                value={targetRole}
-                onChange={(e) => setTargetRole(e.target.value)}
-                className="w-full bg-[#F8FAFC] border border-[#E2E8F0] rounded-xl py-3 px-4 text-sm font-medium focus:outline-none focus:border-emerald-500 pl-10 transition-colors appearance-none"
+        {/* Configurations Area */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          
+          {/* Step 1: Upload */}
+          <div className="bg-white p-6 border border-[#E2E8F0] rounded-[20px] shadow-sm space-y-4">
+            <h3 className="text-sm font-bold text-[#0F172A] flex items-center gap-2">
+              <UploadCloud className="w-4 h-4 text-emerald-500" /> 1. Upload Resume
+            </h3>
+            
+            {!file ? (
+              <div 
+                onDragOver={handleDragOver}
+                onDragLeave={handleDragLeave}
+                onDrop={handleDrop}
+                className={`border-2 border-dashed rounded-xl p-8 text-center transition-all cursor-pointer ${
+                  isDragging ? "border-emerald-500 bg-emerald-50" : "border-slate-200 hover:border-emerald-300 hover:bg-slate-50"
+                }`}
+                onClick={() => fileInputRef.current?.click()}
               >
-                <option value="" disabled>Select a Target Role...</option>
-                {TARGET_ROLES.map(role => (
-                  <option key={role} value={role}>{role}</option>
-                ))}
-              </select>
-              <Target className="absolute left-3.5 top-3.5 w-4.5 h-4.5 text-slate-400" />
-            </div>
-          </div>
-          <button
-            onClick={handleAnalyze}
-            disabled={!targetRole || isAnalyzing || userSkills.length === 0}
-            className="w-full md:w-auto px-8 py-3 bg-emerald-600 hover:bg-emerald-700 disabled:bg-slate-300 text-white font-bold rounded-xl transition-all shadow-sm flex justify-center items-center gap-2"
-          >
-            {isAnalyzing ? (
-              <>
-                <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                Analyzing...
-              </>
+                <UploadCloud className={`w-8 h-8 mx-auto mb-3 ${isDragging ? "text-emerald-500" : "text-slate-400"}`} />
+                <p className="text-sm font-bold text-slate-700 mb-1">Drag & Drop your resume here</p>
+                <p className="text-xs font-semibold text-slate-500">Supports PDF & DOCX (Max 5MB)</p>
+                <input 
+                  type="file" 
+                  ref={fileInputRef} 
+                  className="hidden" 
+                  accept=".pdf,.docx,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+                  onChange={handleFileChange}
+                />
+              </div>
             ) : (
-              "Generate Analysis"
-            )}
-          </button>
-        </div>
-
-        {/* Current Skills Manager */}
-        <div className="bg-white p-6 border border-[#E2E8F0] rounded-[20px] shadow-sm">
-          <h3 className="text-sm font-bold text-[#0F172A] mb-4 flex items-center gap-2">
-            <Layers className="w-4 h-4 text-emerald-500" /> Current Skills Profile
-          </h3>
-          <div className="flex flex-wrap gap-2 mb-4">
-            {userSkills.map(skill => (
-              <span key={skill.id} className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-slate-100 text-slate-700 text-xs font-bold rounded-lg border border-slate-200">
-                {skill.name}
-                <button onClick={() => handleRemoveSkill(skill.skillId)} className="hover:text-rose-500 transition-colors">
-                  &times;
-                </button>
-              </span>
-            ))}
-            {userSkills.length === 0 && (
-              <span className="text-sm text-slate-400 italic">No skills added yet. Sync from your resume or add manually.</span>
+              <div className="border border-slate-200 rounded-xl p-4 flex items-center justify-between bg-slate-50">
+                <div className="flex items-center gap-3 overflow-hidden">
+                  <div className="w-10 h-10 bg-emerald-100 text-emerald-600 rounded-lg flex items-center justify-center shrink-0">
+                    <FileText className="w-5 h-5" />
+                  </div>
+                  <div className="overflow-hidden">
+                    <p className="text-sm font-bold text-slate-800 truncate">{file.name}</p>
+                    <p className="text-xs font-semibold text-slate-500">{(file.size / 1024 / 1024).toFixed(2)} MB</p>
+                  </div>
+                </div>
+                <div className="flex items-center gap-2 shrink-0">
+                  <button onClick={() => fileInputRef.current?.click()} className="text-xs font-bold text-emerald-600 hover:text-emerald-700 px-2 py-1 rounded border border-emerald-200 bg-emerald-50 transition-colors">
+                    Replace
+                  </button>
+                  <button onClick={handleRemoveFile} className="w-7 h-7 flex items-center justify-center rounded-full text-slate-400 hover:text-rose-500 hover:bg-rose-50 transition-colors">
+                    <X className="w-4 h-4" />
+                  </button>
+                </div>
+              </div>
             )}
           </div>
-          <div className="flex items-center gap-2 max-w-sm">
-            <input
-              type="text"
-              placeholder="Add skill manually (e.g. React)"
-              value={newSkill}
-              onChange={(e) => setNewSkill(e.target.value)}
-              onKeyDown={(e) => e.key === 'Enter' && handleAddSkill()}
-              className="flex-1 bg-[#F8FAFC] border border-[#E2E8F0] rounded-lg py-2 px-3 text-sm focus:outline-none focus:border-emerald-500"
-            />
-            <button onClick={handleAddSkill} className="p-2 bg-emerald-100 text-emerald-700 rounded-lg hover:bg-emerald-200 transition-colors">
-              <Plus className="w-4 h-4" />
+
+          {/* Step 2: Target Role */}
+          <div className="bg-white p-6 border border-[#E2E8F0] rounded-[20px] shadow-sm space-y-4 flex flex-col justify-between">
+            <div>
+              <h3 className="text-sm font-bold text-[#0F172A] flex items-center gap-2 mb-4">
+                <Target className="w-4 h-4 text-emerald-500" /> 2. Select Target Role
+              </h3>
+              <div className="space-y-3">
+                <div className="relative">
+                  <select
+                    value={targetRole}
+                    onChange={(e) => {
+                      setTargetRole(e.target.value);
+                      if (e.target.value !== "Custom") setCustomRole("");
+                    }}
+                    className="w-full bg-[#F8FAFC] border border-[#E2E8F0] rounded-xl py-3 px-4 text-sm font-medium focus:outline-none focus:border-emerald-500 pl-10 transition-colors appearance-none"
+                  >
+                    <option value="" disabled>Select a Target Role...</option>
+                    {TARGET_ROLES.map(role => (
+                      <option key={role} value={role}>{role}</option>
+                    ))}
+                    <option value="Custom">Other (Custom Role)</option>
+                  </select>
+                  <Target className="absolute left-3.5 top-3.5 w-4.5 h-4.5 text-slate-400" />
+                </div>
+                
+                {targetRole === "Custom" && (
+                  <input 
+                    type="text"
+                    placeholder="Enter specific role (e.g. Cloud Architect)"
+                    value={customRole}
+                    onChange={(e) => setCustomRole(e.target.value)}
+                    className="w-full bg-[#F8FAFC] border border-[#E2E8F0] rounded-xl py-3 px-4 text-sm font-medium focus:outline-none focus:border-emerald-500 transition-colors"
+                  />
+                )}
+              </div>
+            </div>
+
+            <button
+              onClick={handleAnalyze}
+              disabled={(!targetRole || (targetRole === "Custom" && !customRole)) || !file || isAnalyzing}
+              className="w-full px-8 py-3.5 bg-emerald-600 hover:bg-emerald-700 disabled:bg-slate-300 text-white font-bold rounded-xl transition-all shadow-sm flex justify-center items-center gap-2 mt-4"
+            >
+              {isAnalyzing ? (
+                <>
+                  <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                  Analyzing Skills...
+                </>
+              ) : (
+                "Analyze Skills"
+              )}
             </button>
           </div>
         </div>
 
         {!skillGap ? (
           /* Empty State */
-          <div className="bg-white border border-[#E2E8F0] rounded-[20px] min-h-[400px] flex flex-col items-center justify-center p-8 text-center shadow-sm">
-            <div className="w-20 h-20 bg-emerald-50 rounded-full flex items-center justify-center mb-6">
-              <TrendingUp className="w-10 h-10 text-emerald-500" />
+          <div className="bg-white border border-[#E2E8F0] rounded-[20px] min-h-[350px] flex flex-col items-center justify-center p-8 text-center shadow-sm">
+            <div className="w-20 h-20 bg-slate-50 rounded-full flex items-center justify-center mb-6">
+              <TrendingUp className="w-10 h-10 text-slate-300" />
             </div>
-            <h3 className="text-xl font-bold text-[#0F172A] mb-2">Discover Your Missing Skills</h3>
+            <h3 className="text-xl font-bold text-[#0F172A] mb-2">No skill analysis available</h3>
             <p className="text-[#64748B] text-sm max-w-sm mb-6">
-              Upload your resume or add skills manually, then select a target role to generate a personalized learning roadmap.
+              Upload your resume and select a target role above to discover missing skills and generate your learning roadmap.
             </p>
-            {userSkills.length === 0 && (
-              <Link href="/resume-upload" className="bg-[#0F172A] hover:bg-slate-800 text-white px-6 py-2.5 rounded-xl font-bold text-sm transition-colors">
-                Upload Resume First
-              </Link>
-            )}
           </div>
         ) : (
           /* Analysis Results */
-          <div className="space-y-6">
+          <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
             
+            {/* Current Skills Manager */}
+            <div className="bg-white p-6 border border-[#E2E8F0] rounded-[20px] shadow-sm">
+              <h3 className="text-sm font-bold text-[#0F172A] mb-4 flex items-center gap-2">
+                <Layers className="w-4 h-4 text-emerald-500" /> Extracted & Manual Skills
+              </h3>
+              <div className="flex flex-wrap gap-2 mb-4">
+                {userSkills.map(skill => (
+                  <span key={skill.id} className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-slate-100 text-slate-700 text-xs font-bold rounded-lg border border-slate-200">
+                    {skill.name}
+                    <button onClick={() => handleRemoveSkill(skill.skillId)} className="hover:text-rose-500 transition-colors">
+                      &times;
+                    </button>
+                  </span>
+                ))}
+              </div>
+              <div className="flex items-center gap-2 max-w-sm">
+                <input
+                  type="text"
+                  placeholder="Add skill manually (e.g. React)"
+                  value={newSkill}
+                  onChange={(e) => setNewSkill(e.target.value)}
+                  onKeyDown={(e) => e.key === 'Enter' && handleAddSkill()}
+                  className="flex-1 bg-[#F8FAFC] border border-[#E2E8F0] rounded-lg py-2 px-3 text-sm focus:outline-none focus:border-emerald-500"
+                />
+                <button onClick={handleAddSkill} className="p-2 bg-emerald-100 text-emerald-700 rounded-lg hover:bg-emerald-200 transition-colors">
+                  <Plus className="w-4 h-4" />
+                </button>
+              </div>
+            </div>
+
             {/* Overview Cards */}
             <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
               <div className="bg-white p-5 border border-[#E2E8F0] rounded-[20px] shadow-sm flex flex-col justify-center">
@@ -419,7 +519,7 @@ export default function SkillGapPage() {
                           ))}
                         </div>
                       </div>
-                      <Link href={`/jobs?search=${encodeURIComponent(targetRole)}`} className="block w-full py-2.5 mt-2 bg-emerald-500 hover:bg-emerald-600 text-center text-xs font-bold rounded-xl transition-colors">
+                      <Link href={`/jobs?search=${encodeURIComponent(skillGap.targetRole)}`} className="block w-full py-2.5 mt-2 bg-emerald-500 hover:bg-emerald-600 text-center text-xs font-bold rounded-xl transition-colors">
                         View Open Jobs
                       </Link>
                     </div>
