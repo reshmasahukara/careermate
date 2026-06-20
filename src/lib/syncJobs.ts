@@ -1,5 +1,14 @@
 import { prisma } from "./db";
 
+function isValidUrl(urlStr: string) {
+  try {
+    const url = new URL(urlStr);
+    return url.protocol === "http:" || url.protocol === "https:";
+  } catch (e) {
+    return false;
+  }
+}
+
 export async function syncJobsInternal() {
   let upsertedCount = 0;
   const errors: string[] = [];
@@ -17,10 +26,14 @@ export async function syncJobsInternal() {
         const location = job.location || "Remote";
         const description = job.description || "No description provided.";
         const remote = job.remote || false;
-        const applyUrl = job.url || "https://www.arbeitnow.com";
+        const applyUrl = job.url || "";
         const skills = job.tags || [];
         const employmentType = (job.job_types && job.job_types.length > 0) ? job.job_types[0] : "Full-time";
         
+        if (!applyUrl || !isValidUrl(applyUrl)) {
+          continue; // Skip invalid application links
+        }
+
         let experienceLevel = "Mid Level";
         const titleLower = title.toLowerCase();
         if (titleLower.includes("intern") || titleLower.includes("apprentice")) experienceLevel = "Internship";
@@ -58,10 +71,14 @@ export async function syncJobsInternal() {
         const location = job.candidate_required_location || "Remote";
         const description = job.description || "No description provided.";
         const remote = true;
-        const applyUrl = job.url || "https://remotive.com";
+        const applyUrl = job.url || "";
         const skills = job.tags || [];
         const employmentType = job.job_type || "Full-time";
         
+        if (!applyUrl || !isValidUrl(applyUrl)) {
+          continue; // Skip invalid application links
+        }
+
         let experienceLevel = "Mid Level";
         const titleLower = title.toLowerCase();
         if (titleLower.includes("intern") || titleLower.includes("apprentice")) experienceLevel = "Internship";
@@ -106,10 +123,14 @@ export async function syncJobsInternal() {
           const location = `${job.job_city || ""}${job.job_city && job.job_country ? ", " : ""}${job.job_country || ""}` || "Remote";
           const description = job.job_description || "No description provided.";
           const remote = job.job_is_remote || false;
-          const applyUrl = job.job_apply_link || "https://google.com";
+          const applyUrl = job.job_apply_link || "";
           const skills = job.job_required_skills || [];
           const employmentType = job.job_employment_type || "Full-time";
           
+          if (!applyUrl || !isValidUrl(applyUrl)) {
+            continue; // Skip invalid application links
+          }
+
           let experienceLevel = "Mid Level";
           const titleLower = title.toLowerCase();
           if (titleLower.includes("intern") || titleLower.includes("apprentice")) experienceLevel = "Internship";
@@ -134,6 +155,72 @@ export async function syncJobsInternal() {
     } catch (e: any) {
       errors.push(`JSearch API fetch failed: ${e.message}`);
     }
+  }
+
+  // 4. Fetch from Adzuna if credentials exist
+  const adzunaAppId = process.env.ADZUNA_APP_ID;
+  const adzunaAppKey = process.env.ADZUNA_APP_KEY;
+  if (adzunaAppId && adzunaAppKey && adzunaAppId !== "adzuna-app-id-here") {
+    try {
+      const response = await fetch(`https://api.adzuna.com/v1/api/jobs/us/search/1?app_id=${adzunaAppId}&app_key=${adzunaAppKey}&results_per_page=30&what=developer`, { next: { revalidate: 0 } });
+      if (response.ok) {
+        const data = await response.json();
+        const results = data.results || [];
+        for (const item of results) {
+          const externalId = `adzuna-${item.id}`;
+          const title = item.title || "Software Engineer";
+          const company = item.company?.display_name || "Partner Company";
+          const location = item.location?.display_name || "Remote";
+          const description = item.description || "No description provided.";
+          const remote = item.title.toLowerCase().includes("remote") || item.description.toLowerCase().includes("remote");
+          const applyUrl = item.redirect_url || "";
+          const skills = item.category?.tag ? [item.category.tag] : [];
+          const employmentType = item.contract_time === "full_time" ? "Full-time" : "Part-time";
+
+          if (!applyUrl || !isValidUrl(applyUrl)) {
+            continue; // Skip invalid application links
+          }
+
+          let experienceLevel = "Mid Level";
+          const titleLower = title.toLowerCase();
+          if (titleLower.includes("intern") || titleLower.includes("apprentice")) experienceLevel = "Internship";
+          else if (titleLower.includes("junior") || titleLower.includes("entry") || titleLower.includes("associate")) experienceLevel = "Entry Level";
+          else if (titleLower.includes("senior") || titleLower.includes("sr.")) experienceLevel = "Senior";
+          else if (titleLower.includes("lead") || titleLower.includes("architect") || titleLower.includes("principal")) experienceLevel = "Lead";
+
+          const logoUrl = null;
+          const salaryMin = item.salary_min ? Math.round(Number(item.salary_min)) : null;
+          const salaryMax = item.salary_max ? Math.round(Number(item.salary_max)) : null;
+
+          await prisma.job.upsert({
+            where: { externalId },
+            update: { title, company, location, description, remote, applyUrl, skills, employmentType, experienceLevel, logoUrl, salaryMin, salaryMax },
+            create: { externalId, title, company, location, description, remote, applyUrl, skills, employmentType, experienceLevel, logoUrl, salaryMin, salaryMax }
+          });
+          upsertedCount++;
+        }
+      } else {
+        errors.push(`Adzuna API returned status ${response.status}`);
+      }
+    } catch (e: any) {
+      errors.push(`Adzuna API fetch failed: ${e.message}`);
+    }
+  }
+
+  // 5. Cleanup expired jobs (older than 30 days)
+  try {
+    const thirtyDaysAgo = new Date();
+    thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+    const deleteRes = await prisma.job.deleteMany({
+      where: {
+        createdAt: {
+          lt: thirtyDaysAgo
+        }
+      }
+    });
+    console.log(`Deleted ${deleteRes.count} expired jobs older than 30 days.`);
+  } catch (cleanErr: any) {
+    errors.push(`Expired job cleanup failed: ${cleanErr.message}`);
   }
 
   return { upsertedCount, errors };

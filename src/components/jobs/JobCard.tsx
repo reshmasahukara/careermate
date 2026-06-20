@@ -1,5 +1,5 @@
-import React from "react";
-import { Bookmark, BookmarkCheck, ExternalLink, MapPin, Briefcase, DollarSign, Clock, Share2 } from "lucide-react";
+import React, { useState } from "react";
+import { Bookmark, BookmarkCheck, ExternalLink, MapPin, Briefcase, DollarSign, Clock } from "lucide-react";
 import { useToast } from "@/components/Providers";
 
 const getSourceBadge = (externalId: string, applyUrl: string) => {
@@ -10,7 +10,7 @@ const getSourceBadge = (externalId: string, applyUrl: string) => {
   if (url.includes("indeed.com")) return { name: "Indeed", color: "bg-indigo-50 text-indigo-700 border-indigo-200" };
   if (url.includes("unstop.com")) return { name: "Unstop", color: "bg-sky-50 text-sky-700 border-sky-200" };
   if (url.includes("wellfound.com") || url.includes("angel.co")) return { name: "Wellfound", color: "bg-slate-900 text-slate-100 border-slate-700" };
-  if (url.includes("naukri.com")) return { name: "Naukri", color: "bg-amber-50 text-amber-800 border-amber-200" };
+  if (url.includes("naukri.com")) return { name: "Naukri", color: "bg-orange-50 text-orange-700 border-orange-200" };
   if (url.includes("internshala.com")) return { name: "Internshala", color: "bg-cyan-50 text-cyan-700 border-cyan-200" };
   if (url.includes("google.com/search") || url.includes("google.jobs")) return { name: "Google Jobs", color: "bg-rose-50 text-rose-700 border-rose-200" };
   if (url.includes("remotive.com") || ext.startsWith("remotive-")) return { name: "Remotive", color: "bg-purple-50 text-purple-700 border-purple-200" };
@@ -26,6 +26,7 @@ const getSourceBadge = (externalId: string, applyUrl: string) => {
 
 export default function JobCard({ job, isSaved, toggleSaveJob, onClick }: any) {
   const { toast } = useToast();
+  const [isApplying, setIsApplying] = useState(false);
   
   // calculate time ago
   const getTimeAgo = (date: string | Date) => {
@@ -45,14 +46,19 @@ export default function JobCard({ job, isSaved, toggleSaveJob, onClick }: any) {
 
   const badge = getSourceBadge(job.externalId, job.applyUrl);
 
-  const handleShare = (e: React.MouseEvent) => {
+  const handleApply = (e: React.MouseEvent) => {
     e.stopPropagation();
-    try {
-      navigator.clipboard.writeText(job.applyUrl || window.location.href);
-      toast("Job application link copied to clipboard!", "success");
-    } catch (err) {
-      toast("Failed to copy link", "error");
+    e.preventDefault();
+    if (!job.applyUrl) {
+      toast("Application link is missing or broken", "error");
+      return;
     }
+    
+    setIsApplying(true);
+    setTimeout(() => {
+      setIsApplying(false);
+      window.open(job.applyUrl, "_blank", "noopener,noreferrer");
+    }, 600);
   };
 
   return (
@@ -60,7 +66,6 @@ export default function JobCard({ job, isSaved, toggleSaveJob, onClick }: any) {
       onClick={() => onClick(job)}
       className="group bg-white border border-[#E2E8F0] rounded-[24px] p-6 hover:shadow-xl hover:border-emerald-400 transition-all duration-300 cursor-pointer flex flex-col gap-5 relative overflow-hidden"
     >
-      {/* Platform Badge Overlay */}
       <div className="absolute top-0 left-0 w-2 h-full bg-emerald-500 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
       
       <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4">
@@ -71,7 +76,6 @@ export default function JobCard({ job, isSaved, toggleSaveJob, onClick }: any) {
               alt={job.company} 
               className="w-16 h-16 rounded-[16px] object-cover border border-[#E2E8F0] bg-slate-50 shrink-0" 
               onError={(e) => {
-                // Fallback on logo fetch error
                 (e.target as HTMLElement).style.display = 'none';
               }}
             />
@@ -127,7 +131,6 @@ export default function JobCard({ job, isSaved, toggleSaveJob, onClick }: any) {
         </div>
       </div>
 
-      {/* Rationale description if personalized matches exists */}
       {job.whyMatches && (
         <div className="bg-[#F8FAFC] border border-[#E2E8F0]/70 rounded-[14px] px-4 py-3 text-xs text-[#0F172A] font-semibold leading-relaxed">
           <span className="text-emerald-600 font-extrabold mr-1">Why matches:</span>
@@ -168,6 +171,7 @@ export default function JobCard({ job, isSaved, toggleSaveJob, onClick }: any) {
           )}
           
           <button 
+            type="button"
             onClick={(e) => {
               e.stopPropagation();
               toggleSaveJob(job.id);
@@ -179,27 +183,27 @@ export default function JobCard({ job, isSaved, toggleSaveJob, onClick }: any) {
             }`}
             title={isSaved ? "Saved" : "Save Job"}
           >
-            {isSaved ? <BookmarkCheck className="w-4 h-4" /> : <Bookmark className="w-4 h-4" />}
-          </button>
-          
-          <button 
-            onClick={handleShare}
-            className="p-2.5 rounded-[12px] border border-[#E2E8F0] bg-white text-slate-400 hover:text-slate-600 hover:bg-slate-50 transition-all cursor-pointer"
-            title="Share Job Link"
-          >
-            <Share2 className="w-4 h-4" />
+            {isSaved ? <BookmarkCheck className="w-4.5 h-4.5" /> : <Bookmark className="w-4.5 h-4.5" />}
           </button>
 
-          <a
-            href={job.applyUrl || "#"}
-            target="_blank"
-            rel="noreferrer"
-            onClick={(e) => e.stopPropagation()}
-            className="flex-1 sm:flex-none sm:w-auto bg-[#0F172A] hover:bg-slate-800 text-white font-extrabold py-2.5 px-5 rounded-[12px] shadow-sm transition-all text-xs flex items-center justify-center gap-1.5"
+          <button
+            type="button"
+            onClick={handleApply}
+            disabled={isApplying}
+            className="flex-1 sm:flex-none sm:w-auto bg-[#0F172A] hover:bg-slate-800 text-white font-extrabold py-2.5 px-5 rounded-[12px] shadow-sm transition-all text-xs flex items-center justify-center gap-1.5 disabled:opacity-70"
           >
-            Apply Now
-            <ExternalLink className="w-3.5 h-3.5" />
-          </a>
+            {isApplying ? (
+              <>
+                <div className="w-3.5 h-3.5 border-2 border-white border-t-transparent rounded-full animate-spin shrink-0" />
+                <span>Redirecting...</span>
+              </>
+            ) : (
+              <>
+                <span>Apply Now</span>
+                <ExternalLink className="w-3.5 h-3.5" />
+              </>
+            )}
+          </button>
         </div>
       </div>
     </div>

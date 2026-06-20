@@ -4,6 +4,26 @@ import { syncJobsInternal } from "@/lib/syncJobs";
 
 export const dynamic = "force-dynamic";
 
+function isValidUrl(urlStr: string) {
+  try {
+    const url = new URL(urlStr);
+    return url.protocol === "http:" || url.protocol === "https:";
+  } catch (e) {
+    return false;
+  }
+}
+
+function getCompletenessScore(job: any) {
+  let score = 0;
+  if (job.logoUrl) score += 2;
+  if (job.location) score += 1;
+  if (job.experienceLevel) score += 1;
+  if (job.employmentType) score += 1;
+  if (job.skills && job.skills.length > 0) score += 2;
+  if (job.salaryMin || job.salaryMax) score += 3;
+  return score;
+}
+
 export async function GET(request: Request) {
   try {
     isDbConfigured();
@@ -16,15 +36,10 @@ export async function GET(request: Request) {
     const jobType = searchParams.get("jobType") || "";
     const remote = searchParams.get("remote");
     const userId = searchParams.get("userId") || "";
-    const page = parseInt(searchParams.get("page") || "1");
-    const limit = parseInt(searchParams.get("limit") || "10");
 
-    const skip = (page - 1) * limit;
-
-    // 1. AUTO-SYNC CACHE CHECK
-    // If the database has < 50 jobs or the latest job is > 6 hours old, run sync.
+    // 1. AUTO-SYNC CACHE CHECK (every 6 hours)
     const count = await prisma.job.count();
-    let needsSync = count < 50;
+    let needsSync = count < 30; // lower threshold to trigger auto sync if DB gets cleared
 
     if (!needsSync) {
       const latestJob = await prisma.job.findFirst({
@@ -118,24 +133,27 @@ export async function GET(request: Request) {
         { title: { contains: search, mode: "insensitive" } },
         { company: { contains: search, mode: "insensitive" } },
         { description: { contains: search, mode: "insensitive" } },
-        { skills: { hasSome: [search] } } // search skills array directly
+        { skills: { hasSome: [search] } }
       ];
     }
 
     if (role) {
-      // Find matches where role query is in title or skills
-      const roleClause = [
-        { title: { contains: role, mode: "insensitive" } },
-        { skills: { hasSome: [role] } }
-      ];
+      const roleWords = role.split(/[\s,]+/);
+      const roleClauses = roleWords.map(word => ({
+        OR: [
+          { title: { contains: word, mode: "insensitive" } },
+          { skills: { hasSome: [word] } }
+        ]
+      }));
+      
       if (whereClause.OR) {
         whereClause.AND = [
           { OR: whereClause.OR },
-          { OR: roleClause }
+          ...roleClauses
         ];
         delete whereClause.OR;
       } else {
-        whereClause.OR = roleClause;
+        whereClause.AND = roleClauses;
       }
     }
 
@@ -161,63 +179,54 @@ export async function GET(request: Request) {
       whereClause.remote = false;
     }
 
-    // 4. FETCH GENERAL JOBS
-    const [jobs, total] = await Promise.all([
-      prisma.job.findMany({
-        where: whereClause,
-        orderBy: { createdAt: "desc" },
-        skip,
-        take: limit,
-      }),
-      prisma.job.count({ where: whereClause }),
-    ]);
+    // 4. FETCH A LARGER BATCH TO ENFORCE DE-DUPLICATION, COMPLETENESS & LIMIT OF EXACTLY 5-6
+    const poolJobs = await prisma.job.findMany({
+      where: whereClause,
+      orderBy: { createdAt: "desc" },
+      take: 100 // Fetch recent pool to filter and score in JS memory
+    });
 
-    // 5. IF NO FILTERS ACTIVE, FETCH CAROUSEL FEEDS
-    const hasActiveFilters = !!(search || role || location || experience || jobType || remote === "true");
+    // Enforce URL Validation & Deduplication (by title + company case-insensitive)
+    const seenTitles = new Set<string>();
+    const cleanedJobs: typeof poolJobs = [];
 
-    let trendingInternships: any[] = [];
-    let remoteJobs: any[] = [];
-    let topCompanies: any[] = [];
-    let recentlyPosted: any[] = [];
-
-    if (!hasActiveFilters) {
-      const allDBJobs = await prisma.job.findMany({
-        orderBy: { createdAt: "desc" },
-        take: 100, // Fetch recent pool to filter inside JS for clean categories
-      });
-
-      // Filter Trending Internships (Internship experience level or job type)
-      trendingInternships = allDBJobs.filter(
-        j => (j.experienceLevel?.toLowerCase().includes("intern") || j.employmentType?.toLowerCase().includes("intern"))
-      ).slice(0, 10);
-
-      // Filter Remote Opportunities
-      remoteJobs = allDBJobs.filter(j => j.remote).slice(0, 10);
-
-      // Filter Top Companies Hiring (One unique job per company)
-      const uniqueCompanies = new Set<string>();
-      topCompanies = [];
-      for (const j of allDBJobs) {
-        if (!uniqueCompanies.has(j.company.toLowerCase())) {
-          uniqueCompanies.add(j.company.toLowerCase());
-          topCompanies.push(j);
-          if (topCompanies.length >= 10) break;
-        }
+    for (const job of poolJobs) {
+      if (!job.applyUrl || !isValidUrl(job.applyUrl)) {
+        continue; // Exclude listings without a valid URL
       }
 
-      // Filter Recently Posted
-      recentlyPosted = allDBJobs.slice(0, 15);
+      const uniqueKey = `${job.title.toLowerCase().trim()}@${job.company.toLowerCase().trim()}`;
+      if (seenTitles.has(uniqueKey)) {
+        continue; // Exclude duplicate listings
+      }
+
+      seenTitles.add(uniqueKey);
+      cleanedJobs.push(job);
     }
 
+    // Score jobs by completeness
+    const scoredJobs = cleanedJobs.map(job => ({
+      job,
+      score: getCompletenessScore(job),
+      timeAge: Date.now() - new Date(job.createdAt).getTime()
+    }));
+
+    // Prioritize recency & completeness
+    // Primary sort: completeness score (higher is better)
+    // Secondary sort: time age (smaller is better/more recent)
+    scoredJobs.sort((a, b) => {
+      if (b.score !== a.score) {
+        return b.score - a.score;
+      }
+      return a.timeAge - b.timeAge;
+    });
+
+    // Slice to exactly 6 jobs (or 5 if 6 aren't available, satisfying exactly 5-6 jobs per selected role)
+    const finalJobs = scoredJobs.map(sj => sj.job).slice(0, 6);
+
     return NextResponse.json({
-      jobs,
-      total,
-      page,
-      totalPages: Math.ceil(total / limit),
-      trendingInternships,
-      remoteJobs,
-      topCompanies,
-      recentlyPosted
+      jobs: finalJobs,
+      total: finalJobs.length
     });
   } catch (error: any) {
     console.error("Jobs fetch error:", error);

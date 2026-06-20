@@ -1,5 +1,5 @@
-import React, { useEffect } from "react";
-import { X, ExternalLink, MapPin, Briefcase, DollarSign, Clock, Building2, Bookmark, BookmarkCheck, CheckCircle2, XCircle, Share2, Calendar, ShieldCheck, HelpCircle } from "lucide-react";
+import React, { useEffect, useState } from "react";
+import { X, ExternalLink, MapPin, Briefcase, DollarSign, Clock, Building2, Bookmark, BookmarkCheck, CheckCircle2, XCircle, Calendar, ShieldCheck, HelpCircle } from "lucide-react";
 import { useToast } from "@/components/Providers";
 
 const getSourceBadge = (externalId: string, applyUrl: string) => {
@@ -10,7 +10,7 @@ const getSourceBadge = (externalId: string, applyUrl: string) => {
   if (url.includes("indeed.com")) return { name: "Indeed", color: "bg-indigo-50 text-indigo-700 border-indigo-200" };
   if (url.includes("unstop.com")) return { name: "Unstop", color: "bg-sky-50 text-sky-700 border-sky-200" };
   if (url.includes("wellfound.com") || url.includes("angel.co")) return { name: "Wellfound", color: "bg-slate-900 text-slate-100 border-slate-700" };
-  if (url.includes("naukri.com")) return { name: "Naukri", color: "bg-amber-50 text-amber-800 border-amber-200" };
+  if (url.includes("naukri.com")) return { name: "Naukri", color: "bg-orange-50 text-orange-700 border-orange-200" };
   if (url.includes("internshala.com")) return { name: "Internshala", color: "bg-cyan-50 text-cyan-700 border-cyan-200" };
   if (url.includes("google.com/search") || url.includes("google.jobs")) return { name: "Google Jobs", color: "bg-rose-50 text-rose-700 border-rose-200" };
   if (url.includes("remotive.com") || ext.startsWith("remotive-")) return { name: "Remotive", color: "bg-purple-50 text-purple-700 border-purple-200" };
@@ -26,6 +26,7 @@ const getSourceBadge = (externalId: string, applyUrl: string) => {
 
 export default function JobDetailsDrawer({ job, isOpen, onClose, isSaved, toggleSaveJob }: any) {
   const { toast } = useToast();
+  const [isApplying, setIsApplying] = useState(false);
 
   useEffect(() => {
     if (isOpen) {
@@ -40,16 +41,20 @@ export default function JobDetailsDrawer({ job, isOpen, onClose, isSaved, toggle
 
   if (!isOpen || !job) return null;
 
-  const handleShare = () => {
-    try {
-      navigator.clipboard.writeText(job.applyUrl || window.location.href);
-      toast("Job application link copied to clipboard!", "success");
-    } catch (err) {
-      toast("Failed to copy link", "error");
-    }
-  };
-
   const badge = getSourceBadge(job.externalId, job.applyUrl);
+
+  const handleApply = () => {
+    if (!job.applyUrl) {
+      toast("Application link is missing or broken", "error");
+      return;
+    }
+    
+    setIsApplying(true);
+    setTimeout(() => {
+      setIsApplying(false);
+      window.open(job.applyUrl, "_blank", "noopener,noreferrer");
+    }, 600);
+  };
 
   // Calculate dynamic deadline (30 days from creation)
   const getDeadline = (createdAtStr: string | Date) => {
@@ -81,13 +86,6 @@ export default function JobDetailsDrawer({ job, isOpen, onClose, isSaved, toggle
             >
               <X className="w-5 h-5" />
             </button>
-            <button 
-              onClick={handleShare}
-              className="p-2 hover:bg-slate-100 rounded-full transition-colors text-slate-400 hover:text-slate-600 cursor-pointer"
-              title="Share job"
-            >
-              <Share2 className="w-4 h-4" />
-            </button>
           </div>
           <div className="flex items-center gap-3">
             <button 
@@ -100,15 +98,25 @@ export default function JobDetailsDrawer({ job, isOpen, onClose, isSaved, toggle
             >
               {isSaved ? <BookmarkCheck className="w-5 h-5" /> : <Bookmark className="w-5 h-5" />}
             </button>
-            <a 
-              href={job.applyUrl || "#"} 
-              target="_blank" 
-              rel="noreferrer"
-              className="bg-[#0F172A] hover:bg-slate-800 text-white font-extrabold py-2.5 px-6 rounded-xl shadow-sm transition-all text-xs flex items-center gap-1.5"
+
+            <button 
+              type="button"
+              disabled={isApplying}
+              onClick={handleApply}
+              className="bg-[#0F172A] hover:bg-slate-800 text-white font-extrabold py-2.5 px-6 rounded-xl shadow-sm transition-all text-xs flex items-center gap-1.5 disabled:opacity-70"
             >
-              Apply Now
-              <ExternalLink className="w-3.5 h-3.5" />
-            </a>
+              {isApplying ? (
+                <>
+                  <div className="w-3.5 h-3.5 border-2 border-white border-t-transparent rounded-full animate-spin shrink-0" />
+                  <span>Redirecting...</span>
+                </>
+              ) : (
+                <>
+                  <span>Apply Now</span>
+                  <ExternalLink className="w-3.5 h-3.5" />
+                </>
+              )}
+            </button>
           </div>
         </div>
 
