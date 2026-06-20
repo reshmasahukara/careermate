@@ -11,22 +11,17 @@ import {
   AlertCircle,
   CheckCircle2,
   PieChart,
-  Layers,
   Award,
   Zap,
   Briefcase,
   BookOpen,
-  Plus,
   UploadCloud,
   FileText,
   X
 } from "lucide-react";
 import { useToast } from "@/components/Providers";
 import { 
-  getUserSkillsAction, 
-  getLatestSkillGapAction,
-  addUserSkillAction,
-  removeUserSkillAction
+  getLatestSkillGapAction
 } from "@/app/actions/skills";
 
 const TARGET_ROLES = [
@@ -46,7 +41,6 @@ export default function SkillGapPage() {
   const { data: session } = useSession();
   const { toast } = useToast();
 
-  const [userSkills, setUserSkills] = useState<any[]>([]);
   const [targetRole, setTargetRole] = useState("");
   const [customRole, setCustomRole] = useState("");
   const [isAnalyzing, setIsAnalyzing] = useState(false);
@@ -54,8 +48,6 @@ export default function SkillGapPage() {
   const [skillGap, setSkillGap] = useState<any>(null);
   const [jobInsights, setJobInsights] = useState<any>(null);
 
-  const [newSkill, setNewSkill] = useState("");
-  
   // File Upload State
   const [file, setFile] = useState<File | null>(null);
   const [isDragging, setIsDragging] = useState(false);
@@ -71,9 +63,6 @@ export default function SkillGapPage() {
 
   const loadData = async () => {
     try {
-      const skills = await getUserSkillsAction(userId);
-      setUserSkills(skills);
-
       const latestGap = await getLatestSkillGapAction(userId);
       if (latestGap) {
         setTargetRole(latestGap.targetRole);
@@ -82,29 +71,6 @@ export default function SkillGapPage() {
       }
     } catch (e) {
       console.error("Error loading data:", e);
-    }
-  };
-
-  const handleAddSkill = async () => {
-    if (!newSkill.trim()) return;
-    try {
-      await addUserSkillAction(userId, newSkill.trim(), "Intermediate");
-      setNewSkill("");
-      const skills = await getUserSkillsAction(userId);
-      setUserSkills(skills);
-      toast("Skill added manually", "success");
-    } catch (e) {
-      toast("Failed to add skill", "error");
-    }
-  };
-
-  const handleRemoveSkill = async (skillId: string) => {
-    try {
-      await removeUserSkillAction(userId, skillId);
-      const skills = await getUserSkillsAction(userId);
-      setUserSkills(skills);
-    } catch (e) {
-      toast("Failed to remove skill", "error");
     }
   };
 
@@ -168,9 +134,6 @@ export default function SkillGapPage() {
       if (!response.ok) throw new Error(data.error);
 
       setSkillGap(data.gap);
-      const skills = await getUserSkillsAction(userId);
-      setUserSkills(skills);
-
       fetchJobInsights(finalRole);
       
       toast("Skill Gap Analysis Complete!", "success");
@@ -354,35 +317,7 @@ export default function SkillGapPage() {
           /* Analysis Results */
           <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
             
-            {/* Current Skills Manager */}
-            <div className="bg-white p-6 border border-[#E2E8F0] rounded-[20px] shadow-sm">
-              <h3 className="text-sm font-bold text-[#0F172A] mb-4 flex items-center gap-2">
-                <Layers className="w-4 h-4 text-emerald-500" /> Extracted & Manual Skills
-              </h3>
-              <div className="flex flex-wrap gap-2 mb-4">
-                {userSkills.map(skill => (
-                  <span key={skill.id} className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-slate-100 text-slate-700 text-xs font-bold rounded-lg border border-slate-200">
-                    {skill.name}
-                    <button onClick={() => handleRemoveSkill(skill.skillId)} className="hover:text-rose-500 transition-colors">
-                      &times;
-                    </button>
-                  </span>
-                ))}
-              </div>
-              <div className="flex items-center gap-2 max-w-sm">
-                <input
-                  type="text"
-                  placeholder="Add skill manually (e.g. React)"
-                  value={newSkill}
-                  onChange={(e) => setNewSkill(e.target.value)}
-                  onKeyDown={(e) => e.key === 'Enter' && handleAddSkill()}
-                  className="flex-1 bg-[#F8FAFC] border border-[#E2E8F0] rounded-lg py-2 px-3 text-sm focus:outline-none focus:border-emerald-500"
-                />
-                <button onClick={handleAddSkill} className="p-2 bg-emerald-100 text-emerald-700 rounded-lg hover:bg-emerald-200 transition-colors">
-                  <Plus className="w-4 h-4" />
-                </button>
-              </div>
-            </div>
+
 
             {/* Overview Cards */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
