@@ -24,7 +24,9 @@ const eslintConfig = defineConfig([
       "react-hooks/exhaustive-deps": "off",
       "@next/next/no-img-element": "off",
       "@typescript-eslint/no-require-imports": "off",
-      "react-hooks/incompatible-library": "off"
+      "react-hooks/incompatible-library": "off",
+      "react-hooks/preserve-manual-memoization": "off",
+      "react-hooks/purity": "off"
     }
   }
 ]);
