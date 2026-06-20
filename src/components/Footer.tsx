@@ -22,7 +22,7 @@ export default function Footer() {
     "/ats-checker",
     "/jobs",
     "/skill-gap",
-    "/roadmap",
+    "/career-pathways",
     "/career-insights",
     "/settings"
   ].some(route => pathname === route || pathname.startsWith(route + "/"));
@@ -100,7 +100,7 @@ export default function Footer() {
               <li><Link href="/ats-checker" className="hover:text-white transition-colors">ATS Optimizer</Link></li>
               <li><Link href="/resume-analysis" className="hover:text-white transition-colors">Resume Audit</Link></li>
               <li><Link href="/skill-gap" className="hover:text-white transition-colors">Skill Gap Guide</Link></li>
-              <li><Link href="/roadmap" className="hover:text-white transition-colors">Learning Paths</Link></li>
+              <li><Link href="/career-pathways" className="hover:text-white transition-colors">Learning Paths</Link></li>
             </ul>
           </div>
 

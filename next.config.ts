@@ -17,6 +17,20 @@ const nextConfig: NextConfig = {
       },
     ],
   },
+  async redirects() {
+    return [
+      {
+        source: "/roadmap",
+        destination: "/career-pathways",
+        permanent: true,
+      },
+      {
+        source: "/roadmap/:path*",
+        destination: "/career-pathways/:path*",
+        permanent: true,
+      },
+    ];
+  },
 };
 
 export default nextConfig;

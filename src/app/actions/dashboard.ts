@@ -71,7 +71,7 @@ export async function getDashboardDataAction(userId: string) {
       pendingActions.push({ title: "Add your skills", desc: "Improve skill gap analysis accuracy", href: "/skill-gap", priority: "recommended" });
     }
     if (careerPathsCount === 0) {
-      pendingActions.push({ title: "Set a target role", desc: "Generate a personalized roadmap", href: "/roadmap", priority: "recommended" });
+      pendingActions.push({ title: "Set a target role", desc: "Generate a personalized roadmap", href: "/career-pathways", priority: "recommended" });
     }
     pendingActions.push({ title: "Explore job matches", desc: "Browse jobs that match your profile", href: "/jobs", priority: "optional" });
 

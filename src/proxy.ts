@@ -16,6 +16,7 @@ export const config = {
     "/jobs/:path*",
     "/skill-gap/:path*",
     "/roadmap/:path*",
+    "/career-pathways/:path*",
     "/career-insights/:path*",
     "/settings/:path*",
   ],

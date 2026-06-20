@@ -18,7 +18,7 @@ export default function ProfileCompletion({ progress, stats }: ProfileCompletion
   const checklist = [
     { label: "Upload resume", done: stats.resumes > 0, href: "/resume-upload" },
     { label: "Add 5+ skills", done: stats.skills >= 5, href: "/skill-gap" },
-    { label: "Set target role", done: stats.paths > 0, href: "/roadmap" },
+    { label: "Set target role", done: stats.paths > 0, href: "/career-pathways" },
     { label: "Run ATS scan", done: stats.atsChecks > 0, href: "/ats-checker" },
     { label: "Complete profile", done: progress >= 80, href: "/settings" },
   ];

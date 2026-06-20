@@ -95,7 +95,7 @@ export default function HomePage() {
       title: "Learning Resources",
       description: "Access curated learning paths and resources.",
       icon: <BookOpen className="w-5 h-5 text-[#10B981]" />,
-      href: "/roadmap"
+      href: "/career-pathways"
     }
   ];
 

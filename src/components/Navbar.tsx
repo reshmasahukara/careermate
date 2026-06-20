@@ -86,7 +86,7 @@ export default function Navbar() {
     "/ats-checker",
     "/jobs",
     "/skill-gap",
-    "/roadmap",
+    "/career-pathways",
     "/career-insights",
     "/settings"
   ].some(route => pathname === route || pathname.startsWith(route + "/"));

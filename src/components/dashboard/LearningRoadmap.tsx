@@ -18,7 +18,7 @@ export default function LearningRoadmap({ careerPath }: LearningRoadmapProps) {
         <p className="text-sm font-bold text-[#111827] mb-1">No roadmap yet</p>
         <p className="text-xs text-[#64748B] mb-4">Set a target role to generate your personalized learning roadmap.</p>
         <Link
-          href="/roadmap"
+          href="/career-pathways"
           className="flex items-center gap-1.5 text-xs font-bold text-emerald-600 hover:text-emerald-700 transition-colors"
         >
           Create Roadmap <ArrowRight className="w-3 h-3" />
@@ -74,7 +74,7 @@ export default function LearningRoadmap({ careerPath }: LearningRoadmapProps) {
       </div>
 
       <Link
-        href="/roadmap"
+        href="/career-pathways"
         className="w-full flex items-center justify-center gap-2 bg-[#0F172A] hover:bg-slate-800 text-white font-bold py-2.5 rounded-xl text-sm transition-all shadow-sm"
       >
         Continue Learning <ArrowRight className="w-4 h-4" />
