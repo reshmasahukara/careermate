@@ -4,7 +4,7 @@ import bcrypt from "bcryptjs";
 
 export async function POST(req: NextRequest) {
   try {
-    const { name, email, password } = await req.json();
+    let { name, email, password } = await req.json();
 
     if (!email || !password || !name) {
       return NextResponse.json(
@@ -12,6 +12,8 @@ export async function POST(req: NextRequest) {
         { status: 400 }
       );
     }
+    
+    email = email.trim();
 
     if (password.length < 6) {
       return NextResponse.json(
@@ -73,6 +75,7 @@ export async function POST(req: NextRequest) {
         from: `"CareerMate" <${process.env.EMAIL_USER}>`,
         to: email.toLowerCase(),
         subject: "Verify your CareerMate account",
+        text: `Welcome to CareerMate! Your verification code is ${otp}. This code will expire in 10 minutes. If you did not request this, please ignore this email.`,
         html: `
           <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #e5e7eb; border-radius: 12px;">
             <h2 style="color: #10b981; font-weight: 800;">Welcome to CareerMate!</h2>
