@@ -24,6 +24,7 @@ model User {
   careerPaths   CareerPath[]
   notifications Notification[]
   subscriptions Subscription[]
+  payments      Payment[]
   learningResources LearningResource[]
   atsAnalyses   ATSAnalysis[]
 
@@ -243,17 +244,37 @@ model Notification {
 }
 
 model Subscription {
-  id             String    @id @default(cuid())
-  userId         String    @map("user_id")
-  plan           String    // Free, Pro, Premium, Enterprise
-  status         String    // Active, Cancelled, Expired
+  id               String    @id @default(cuid())
+  userId           String    @map("user_id")
+  plan             String    // Free, Pro, Premium, Enterprise
+  status           String    // Active, Cancelled, Expired
   currentPeriodEnd DateTime? @map("current_period_end")
-  createdAt      DateTime  @default(now()) @map("created_at")
-  updatedAt      DateTime  @updatedAt @map("updated_at")
+  startDate        DateTime? @map("start_date")
+  endDate          DateTime? @map("end_date")
+  renewalDate      DateTime? @map("renewal_date")
+  createdAt        DateTime  @default(now()) @map("created_at")
+  updatedAt        DateTime  @updatedAt @map("updated_at")
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@map("subscriptions")
+}
+
+model Payment {
+  id          String   @id @default(cuid())
+  userId      String   @map("user_id")
+  invoiceId   String   @map("invoice_id")
+  plan        String
+  amount      Float
+  currency    String   @default("INR")
+  paymentDate DateTime @map("payment_date")
+  status      String   @default("Paid")  // Paid, Pending, Failed
+  invoiceUrl  String?  @map("invoice_url")
+  createdAt   DateTime @default(now()) @map("created_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("payments")
 }
 
 model VerificationOtp {

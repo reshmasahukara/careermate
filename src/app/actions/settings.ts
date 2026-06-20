@@ -48,7 +48,6 @@ export async function updateNotificationsAction(
 export async function deleteAccountAction(userId: string) {
   isDbConfigured();
   try {
-    // Delete the user and let cascade handle related records
     await prisma.user.delete({
       where: { id: userId },
     });
@@ -64,7 +63,7 @@ export async function getSubscriptionAction(userId: string) {
   try {
     return await prisma.subscription.findFirst({
       where: { userId },
-      orderBy: { createdAt: "desc" }
+      orderBy: { createdAt: "desc" },
     });
   } catch (e) {
     console.error("Prisma error getting subscription:", e);
@@ -72,38 +71,102 @@ export async function getSubscriptionAction(userId: string) {
   }
 }
 
-export async function upgradeSubscriptionAction(userId: string, plan: "Free" | "Pro" | "Premium" | "Enterprise") {
+export async function upgradeSubscriptionAction(
+  userId: string,
+  plan: "Free" | "Pro" | "Premium" | "Enterprise"
+) {
   isDbConfigured();
   try {
     const existing = await prisma.subscription.findFirst({
       where: { userId },
     });
 
+    const now = new Date();
     const end = new Date();
     end.setMonth(end.getMonth() + 1);
 
     if (existing) {
-      return await prisma.subscription.update({
+      await prisma.subscription.update({
         where: { id: existing.id },
         data: {
           plan,
           status: "Active",
           currentPeriodEnd: end,
+          startDate: now,
+          endDate: end,
+          renewalDate: end,
         },
       });
     } else {
-      return await prisma.subscription.create({
+      await prisma.subscription.create({
         data: {
           userId,
           plan,
           status: "Active",
           currentPeriodEnd: end,
+          startDate: now,
+          endDate: end,
+          renewalDate: end,
         },
       });
     }
+
+    // Create payment record for paid plans
+    if (plan !== "Free") {
+      const planPrices: Record<string, number> = {
+        Pro: 999,
+        Premium: 2499,
+        Enterprise: 4999,
+      };
+      const invoiceId = `INV-${Date.now()}-${Math.random().toString(36).substring(2, 7).toUpperCase()}`;
+      await prisma.payment.create({
+        data: {
+          userId,
+          invoiceId,
+          plan,
+          amount: planPrices[plan] ?? 999,
+          currency: "INR",
+          paymentDate: now,
+          status: "Paid",
+        },
+      });
+    }
+
+    return { success: true };
   } catch (e) {
     console.error("Prisma error upgrading subscription:", e);
     throw new Error("Failed to upgrade subscription.");
+  }
+}
+
+export async function cancelSubscriptionAction(userId: string) {
+  isDbConfigured();
+  try {
+    const existing = await prisma.subscription.findFirst({
+      where: { userId },
+    });
+    if (!existing) throw new Error("No subscription found.");
+    await prisma.subscription.update({
+      where: { id: existing.id },
+      data: { status: "Cancelled" },
+    });
+    return { success: true };
+  } catch (e) {
+    console.error("Prisma error cancelling subscription:", e);
+    throw new Error("Failed to cancel subscription.");
+  }
+}
+
+export async function getPaymentsAction(userId: string) {
+  isDbConfigured();
+  try {
+    return await prisma.payment.findMany({
+      where: { userId },
+      orderBy: { paymentDate: "desc" },
+    });
+  } catch (e) {
+    console.error("Prisma error getting payments:", e);
+    return [];
   }
 }
 

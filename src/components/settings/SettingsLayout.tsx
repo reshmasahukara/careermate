@@ -13,6 +13,12 @@ import SubscriptionSettings from "./SubscriptionSettings";
 interface SettingsLayoutProps {
   user: any;
   subscription: any;
+  usageStats?: {
+    resumeCount: number;
+    atsCount: number;
+    savedJobCount: number;
+  };
+  payments?: any[];
 }
 
 const TABS = [
@@ -23,7 +29,7 @@ const TABS = [
   { id: "subscription", label: "Subscription", icon: <CreditCard className="w-4 h-4" /> },
 ];
 
-export default function SettingsLayout({ user, subscription }: SettingsLayoutProps) {
+export default function SettingsLayout({ user, subscription, usageStats, payments }: SettingsLayoutProps) {
   const [activeTab, setActiveTab] = useState(TABS[0].id);
 
   const renderActiveSection = () => {
@@ -37,7 +43,14 @@ export default function SettingsLayout({ user, subscription }: SettingsLayoutPro
       case "appearance":
         return <AppearanceSettings />;
       case "subscription":
-        return <SubscriptionSettings subscription={subscription} user={user} />;
+        return (
+          <SubscriptionSettings
+            subscription={subscription}
+            user={user}
+            usageStats={usageStats}
+            payments={payments}
+          />
+        );
       default:
         return null;
     }

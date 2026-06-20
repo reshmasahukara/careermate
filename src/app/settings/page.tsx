@@ -43,9 +43,25 @@ export default async function SettingsPage() {
     orderBy: { createdAt: "desc" },
   });
 
+  // Fetch usage statistics
+  const [resumeCount, atsCount, savedJobCount, payments] = await Promise.all([
+    prisma.resume.count({ where: { userId } }),
+    prisma.aTSAnalysis.count({ where: { userId } }),
+    prisma.savedJob.count({ where: { userId } }),
+    prisma.payment.findMany({
+      where: { userId },
+      orderBy: { paymentDate: "desc" },
+    }),
+  ]);
+
   return (
     <DashboardLayout>
-      <SettingsLayout user={dbUser} subscription={subscription} />
+      <SettingsLayout
+        user={dbUser}
+        subscription={subscription}
+        usageStats={{ resumeCount, atsCount, savedJobCount }}
+        payments={payments}
+      />
     </DashboardLayout>
   );
 }
