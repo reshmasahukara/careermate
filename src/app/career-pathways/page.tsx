@@ -127,7 +127,7 @@ export default function CareerPathwaysPage() {
               <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                 
                 {/* Meta Attributes */}
-                <div className="lg:col-span-2 bg-white border border-slate-200 rounded-[20px] p-6 shadow-sm flex flex-wrap items-center justify-between gap-6 relative overflow-hidden">
+                <div className="lg:col-span-3 bg-white border border-slate-200 rounded-[20px] p-6 shadow-sm flex flex-wrap items-center justify-between gap-6 relative overflow-hidden">
                   <div className="absolute top-0 left-0 w-2 h-full bg-emerald-500" />
                   <div className="space-y-1">
                     <div className="flex items-center gap-2">
