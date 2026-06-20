@@ -99,11 +99,18 @@ export async function POST(req: NextRequest) {
       console.log("==================================================\n");
     }
 
+    if (!emailSent) {
+      // In production, we must fail if the email cannot be sent so the user is aware.
+      return NextResponse.json(
+        { error: "Failed to dispatch email. Please check if your address is correct, or try again later." },
+        { status: 500 }
+      );
+    }
+
     return NextResponse.json(
       { 
-        message: emailSent ? "Verification code sent successfully." : "Verification code generated.", 
-        email: email.toLowerCase(),
-        warning: emailSent ? undefined : "Email delivery failed, but registration is pending. Please verify using the OTP from server terminal logs."
+        message: "Verification code sent successfully.", 
+        email: email.toLowerCase()
       },
       { status: 200 }
     );
