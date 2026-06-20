@@ -1,10 +1,107 @@
 "use server";
 
 import { prisma, isDbConfigured } from "@/lib/db";
-
+import { CAREER_PATHS_DATA } from "@/lib/constants/careerPathsData";
 
 // Provide a mock user ID for demo purposes if no user is provided.
 const getSafeUserId = (userId?: string) => userId || "demo-user-123";
+
+/**
+ * Fetch the user's active selected career path.
+ */
+export async function getUserActivePathAction(userId: string) {
+  if (!isDbConfigured()) return null;
+  const safeId = getSafeUserId(userId);
+  try {
+    return await prisma.careerPath.findFirst({
+      where: { userId: safeId },
+      orderBy: { updatedAt: "desc" }
+    });
+  } catch (error) {
+    console.error("Error fetching active career path:", error);
+    return null;
+  }
+}
+
+/**
+ * Save user selected career path in Neon PostgreSQL and generate roadmap milestones.
+ */
+export async function saveUserPathAction(userId: string, targetRole: string) {
+  if (!isDbConfigured()) return null;
+  const safeId = getSafeUserId(userId);
+  try {
+    const roleData = CAREER_PATHS_DATA[targetRole];
+    if (!roleData) throw new Error(`Role ${targetRole} not found in career paths dictionary`);
+
+    // 1. Delete all other career paths for this user to keep a single active choice
+    await prisma.careerPath.deleteMany({
+      where: {
+        userId: safeId,
+        NOT: { targetRole }
+      }
+    });
+
+    // 2. Find or create the current career path
+    const existing = await prisma.careerPath.findFirst({
+      where: { userId: safeId, targetRole }
+    });
+
+    const description = `A comprehensive career path focusing on core skills, advanced techniques, and practical projects to master the ${targetRole} role.`;
+    const roadmapJson = JSON.stringify(roleData.milestones.map(m => ({
+      week: m.week,
+      title: m.title,
+      description: m.description,
+      status: "pending",
+      resourceId: `lr-${m.week}`
+    })));
+
+    let careerPathRecord;
+    if (existing) {
+      careerPathRecord = await prisma.careerPath.update({
+        where: { id: existing.id },
+        data: {
+          description,
+          roadmapData: roadmapJson,
+          updatedAt: new Date()
+        }
+      });
+    } else {
+      careerPathRecord = await prisma.careerPath.create({
+        data: {
+          userId: safeId,
+          targetRole,
+          description,
+          roadmapData: roadmapJson
+        }
+      });
+    }
+
+    // 3. Re-create weekly milestones in LearningRoadmap table with stable IDs
+    await prisma.learningRoadmap.deleteMany({
+      where: { userId: safeId }
+    });
+
+    for (const milestone of roleData.milestones) {
+      const stableId = `${safeId}-${targetRole.replace(/\s+/g, "-")}-week-${milestone.week}`.toLowerCase();
+      await prisma.learningRoadmap.create({
+        data: {
+          id: stableId,
+          userId: safeId,
+          targetRole,
+          title: milestone.title,
+          description: milestone.description,
+          week: milestone.week,
+          resources: milestone.resources
+        }
+      });
+    }
+
+    return { success: true, careerPath: careerPathRecord };
+  } catch (error) {
+    console.error("Error saving career path selection:", error);
+    return null;
+  }
+}
 
 /**
  * Fetch the learning roadmap for a specific target role.
@@ -65,6 +162,42 @@ export async function toggleMilestoneCompletionAction(userId: string, skillName:
         data: { userId: safeId, skillName, completed }
       });
     }
+
+    // Sync status change into user's CareerPath record's roadmapData JSON (for dashboard metrics)
+    const milestone = await prisma.learningRoadmap.findUnique({
+      where: { id: skillName }
+    });
+
+    if (milestone) {
+      const activePath = await prisma.careerPath.findFirst({
+        where: { userId: safeId, targetRole: milestone.targetRole }
+      });
+
+      if (activePath) {
+        try {
+          const milestones = JSON.parse(activePath.roadmapData || "[]");
+          const updatedMilestones = milestones.map((m: any) => {
+            if (m.week === milestone.week || m.title === milestone.title) {
+              return {
+                ...m,
+                status: completed ? "completed" : "pending"
+              };
+            }
+            return m;
+          });
+
+          await prisma.careerPath.update({
+            where: { id: activePath.id },
+            data: {
+              roadmapData: JSON.stringify(updatedMilestones)
+            }
+          });
+        } catch (jsonErr) {
+          console.error("JSON parsing error during CareerPath sync:", jsonErr);
+        }
+      }
+    }
+
     return true;
   } catch (error) {
     console.error("Error toggling milestone:", error);

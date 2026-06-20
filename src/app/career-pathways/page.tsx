@@ -3,117 +3,225 @@
 import React, { useState, useEffect } from "react";
 import { useSession } from "next-auth/react";
 import DashboardLayout from "@/components/DashboardLayout";
-import { BookOpen, Target, Compass, Book, ExternalLink } from "lucide-react";
+import { Target, Compass, Book, Award, CheckSquare, Sparkles, BookOpen } from "lucide-react";
 import LearningPaths from "@/components/career-pathways/LearningPaths";
 import LearningResources from "@/components/career-pathways/LearningResources";
-import { getAvailableRolesAction } from "@/app/actions/pathways";
-import Link from "next/link";
+import SearchableRoleDropdown from "@/components/career-pathways/SearchableRoleDropdown";
+import { getUserActivePathAction, saveUserPathAction } from "@/app/actions/pathways";
+import { CAREER_PATHS_DATA } from "@/lib/constants/careerPathsData";
+import { useToast } from "@/components/Providers";
 
 export default function CareerPathwaysPage() {
   const { data: session } = useSession();
   const userId = (session?.user as any)?.id || "demo-user-123";
+  const { toast } = useToast();
 
   const [activeTab, setActiveTab] = useState<"paths" | "resources">("paths");
-  const [availableRoles, setAvailableRoles] = useState<string[]>([]);
   const [targetRole, setTargetRole] = useState<string>("");
   const [isLoading, setIsLoading] = useState(true);
+  const [isSaving, setIsSaving] = useState(false);
 
   useEffect(() => {
-    if (session?.user) {
-      loadRoles();
+    if (userId) {
+      loadActivePath();
     }
-  }, [session]);
+  }, [userId]);
 
-  const loadRoles = async () => {
+  const loadActivePath = async () => {
     setIsLoading(true);
     try {
-      const roles = await getAvailableRolesAction(userId);
-      setAvailableRoles(roles);
-      if (roles.length > 0) {
-        setTargetRole(roles[0]); // Default to first available role
+      const activePath = await getUserActivePathAction(userId);
+      if (activePath && activePath.targetRole) {
+        setTargetRole(activePath.targetRole);
+      } else {
+        setTargetRole(""); // Empty state triggers selection prompt
       }
     } catch (error) {
-      console.error("Failed to load roles", error);
+      console.error("Failed to load active career path", error);
     } finally {
       setIsLoading(false);
     }
   };
+
+  const handleRoleSelect = async (newRole: string) => {
+    if (isSaving) return;
+    setIsSaving(true);
+    toast(`Generating roadmap for ${newRole}...`, "info");
+    try {
+      const res = await saveUserPathAction(userId, newRole);
+      if (res && res.success) {
+        setTargetRole(newRole);
+        toast(`Success! Saved ${newRole} as your target career.`, "success");
+      } else {
+        toast("Failed to save career path selection.", "error");
+      }
+    } catch (error) {
+      console.error(error);
+      toast("Error saving selection.", "error");
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  // Get metadata from CAREER_PATHS_DATA for the selected role
+  const activePathDetails = targetRole ? CAREER_PATHS_DATA[targetRole] : null;
 
   return (
     <DashboardLayout>
       <div className="space-y-6 pb-20">
         
         {/* Header */}
-        <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-100 pb-5">
           <div>
-            <h1 className="text-2xl font-bold text-[#0F172A]">Career Pathways</h1>
+            <h1 className="text-2xl font-black text-[#0F172A] tracking-tight">Career Pathways</h1>
             <p className="text-[#64748B] text-sm font-semibold mt-1">Bridge the gap between your skills and your target career.</p>
+          </div>
+          
+          {/* Grouped Searchable Selector */}
+          <div className="w-full md:w-[320px] shrink-0">
+            <SearchableRoleDropdown 
+              selectedValue={targetRole} 
+              onSelect={handleRoleSelect} 
+              disabled={isSaving}
+            />
           </div>
         </div>
 
         {isLoading ? (
-          <div className="flex justify-center py-20">
-            <div className="w-8 h-8 border-4 border-emerald-500 border-t-transparent rounded-full animate-spin" />
+          <div className="flex flex-col items-center justify-center py-24">
+            <div className="w-10 h-10 border-4 border-emerald-500 border-t-transparent rounded-full animate-spin mb-4" />
+            <p className="text-slate-500 text-sm font-bold">Loading pathways data...</p>
           </div>
-        ) : availableRoles.length === 0 ? (
-          /* Empty State: No Target Roles */
-          <div className="bg-white border border-[#E2E8F0] rounded-[20px] min-h-[400px] flex flex-col items-center justify-center p-8 text-center shadow-sm">
-            <div className="w-20 h-20 bg-slate-50 rounded-full flex items-center justify-center mb-6">
-              <Compass className="w-10 h-10 text-slate-300" />
+        ) : !targetRole ? (
+          /* Empty State: Prompt User to Select a Career Path */
+          <div className="bg-white border border-[#E2E8F0] rounded-[24px] min-h-[420px] flex flex-col items-center justify-center p-8 text-center shadow-sm relative overflow-hidden">
+            <div className="absolute top-0 right-0 w-32 h-32 bg-emerald-50/50 rounded-full blur-2xl -z-10" />
+            <div className="absolute bottom-0 left-0 w-32 h-32 bg-blue-50/50 rounded-full blur-2xl -z-10" />
+            
+            <div className="w-20 h-20 bg-emerald-50 rounded-2xl flex items-center justify-center mb-6 border border-emerald-100/50 shadow-inner">
+              <Compass className="w-10 h-10 text-emerald-600 animate-pulse" />
             </div>
-            <h3 className="text-xl font-bold text-[#0F172A] mb-2">No learning path available</h3>
-            <p className="text-[#64748B] text-sm max-w-sm mb-8">
-              Upload your resume and select a target role in the Skill Gap Analysis module to generate a personalized roadmap.
+            
+            <h3 className="text-2xl font-black text-[#0F172A] tracking-tight mb-3">
+              Generate Your Roadmap
+            </h3>
+            <p className="text-[#64748B] text-sm max-w-md mb-8 font-semibold leading-relaxed">
+              Select a career path to generate your personalized roadmap and learning resources.
             </p>
-            <Link 
-              href="/skill-gap"
-              className="bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-8 py-3 rounded-xl transition-all shadow-sm"
-            >
-              Analyze Skills
-            </Link>
+            
+            {/* Call to action inside empty state */}
+            <div className="w-full max-w-[340px]">
+              <SearchableRoleDropdown 
+                selectedValue={targetRole} 
+                onSelect={handleRoleSelect} 
+                disabled={isSaving}
+              />
+            </div>
           </div>
         ) : (
-          /* Main Content */
-          <>
-            <div className="bg-white border border-[#E2E8F0] rounded-[20px] p-4 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4">
-              
-              {/* Tabs */}
-              <div className="flex items-center gap-2 bg-slate-100 p-1 rounded-xl shrink-0 overflow-x-auto no-scrollbar">
-                <button
-                  onClick={() => setActiveTab("paths")}
-                  className={`flex items-center gap-2 px-5 py-2.5 rounded-lg text-sm font-bold transition-all whitespace-nowrap ${
-                    activeTab === "paths" 
-                      ? "bg-white text-emerald-700 shadow-sm" 
-                      : "text-slate-500 hover:text-slate-700"
-                  }`}
-                >
-                  <Target className="w-4 h-4" /> Learning Paths
-                </button>
-                <button
-                  onClick={() => setActiveTab("resources")}
-                  className={`flex items-center gap-2 px-5 py-2.5 rounded-lg text-sm font-bold transition-all whitespace-nowrap ${
-                    activeTab === "resources" 
-                      ? "bg-white text-blue-700 shadow-sm" 
-                      : "text-slate-500 hover:text-slate-700"
-                  }`}
-                >
-                  <Book className="w-4 h-4" /> Learning Resources
-                </button>
-              </div>
+          /* Main Content with Selection Details */
+          <div className="space-y-6">
+            
+            {/* Selected Role Meta Details Banner */}
+            {activePathDetails && (
+              <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                
+                {/* Meta Attributes */}
+                <div className="lg:col-span-2 bg-white border border-slate-200 rounded-[20px] p-6 shadow-sm flex flex-wrap items-center justify-between gap-6 relative overflow-hidden">
+                  <div className="absolute top-0 left-0 w-2 h-full bg-emerald-500" />
+                  <div className="space-y-1">
+                    <div className="flex items-center gap-2">
+                      <span className="text-[10px] font-extrabold uppercase tracking-wider bg-slate-100 text-slate-500 px-2.5 py-1 rounded-md">
+                        {activePathDetails.category}
+                      </span>
+                      <span className={`text-[10px] font-extrabold uppercase tracking-wider px-2.5 py-1 rounded-md 
+                        ${activePathDetails.difficulty === "Beginner" ? "bg-emerald-50 text-emerald-700 border border-emerald-100" : 
+                          activePathDetails.difficulty === "Intermediate" ? "bg-blue-50 text-blue-700 border border-blue-100" : 
+                          "bg-purple-50 text-purple-700 border border-purple-100"}`}
+                      >
+                        {activePathDetails.difficulty} Level
+                      </span>
+                    </div>
+                    <h2 className="text-xl font-black text-slate-800 tracking-tight pt-1">{activePathDetails.role}</h2>
+                  </div>
+                  
+                  <div className="flex items-center gap-6 border-l border-slate-100 pl-6">
+                    <div className="text-center">
+                      <p className="text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-0.5">Est. Duration</p>
+                      <p className="text-2xl font-black text-emerald-600">{activePathDetails.durationWeeks} <span className="text-xs text-slate-500 font-bold">Weeks</span></p>
+                    </div>
+                  </div>
+                </div>
 
-              {/* Role Selector */}
-              <div className="relative min-w-[250px] shrink-0">
-                <select
-                  value={targetRole}
-                  onChange={(e) => setTargetRole(e.target.value)}
-                  className="w-full bg-[#F8FAFC] border border-[#E2E8F0] rounded-xl py-2.5 pl-10 pr-4 text-sm font-bold focus:outline-none focus:border-emerald-500 appearance-none transition-colors"
-                >
-                  {availableRoles.map(role => (
-                    <option key={role} value={role}>{role}</option>
-                  ))}
-                </select>
-                <Target className="absolute left-3.5 top-3 w-4.5 h-4.5 text-emerald-500 pointer-events-none" />
+                {/* Prerequisites Card */}
+                <div className="bg-white border border-slate-200 rounded-[20px] p-5 shadow-sm">
+                  <h3 className="text-xs font-black text-slate-800 uppercase tracking-widest mb-3 flex items-center gap-2">
+                    <Sparkles className="w-4 h-4 text-emerald-500" /> Prerequisites
+                  </h3>
+                  <ul className="space-y-2">
+                    {activePathDetails.prerequisites.map((p, i) => (
+                      <li key={i} className="text-xs font-semibold text-slate-600 flex items-start gap-2">
+                        <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 mt-1.5 shrink-0" />
+                        <span>{p}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+
+                {/* Projects Card */}
+                <div className="bg-white border border-slate-200 rounded-[20px] p-5 shadow-sm">
+                  <h3 className="text-xs font-black text-slate-800 uppercase tracking-widest mb-3 flex items-center gap-2">
+                    <CheckSquare className="w-4.5 h-4.5 text-blue-500" /> Hands-on Projects
+                  </h3>
+                  <div className="space-y-3">
+                    {activePathDetails.projects.map((proj, i) => (
+                      <div key={i} className="space-y-0.5">
+                        <p className="text-xs font-bold text-slate-800">{proj.title}</p>
+                        <p className="text-[11px] text-slate-500 font-medium leading-relaxed">{proj.description}</p>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Certifications Card */}
+                <div className="bg-white border border-slate-200 rounded-[20px] p-5 shadow-sm">
+                  <h3 className="text-xs font-black text-slate-800 uppercase tracking-widest mb-3 flex items-center gap-2">
+                    <Award className="w-4.5 h-4.5 text-purple-500" /> Certifications
+                  </h3>
+                  <ul className="space-y-2">
+                    {activePathDetails.certifications.map((cert, i) => (
+                      <li key={i} className="text-xs font-semibold text-slate-600 flex items-start gap-2">
+                        <span className="w-1.5 h-1.5 rounded-full bg-purple-500 mt-1.5 shrink-0" />
+                        <span>{cert}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
               </div>
+            )}
+
+            {/* Main Tabs Container */}
+            <div className="bg-white border border-[#E2E8F0] rounded-[24px] p-4 shadow-sm flex items-center gap-2 bg-slate-100/50 p-1 rounded-xl shrink-0 max-w-max">
+              <button
+                onClick={() => setActiveTab("paths")}
+                className={`flex items-center gap-2 px-5 py-2.5 rounded-lg text-sm font-bold transition-all whitespace-nowrap cursor-pointer ${
+                  activeTab === "paths" 
+                    ? "bg-white text-emerald-700 shadow-sm" 
+                    : "text-slate-500 hover:text-slate-700"
+                }`}
+              >
+                <Target className="w-4 h-4" /> Learning Paths
+              </button>
+              <button
+                onClick={() => setActiveTab("resources")}
+                className={`flex items-center gap-2 px-5 py-2.5 rounded-lg text-sm font-bold transition-all whitespace-nowrap cursor-pointer ${
+                  activeTab === "resources" 
+                    ? "bg-white text-blue-700 shadow-sm" 
+                    : "text-slate-500 hover:text-slate-700"
+                }`}
+              >
+                <Book className="w-4 h-4" /> Learning Resources
+              </button>
             </div>
 
             {/* Dynamic Tab Content */}
@@ -124,7 +232,7 @@ export default function CareerPathwaysPage() {
                 <LearningResources userId={userId} targetRole={targetRole} />
               )}
             </div>
-          </>
+          </div>
         )}
       </div>
     </DashboardLayout>

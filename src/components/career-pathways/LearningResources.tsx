@@ -4,81 +4,7 @@ import React, { useState, useEffect, useMemo } from "react";
 import { ExternalLink, Bookmark, CheckCircle, Search, Filter, BookmarkCheck, PlayCircle, Book, Code } from "lucide-react";
 import { getBookmarkedResourcesAction, bookmarkResourceAction, toggleResourceCompletionAction } from "@/app/actions/pathways";
 import { useToast } from "@/components/Providers";
-
-const CURATED_RESOURCES: Record<string, any[]> = {
-  "Frontend Developer": [
-    { title: "MDN Web Docs: Learn Web Development", provider: "MDN Web Docs", type: "Documentation", difficulty: "Beginner", duration: "Self-paced", url: "https://developer.mozilla.org/en-US/docs/Learn", skills: ["HTML", "CSS", "JavaScript"] },
-    { title: "Responsive Web Design Certification", provider: "freeCodeCamp", type: "Course", difficulty: "Beginner", duration: "300 Hours", url: "https://www.freecodecamp.org/learn/responsive-web-design/", skills: ["HTML", "CSS"] },
-    { title: "Meta Front-End Developer Professional Certificate", provider: "Coursera", type: "Certification", difficulty: "Intermediate", duration: "7 Months", url: "https://www.coursera.org/professional-certificates/meta-front-end-developer", skills: ["React", "JavaScript", "UI/UX"] },
-    { title: "Frontend Mentor Challenges", provider: "Frontend Mentor", type: "Practice", difficulty: "All Levels", duration: "Ongoing", url: "https://www.frontendmentor.io/", skills: ["CSS", "React", "HTML"] }
-  ],
-  "Backend Developer": [
-    { title: "Node.js Official Documentation", provider: "Node.js Documentation", type: "Documentation", difficulty: "Intermediate", duration: "Self-paced", url: "https://nodejs.org/en/docs/", skills: ["Node.js", "JavaScript"] },
-    { title: "Express.js Guide", provider: "Express.js Documentation", type: "Documentation", difficulty: "Intermediate", duration: "Self-paced", url: "https://expressjs.com/en/guide/routing.html", skills: ["Express", "Node.js"] },
-    { title: "Backend Development Tutorial", provider: "GeeksforGeeks", type: "Course", difficulty: "Beginner", duration: "40 Hours", url: "https://www.geeksforgeeks.org/backend-development/", skills: ["Databases", "APIs"] },
-    { title: "Node.js, Express, MongoDB Bootcamp", provider: "Udemy", type: "Course", difficulty: "Intermediate", duration: "42 Hours", url: "https://www.udemy.com/course/nodejs-express-mongodb-bootcamp/", skills: ["Node.js", "MongoDB"] }
-  ],
-  "Full Stack Developer": [
-    { title: "The Odin Project - Full Stack Curriculum", provider: "The Odin Project", type: "Course", difficulty: "Beginner to Advanced", duration: "1000 Hours", url: "https://www.theodinproject.com/", skills: ["JavaScript", "Ruby", "React"] },
-    { title: "Full Stack Open", provider: "University of Helsinki", type: "Course", difficulty: "Intermediate", duration: "120 Hours", url: "https://fullstackopen.com/en/", skills: ["React", "Node.js", "GraphQL"] },
-    { title: "IBM Full Stack Software Developer Certificate", provider: "Coursera", type: "Certification", difficulty: "Beginner", duration: "4 Months", url: "https://www.coursera.org/professional-certificates/ibm-full-stack-cloud-developer", skills: ["Cloud", "Python", "React"] },
-    { title: "Back End Development and APIs", provider: "freeCodeCamp", type: "Course", difficulty: "Intermediate", duration: "300 Hours", url: "https://www.freecodecamp.org/learn/back-end-development-and-apis/", skills: ["Node.js", "Express", "MongoDB"] }
-  ],
-  "Python Development": [
-    { title: "Python Official Documentation", provider: "Python Official Documentation", type: "Documentation", difficulty: "Intermediate", duration: "Self-paced", url: "https://docs.python.org/3/", skills: ["Python"] },
-    { title: "Python for Everybody Specialization", provider: "Coursera", type: "Course", difficulty: "Beginner", duration: "8 Months", url: "https://www.coursera.org/specializations/python", skills: ["Python", "Data Structures"] },
-    { title: "Python Programming Language", provider: "GeeksforGeeks", type: "Course", difficulty: "Beginner", duration: "Self-paced", url: "https://www.geeksforgeeks.org/python-programming-language/", skills: ["Python"] },
-    { title: "Python Practice Problems", provider: "HackerRank", type: "Practice", difficulty: "All Levels", duration: "Ongoing", url: "https://www.hackerrank.com/domains/python", skills: ["Python"] }
-  ],
-  "Data Structures & Algorithms": [
-    { title: "LeetCode Study Plan", provider: "LeetCode", type: "Practice", difficulty: "Intermediate", duration: "Ongoing", url: "https://leetcode.com/study-plan/", skills: ["DSA", "Problem Solving"] },
-    { title: "Data Structures and Algorithms", provider: "GeeksforGeeks", type: "Course", difficulty: "Intermediate", duration: "Self-paced", url: "https://www.geeksforgeeks.org/data-structures/", skills: ["DSA", "C++", "Java"] },
-    { title: "CodeChef Practice Problems", provider: "CodeChef", type: "Practice", difficulty: "All Levels", duration: "Ongoing", url: "https://www.codechef.com/practice", skills: ["Competitive Programming"] },
-    { title: "NeetCode Roadmap", provider: "NeetCode", type: "Practice", difficulty: "Advanced", duration: "150 Hours", url: "https://neetcode.io/roadmap", skills: ["DSA", "Interview Prep"] }
-  ],
-  "Machine Learning": [
-    { title: "Machine Learning Specialization", provider: "Coursera", type: "Course", difficulty: "Beginner", duration: "2 Months", url: "https://www.coursera.org/specializations/machine-learning-introduction", skills: ["Python", "Math", "ML"] },
-    { title: "Kaggle Learn: Intro to Machine Learning", provider: "Kaggle", type: "Course", difficulty: "Beginner", duration: "10 Hours", url: "https://www.kaggle.com/learn/intro-to-machine-learning", skills: ["Pandas", "Scikit-Learn"] },
-    { title: "Scikit-Learn User Guide", provider: "Scikit-learn Documentation", type: "Documentation", difficulty: "Intermediate", duration: "Self-paced", url: "https://scikit-learn.org/stable/user_guide.html", skills: ["Scikit-Learn"] },
-    { title: "Hands-On Machine Learning Repository", provider: "GitHub", type: "Practice", difficulty: "Intermediate", duration: "Self-paced", url: "https://github.com/ageron/handson-ml3", skills: ["TensorFlow", "Keras"] }
-  ],
-  "Generative AI": [
-    { title: "Generative AI for Everyone", provider: "DeepLearning.AI", type: "Course", difficulty: "Beginner", duration: "6 Hours", url: "https://www.deeplearning.ai/courses/generative-ai-for-everyone/", skills: ["GenAI", "Prompt Engineering"] },
-    { title: "OpenAI API Documentation", provider: "OpenAI Documentation", type: "Documentation", difficulty: "Intermediate", duration: "Self-paced", url: "https://platform.openai.com/docs/introduction", skills: ["OpenAI API", "GPT"] },
-    { title: "Hugging Face NLP Course", provider: "Hugging Face", type: "Course", difficulty: "Intermediate", duration: "40 Hours", url: "https://huggingface.co/learn/nlp-course/chapter1/1", skills: ["Transformers", "Hugging Face"] },
-    { title: "LangChain Documentation", provider: "LangChain Documentation", type: "Documentation", difficulty: "Intermediate", duration: "Self-paced", url: "https://python.langchain.com/docs/get_started/introduction", skills: ["LangChain", "LLMs"] }
-  ],
-  "Agentic AI": [
-    { title: "LangGraph Concepts", provider: "LangGraph Documentation", type: "Documentation", difficulty: "Advanced", duration: "Self-paced", url: "https://python.langchain.com/docs/langgraph", skills: ["LangGraph", "Agents"] },
-    { title: "CrewAI Official Docs", provider: "CrewAI Documentation", type: "Documentation", difficulty: "Advanced", duration: "Self-paced", url: "https://docs.crewai.com/", skills: ["CrewAI", "Multi-Agent"] },
-    { title: "Microsoft AutoGen", provider: "AutoGen Documentation", type: "Documentation", difficulty: "Advanced", duration: "Self-paced", url: "https://microsoft.github.io/autogen/", skills: ["AutoGen"] },
-    { title: "OpenAI Assistants API", provider: "OpenAI Documentation", type: "Documentation", difficulty: "Intermediate", duration: "Self-paced", url: "https://platform.openai.com/docs/assistants/overview", skills: ["OpenAI Assistants"] }
-  ],
-  "Natural Language Processing": [
-    { title: "Natural Language Processing Specialization", provider: "Coursera", type: "Course", difficulty: "Intermediate", duration: "3 Months", url: "https://www.coursera.org/specializations/natural-language-processing", skills: ["NLP", "Deep Learning"] },
-    { title: "Hugging Face NLP Course", provider: "Hugging Face", type: "Course", difficulty: "Intermediate", duration: "40 Hours", url: "https://huggingface.co/learn/nlp-course/", skills: ["Transformers", "Hugging Face"] },
-    { title: "spaCy 101", provider: "spaCy Documentation", type: "Documentation", difficulty: "Intermediate", duration: "Self-paced", url: "https://spacy.io/usage/spacy-101", skills: ["spaCy", "Python"] },
-    { title: "NLTK Book", provider: "NLTK Documentation", type: "Documentation", difficulty: "Beginner", duration: "Self-paced", url: "https://www.nltk.org/book/", skills: ["NLTK"] }
-  ],
-  "Cybersecurity": [
-    { title: "TryHackMe Learning Paths", provider: "TryHackMe", type: "Practice", difficulty: "Beginner to Advanced", duration: "Ongoing", url: "https://tryhackme.com/", skills: ["Penetration Testing", "Networking"] },
-    { title: "Hack The Box Academy", provider: "Hack The Box", type: "Practice", difficulty: "Intermediate", duration: "Ongoing", url: "https://academy.hackthebox.com/", skills: ["Ethical Hacking"] },
-    { title: "Google Cybersecurity Professional Certificate", provider: "Coursera", type: "Certification", difficulty: "Beginner", duration: "6 Months", url: "https://www.coursera.org/professional-certificates/google-cybersecurity", skills: ["Security", "Linux", "SQL"] },
-    { title: "OWASP Top 10", provider: "OWASP Documentation", type: "Documentation", difficulty: "All Levels", duration: "Self-paced", url: "https://owasp.org/www-project-top-ten/", skills: ["Web Security"] }
-  ],
-  "Cloud Computing": [
-    { title: "AWS Skill Builder", provider: "AWS Skill Builder", type: "Course", difficulty: "All Levels", duration: "Self-paced", url: "https://explore.skillbuilder.aws/", skills: ["AWS", "Cloud"] },
-    { title: "Azure Fundamentals", provider: "Microsoft Learn", type: "Course", difficulty: "Beginner", duration: "20 Hours", url: "https://learn.microsoft.com/en-us/training/azure/", skills: ["Azure"] },
-    { title: "Google Cloud Skills Boost", provider: "Google Cloud Skills Boost", type: "Practice", difficulty: "All Levels", duration: "Ongoing", url: "https://www.cloudskillsboost.google/", skills: ["GCP"] },
-    { title: "Cloud Computing Specialization", provider: "Coursera", type: "Course", difficulty: "Intermediate", duration: "6 Months", url: "https://www.coursera.org/specializations/cloud-computing", skills: ["Cloud", "Distributed Systems"] }
-  ],
-  "Digital Marketing": [
-    { title: "Fundamentals of Digital Marketing", provider: "Google Digital Garage", type: "Certification", difficulty: "Beginner", duration: "40 Hours", url: "https://learndigital.withgoogle.com/digitalgarage/course/digital-marketing", skills: ["SEO", "SEM"] },
-    { title: "HubSpot Academy Inbound Marketing", provider: "HubSpot Academy", type: "Certification", difficulty: "Beginner", duration: "5 Hours", url: "https://academy.hubspot.com/courses/inbound", skills: ["Inbound", "Content Marketing"] },
-    { title: "Digital Marketing Specialization", provider: "Coursera", type: "Course", difficulty: "Intermediate", duration: "8 Months", url: "https://www.coursera.org/specializations/digital-marketing", skills: ["Analytics", "Strategy"] },
-    { title: "Semrush Academy", provider: "Semrush Academy", type: "Course", difficulty: "Intermediate", duration: "Self-paced", url: "https://www.semrush.com/academy/", skills: ["SEO", "PPC"] }
-  ]
-};
+import { CAREER_PATHS_DATA } from "@/lib/constants/careerPathsData";
 
 interface LearningResourcesProps {
   userId: string;
@@ -141,12 +67,12 @@ export default function LearningResources({ userId, targetRole }: LearningResour
 
   const currentResources = useMemo(() => {
     // If exact match doesn't exist, we fallback or just show all if none selected
-    let base = CURATED_RESOURCES[targetRole] || [];
+    let base = CAREER_PATHS_DATA[targetRole]?.resources || [];
     if (base.length === 0) {
       // Find partial matches
-      for (const key of Object.keys(CURATED_RESOURCES)) {
+      for (const key of Object.keys(CAREER_PATHS_DATA)) {
         if (targetRole.toLowerCase().includes(key.toLowerCase()) || key.toLowerCase().includes(targetRole.toLowerCase())) {
-          base = CURATED_RESOURCES[key];
+          base = CAREER_PATHS_DATA[key].resources;
           break;
         }
       }

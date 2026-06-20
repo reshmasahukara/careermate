@@ -161,17 +161,42 @@ export default function LearningPaths({ userId, targetRole }: LearningPathsProps
                     <div className="bg-[#F8FAFC] border border-slate-100 rounded-xl p-3">
                       <p className="text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-2">Recommended Resources</p>
                       <div className="space-y-1.5">
-                        {step.resources.map((res: string, i: number) => (
-                          <a 
-                            key={i} 
-                            href={res} 
-                            target="_blank" 
-                            rel="noopener noreferrer" 
-                            className="flex items-center gap-1.5 text-xs font-bold text-blue-600 hover:text-blue-800 hover:underline transition-all"
-                          >
-                            <ArrowRight className="w-3 h-3" /> External Resource {i + 1}
-                          </a>
-                        ))}
+                        {step.resources.map((res: string, i: number) => {
+                          const getResourceLabel = (url: string) => {
+                            const lower = url.toLowerCase();
+                            if (lower.includes("coursera.org")) return "Coursera Course";
+                            if (lower.includes("udemy.com")) return "Udemy Course";
+                            if (lower.includes("geeksforgeeks.org")) return "GeeksforGeeks Guide";
+                            if (lower.includes("leetcode.com")) return "LeetCode Practice";
+                            if (lower.includes("codechef.com")) return "CodeChef Practice";
+                            if (lower.includes("hackerrank.com")) return "HackerRank Practice";
+                            if (lower.includes("freecodecamp.org")) return "freeCodeCamp Tutorial";
+                            if (lower.includes("developer.mozilla.org")) return "MDN Web Docs";
+                            if (lower.includes("explore.skillbuilder.aws")) return "AWS Skill Builder";
+                            if (lower.includes("learn.microsoft.com")) return "Microsoft Learn";
+                            if (lower.includes("cloudskillsboost.google")) return "Google Cloud Skills Boost";
+                            if (lower.includes("huggingface.co")) return "Hugging Face Course";
+                            if (lower.includes("platform.openai.com")) return "OpenAI Documentation";
+                            if (lower.includes("python.langchain.com")) return "LangChain Documentation";
+                            if (lower.includes("tensorflow.org")) return "TensorFlow Documentation";
+                            if (lower.includes("pytorch.org")) return "PyTorch Documentation";
+                            if (lower.includes("tryhackme.com")) return "TryHackMe Lab";
+                            if (lower.includes("hackthebox.com") || lower.includes("hackerthebox.com")) return "Hack The Box Academy";
+                            if (lower.includes("academy.hubspot.com")) return "HubSpot Academy";
+                            return "Official Resource";
+                          };
+                          return (
+                            <a 
+                              key={i} 
+                              href={res} 
+                              target="_blank" 
+                              rel="noopener noreferrer" 
+                              className="flex items-center gap-1.5 text-xs font-bold text-blue-600 hover:text-blue-800 hover:underline transition-all"
+                            >
+                              <ArrowRight className="w-3 h-3" /> {getResourceLabel(res)}
+                            </a>
+                          );
+                        })}
                       </div>
                     </div>
                   )}
