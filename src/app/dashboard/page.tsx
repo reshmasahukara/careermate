@@ -4,78 +4,47 @@ import React, { useState, useEffect, useCallback } from "react";
 import Link from "next/link";
 import { useSession } from "next-auth/react";
 import {
-  FileText,
   Target,
   Briefcase,
-  Zap,
-  Activity,
-  BarChart2,
-  FileSearch,
-  LayoutDashboard,
   Upload,
-  ArrowRight
+  FileSearch,
+  Activity,
+  AlertCircle
 } from "lucide-react";
 import DashboardLayout from "@/components/DashboardLayout";
 import { getDashboardDataAction } from "@/app/actions/dashboard";
 import MetricCard from "@/components/dashboard/MetricCard";
 import ActivityTimeline from "@/components/dashboard/ActivityTimeline";
-import ATSChart from "@/components/dashboard/ATSChart";
-import ResumeInsights from "@/components/dashboard/ResumeInsights";
-import ProfileCompletion from "@/components/dashboard/ProfileCompletion";
-import ActionCenter from "@/components/dashboard/ActionCenter";
 import LearningRoadmap from "@/components/dashboard/LearningRoadmap";
 import SkillGapPreview from "@/components/dashboard/SkillGapPreview";
 import JobRecommendations from "@/components/dashboard/JobRecommendations";
+import NextStepsPanel from "@/components/dashboard/NextStepsPanel";
+import CareerInsightsPreview from "@/components/dashboard/CareerInsightsPreview";
 
 // ─── Skeleton loader ───────────────────────────────────────────────────────
 function Skeleton({ className = "" }: { className?: string }) {
-  return <div className={`animate-pulse bg-slate-100 rounded-xl ${className}`} />;
+  return <div className={`animate-pulse bg-[#1F2937] rounded-xl ${className}`} />;
 }
 
 function DashboardSkeleton() {
   return (
-    <div className="space-y-6 p-6 md:p-8 max-w-[1200px] mx-auto">
+    <div className="space-y-6 p-6 md:p-8 max-w-[1280px] mx-auto bg-[#111827] min-h-screen">
       <Skeleton className="h-10 w-72" />
       <Skeleton className="h-5 w-96" />
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        {[0, 1, 2, 3].map((i) => <Skeleton key={i} className="h-32" />)}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-6">
+        {[0, 1, 2, 3].map((i) => <Skeleton key={i} className="h-[120px]" />)}
       </div>
-      <div className="grid grid-cols-1 lg:grid-cols-10 gap-6">
-        <div className="lg:col-span-7 space-y-6">
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+        <div className="lg:col-span-8 space-y-6">
           <Skeleton className="h-72" />
           <Skeleton className="h-56" />
         </div>
-        <div className="lg:col-span-3 space-y-6">
+        <div className="lg:col-span-4 space-y-6">
           <Skeleton className="h-48" />
           <Skeleton className="h-48" />
           <Skeleton className="h-48" />
         </div>
       </div>
-    </div>
-  );
-}
-
-// ─── Section card wrapper ──────────────────────────────────────────────────
-function SectionCard({
-  title,
-  icon,
-  children,
-  action,
-}: {
-  title: string;
-  icon: React.ReactNode;
-  children: React.ReactNode;
-  action?: React.ReactNode;
-}) {
-  return (
-    <div className="bg-white border border-[#E5E7EB] rounded-2xl shadow-sm overflow-hidden">
-      <div className="flex items-center justify-between px-5 py-4 border-b border-[#E5E7EB]">
-        <h3 className="text-sm font-extrabold text-[#111827] flex items-center gap-2 uppercase tracking-wider">
-          <span className="text-emerald-500">{icon}</span> {title}
-        </h3>
-        {action}
-      </div>
-      <div className="p-5">{children}</div>
     </div>
   );
 }
@@ -115,246 +84,167 @@ export default function DashboardPage() {
 
   const d = dashboardData;
   const userName = session?.user?.name?.split(" ")[0] || "there";
-  const lastLogin = new Date().toLocaleDateString("en-US", {
-    weekday: "long", month: "short", day: "numeric",
-  });
-
+  
   // Derived metrics
   const atsScore = d?.ats?.latest;
-  const atsHighest = d?.ats?.highest;
-  const resumeMatchRate = atsScore ? `${atsScore}%` : "—";
-  const jobsApplied = d?.stats?.atsChecks ?? 0;
-  const careerReadiness = d?.careerReadiness ?? 0;
   const targetRole = d?.careerPath?.targetRole ?? null;
   const missingSkillsCount = d?.ats?.keywordsMissing?.length ?? 0;
+  const hasResume = !!d?.stats?.resumes;
+  const activeApplications = d?.stats?.atsChecks ?? 0; // Using ATS checks as a proxy for active apps for now
+  
+  // Job match percentage
+  const jobMatchPercentage = atsScore ? `${atsScore}%` : "—";
 
   return (
     <DashboardLayout>
-      <div className="max-w-[1200px] mx-auto space-y-6">
+      <div className="min-h-screen bg-[#111827] text-[#F9FAFB] pb-12">
+        <div className="max-w-[1280px] mx-auto space-y-6 p-6">
 
           {/* ── HEADER ──────────────────────────────────────── */}
-          <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-3">
+          <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
             <div>
-              <h1 className="text-2xl sm:text-3xl font-extrabold text-[#111827] tracking-tight">
-                Welcome back, {userName} 👋
+              <h1 className="text-[32px] font-extrabold tracking-tight">
+                Welcome, {userName}
               </h1>
-              <p className="text-[#64748B] text-sm mt-1">
-                {missingSkillsCount > 0
-                  ? `You're ${missingSkillsCount} skills away from your target role.`
-                  : targetRole
-                  ? `Tracking toward: ${targetRole}`
-                  : "Upload your resume to unlock personalized insights."}
+              <p className="text-[15px] text-[#9CA3AF] mt-1">
+                {targetRole 
+                  ? `Target Role: ${targetRole}` 
+                  : "Upload your resume to set your target role."}
               </p>
             </div>
             <div className="flex items-center gap-3">
-              <span className="text-[11px] text-[#64748B] font-medium hidden sm:block">
-                {lastLogin}
-              </span>
-              {!d?.stats?.resumes && (
+              {!hasResume ? (
                 <Link
                   href="/resume-upload"
-                  className="flex items-center gap-2 bg-[#10B981] hover:bg-[#059669] text-white font-bold px-4 py-2 rounded-xl text-sm shadow-sm transition-all shrink-0"
+                  className="flex items-center gap-2 bg-[#14B8A6] hover:bg-[#0d9488] text-white font-semibold px-5 py-2.5 rounded-xl text-[15px] transition-all"
                 >
                   <Upload className="w-4 h-4" /> Upload Resume
+                </Link>
+              ) : (
+                <Link
+                  href="/ats-checker"
+                  className="flex items-center gap-2 bg-[#14B8A6] hover:bg-[#0d9488] text-white font-semibold px-5 py-2.5 rounded-xl text-[15px] transition-all"
+                >
+                  <FileSearch className="w-4 h-4" /> Analyze Resume
                 </Link>
               )}
             </div>
           </div>
 
           {/* ── METRIC CARDS ────────────────────────────────── */}
-          <div className="grid grid-cols-2 xl:grid-cols-4 gap-4">
+          <div className="grid grid-cols-2 xl:grid-cols-4 gap-6">
             <MetricCard
               title="ATS Score"
-              value={atsScore ? `${atsScore}/100` : "No analysis yet"}
-              subtitle={atsScore ? "Resume vs. job description" : "No scan yet"}
-              trend={atsScore ? { value: 5, label: "this month" } : undefined}
+              value={atsScore ? `${atsScore}` : "—"}
+              subtitle="Latest resume scan"
               icon={<FileSearch className="w-5 h-5" />}
               href="/ats-checker"
-              accentColor="#10B981"
+              accentColor="#14B8A6"
               isEmpty={!atsScore}
-              emptyText="No analysis yet"
+              emptyText="No scan yet"
             />
             <MetricCard
-              title="Match Rate"
-              value={atsScore ? `${atsScore}%` : "--"}
-              subtitle={targetRole ? `vs. ${targetRole}` : "Set a target role"}
+              title="Job Match"
+              value={jobMatchPercentage}
+              subtitle={targetRole ? `vs. ${targetRole}` : "Set target role"}
               icon={<Target className="w-5 h-5" />}
               href="/ats-checker"
-              accentColor="#6366F1"
-              isEmpty={!atsScore}
-              emptyText="--"
-            />
-            <MetricCard
-              title="Resume Count"
-              value={d?.stats?.resumes ?? 0}
-              subtitle="Uploaded resumes"
-              trend={undefined}
-              icon={<FileText className="w-5 h-5" />}
-              href="/resume-analysis"
               accentColor="#F59E0B"
-              isEmpty={false}
+              isEmpty={!atsScore}
+              emptyText="—"
             />
             <MetricCard
-              title="Career Readiness"
-              value={atsScore ? `${careerReadiness}%` : "--"}
-              subtitle="Profile, skills, resume & activity"
-              trend={undefined}
-              icon={<Zap className="w-5 h-5" />}
-              href="/career-insights"
+              title="Skill Gaps"
+              value={missingSkillsCount}
+              subtitle="Keywords to add"
+              icon={<AlertCircle className="w-5 h-5" />}
+              href="/skill-gap"
               accentColor="#EF4444"
               isEmpty={!atsScore}
-              emptyText="--"
+              emptyText="—"
+            />
+            <MetricCard
+              title="Applications"
+              value={activeApplications}
+              subtitle="Active tracking"
+              icon={<Briefcase className="w-5 h-5" />}
+              accentColor="#6366F1"
+              isEmpty={false}
             />
           </div>
 
-          {/* ── MAIN GRID ────────────────────────────────────── */}
-          <div className="grid grid-cols-1 lg:grid-cols-10 gap-6">
+          {/* ── MAIN GRID (12 columns) ──────────────────────── */}
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
 
-            {/* LEFT — 70% */}
-            <div className="lg:col-span-7 space-y-6">
+            {/* LEFT — 8 Columns */}
+            <div className="lg:col-span-8 space-y-6">
+              
+              <NextStepsPanel 
+                hasResume={hasResume}
+                atsScore={atsScore}
+                missingSkillsCount={missingSkillsCount}
+              />
 
-              {/* Section 1: Activity Timeline */}
-              <SectionCard
-                title="Recent Activity"
-                icon={<Activity className="w-4 h-4" />}
-                action={
-                  d?.activityItems?.length > 0 ? (
-                    <Link href="/resume-upload" className="text-xs font-bold text-emerald-600 hover:text-emerald-700">
-                      + Add Resume
-                    </Link>
-                  ) : null
-                }
-              >
-                <ActivityTimeline items={d?.activityItems ?? []} />
-              </SectionCard>
+              <div className="bg-[#1F2937] border border-[rgba(255,255,255,0.08)] rounded-[16px] shadow-sm overflow-hidden">
+                <div className="p-6 border-b border-[rgba(255,255,255,0.08)]">
+                  <h3 className="text-[18px] font-semibold text-[#F9FAFB] flex items-center gap-2">
+                    <Briefcase className="w-5 h-5 text-[#14B8A6]" /> Recommended Jobs
+                  </h3>
+                </div>
+                <div className="p-6">
+                  <JobRecommendations targetRole={targetRole} />
+                </div>
+              </div>
 
-              {/* Section 2: ATS Performance Trend */}
-              <SectionCard
-                title="ATS Performance Trend"
-                icon={<BarChart2 className="w-4 h-4" />}
-                action={
-                  <Link href="/ats-checker" className="text-xs font-bold text-emerald-600 hover:text-emerald-700">
-                    Run Scan
-                  </Link>
-                }
-              >
-                <ATSChart
-                  history={d?.ats?.history ?? []}
-                  currentScore={d?.ats?.latest}
-                  highestScore={d?.ats?.highest}
-                />
-              </SectionCard>
+              {/* Recent Activity & Skill Gap Snapshot (2 columns within the 8-col area) */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="bg-[#1F2937] border border-[rgba(255,255,255,0.08)] rounded-[16px] shadow-sm overflow-hidden">
+                  <div className="p-6 border-b border-[rgba(255,255,255,0.08)]">
+                    <h3 className="text-[18px] font-semibold text-[#F9FAFB] flex items-center gap-2">
+                      <Activity className="w-5 h-5 text-[#14B8A6]" /> Recent Activity
+                    </h3>
+                  </div>
+                  <div className="p-6">
+                    <ActivityTimeline items={d?.activityItems ?? []} />
+                  </div>
+                </div>
 
-              {/* Section 3: Resume Insights */}
-              <SectionCard
-                title="Resume Insights"
-                icon={<FileText className="w-4 h-4" />}
-              >
-                <ResumeInsights
-                  latestResume={d?.latestResume}
-                  ats={{
-                    keywordsFound: d?.ats?.keywordsFound ?? [],
-                    keywordsMissing: d?.ats?.keywordsMissing ?? [],
-                    latestTargetRole: d?.ats?.latestTargetRole,
-                  }}
-                />
-              </SectionCard>
+                <div className="bg-[#1F2937] border border-[rgba(255,255,255,0.08)] rounded-[16px] shadow-sm overflow-hidden">
+                  <div className="p-6 border-b border-[rgba(255,255,255,0.08)]">
+                    <h3 className="text-[18px] font-semibold text-[#F9FAFB] flex items-center gap-2">
+                      <AlertCircle className="w-5 h-5 text-[#F59E0B]" /> Skill Gap Snapshot
+                    </h3>
+                  </div>
+                  <div className="p-6">
+                    <SkillGapPreview
+                      missingKeywords={d?.ats?.keywordsMissing ?? []}
+                      atsScore={d?.ats?.latest}
+                    />
+                  </div>
+                </div>
+              </div>
 
             </div>
 
-            {/* RIGHT — 30% */}
-            <div className="lg:col-span-3 space-y-6">
+            {/* RIGHT — 4 Columns */}
+            <div className="lg:col-span-4 space-y-6">
+              
+              <div className="bg-[#1F2937] border border-[rgba(255,255,255,0.08)] rounded-[16px] shadow-sm overflow-hidden">
+                <div className="p-6 border-b border-[rgba(255,255,255,0.08)]">
+                  <h3 className="text-[18px] font-semibold text-[#F9FAFB]">Learning Roadmap</h3>
+                </div>
+                <div className="p-6">
+                  <LearningRoadmap careerPath={d?.careerPath} />
+                </div>
+              </div>
 
-              {/* Profile Completion */}
-              <SectionCard
-                title="Profile Completion"
-                icon={<Target className="w-4 h-4" />}
-              >
-                <ProfileCompletion
-                  progress={d?.progress ?? 20}
-                  stats={d?.stats ?? { resumes: 0, skills: 0, paths: 0, atsChecks: 0 }}
-                />
-              </SectionCard>
-
-              {/* Smart Action Center */}
-              <SectionCard
-                title="Action Center"
-                icon={<Zap className="w-4 h-4" />}
-              >
-                <ActionCenter actions={d?.pendingActions ?? []} />
-              </SectionCard>
-
-              {/* Learning Roadmap */}
-              <SectionCard
-                title="Learning Roadmap"
-                icon={<Activity className="w-4 h-4" />}
-              >
-                <LearningRoadmap careerPath={d?.careerPath} />
-              </SectionCard>
-
-              {/* Skill Gap Preview */}
-              <SectionCard
-                title="Skill Gap Preview"
-                icon={<BarChart2 className="w-4 h-4" />}
-              >
-                <SkillGapPreview
-                  missingKeywords={d?.ats?.keywordsMissing ?? []}
-                  atsScore={d?.ats?.latest}
-                />
-              </SectionCard>
-
-              {/* Job Recommendations */}
-              <SectionCard
-                title="Job Recommendations"
-                icon={<Briefcase className="w-4 h-4" />}
-              >
-                <JobRecommendations targetRole={targetRole} />
-              </SectionCard>
+              <CareerInsightsPreview targetRole={targetRole} />
 
             </div>
-          </div>
-
-          {/* ── NEXT STEP CAREER INTENT CTA ── */}
-          <div className="bg-gradient-to-r from-[#0F172A] to-[#1E293B] rounded-[24px] p-6 sm:p-8 text-white flex flex-col sm:flex-row items-center justify-between gap-6 shadow-md mt-8">
-            <div className="space-y-1.5">
-              <span className="inline-block bg-[#10B981] text-white font-extrabold text-[10px] px-2.5 py-0.5 rounded-full uppercase tracking-wider">
-                Recommended Next Step
-              </span>
-              <h3 className="text-lg font-bold">
-                {!d?.stats?.resumes
-                  ? "Build or Upload your resume copy"
-                  : !atsScore
-                  ? "Analyze your resume with ATS Match Checker"
-                  : "Review salary guides and market trends"}
-              </h3>
-              <p className="text-xs text-slate-400 max-w-xl font-medium">
-                {!d?.stats?.resumes
-                  ? "To begin your optimized career journey, start by uploading or drafting your professional profile resume."
-                  : !atsScore
-                  ? "Benchmark your resume keywords and formatting layout against high-yield job role requirements."
-                  : "Understand industry salary benchmarks and fast-growing keywords for your target role."}
-              </p>
-            </div>
-            <Link
-              href={
-                !d?.stats?.resumes
-                  ? "/resume-upload"
-                  : !atsScore
-                  ? "/ats-checker"
-                  : "/career-insights"
-              }
-              className="flex items-center gap-2 px-5 py-3 bg-[#10B981] hover:bg-[#059669] text-white font-bold text-xs rounded-xl shadow-sm transition-all shrink-0 hover:translate-x-0.5"
-            >
-              {!d?.stats?.resumes
-                ? "Get Started"
-                : !atsScore
-                ? "Scan Resume"
-                : "Explore Insights"}
-              <ArrowRight className="w-4 h-4" />
-            </Link>
           </div>
 
         </div>
+      </div>
     </DashboardLayout>
   );
 }
