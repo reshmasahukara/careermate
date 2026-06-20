@@ -42,6 +42,9 @@ model User {
   // Security Settings
   twoFactorEnabled     Boolean @default(false)
 
+  savedJobs            SavedJob[]
+  jobRecommendations   JobRecommendation[]
+
   @@map("users")
 }
 
@@ -110,22 +113,54 @@ model AtsScore {
 }
 
 model Job {
-  id           String     @id @default(cuid())
-  title        String
-  company      String
-  location     String
-  type         String     // Full-time, Part-time, Contract, Internship
-  experience   String     // Junior, Mid, Senior, Lead
-  salary       String
-  description  String     @db.Text
-  requirements String[]
-  skills       String[]
-  applyUrl     String     @map("apply_url")
-  logoUrl      String?    @map("logo_url")
-  isRemote     Boolean    @default(false) @map("is_remote")
-  createdAt    DateTime   @default(now()) @map("created_at")
+  id              String   @id @default(cuid())
+  externalId      String   @unique @map("external_id")
+  title           String
+  company         String
+  location        String?
+  description     String   @db.Text
+  employmentType  String?  @map("employment_type")
+  experienceLevel String?  @map("experience_level")
+  salaryMin       Int?     @map("salary_min")
+  salaryMax       Int?     @map("salary_max")
+  remote          Boolean  @default(false)
+  applyUrl        String   @map("apply_url")
+  skills          String[]
+  logoUrl         String?  @map("logo_url")
+  createdAt       DateTime @default(now()) @map("created_at")
+
+  savedJobs SavedJob[]
+  recommendations JobRecommendation[]
 
   @@map("jobs")
+}
+
+model SavedJob {
+  id         String   @id @default(cuid())
+  userId     String   @map("user_id")
+  jobId      String   @map("job_id")
+  createdAt  DateTime @default(now()) @map("created_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  job  Job  @relation(fields: [jobId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, jobId])
+  @@map("saved_jobs")
+}
+
+model JobRecommendation {
+  id            String   @id @default(cuid())
+  userId        String   @map("user_id")
+  jobId         String   @map("job_id")
+  matchScore    Int      @map("match_score")
+  missingSkills String[] @map("missing_skills")
+  createdAt     DateTime @default(now()) @map("created_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  job  Job  @relation(fields: [jobId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, jobId])
+  @@map("job_recommendations")
 }
 
 model Skill {
