@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import { Key, Shield, Trash2, AlertTriangle, Loader2 } from "lucide-react";
+import { Key, Trash2, AlertTriangle, Loader2 } from "lucide-react";
 import { useToast } from "@/components/Providers";
 import { deleteAccountAction } from "@/app/actions/settings";
 import { useRouter } from "next/navigation";
@@ -20,7 +20,6 @@ export default function AccountSettings({ user }: AccountSettingsProps) {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [isUpdatingPassword, setIsUpdatingPassword] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
-  const [twoFactorEnabled, setTwoFactorEnabled] = useState(user?.twoFactorEnabled || false);
 
   const calculatePasswordStrength = (pwd: string) => {
     if (pwd.length === 0) return 0;
@@ -53,14 +52,6 @@ export default function AccountSettings({ user }: AccountSettingsProps) {
       setConfirmPassword("");
       setIsUpdatingPassword(false);
     }, 1000);
-  };
-
-  const handleToggle2FA = () => {
-    // Optimistic toggle
-    const newValue = !twoFactorEnabled;
-    setTwoFactorEnabled(newValue);
-    toast(`Two-factor authentication ${newValue ? "enabled" : "disabled"}.`, "success");
-    // Normally we'd call an action here
   };
 
   const handleDeleteAccount = async () => {
@@ -146,34 +137,9 @@ export default function AccountSettings({ user }: AccountSettingsProps) {
         </form>
       </div>
 
-      <div className="bg-white border border-[#E5E7EB] rounded-2xl p-6 shadow-sm">
-        <h4 className="font-bold text-[#0F172A] flex items-center gap-2 mb-4">
-          <Shield className="w-5 h-5 text-emerald-500" /> Two-Factor Authentication
-        </h4>
-        <div className="flex items-center justify-between">
-          <div>
-            <p className="text-sm font-bold text-[#0F172A]">Protect your account</p>
-            <p className="text-xs text-slate-500 mt-1">Add an extra layer of security to your account.</p>
-          </div>
-          <button
-            type="button"
-            onClick={handleToggle2FA}
-            className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
-              twoFactorEnabled ? "bg-emerald-500" : "bg-slate-200"
-            }`}
-          >
-            <span
-              className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
-                twoFactorEnabled ? "translate-x-6" : "translate-x-1"
-              }`}
-            />
-          </button>
-        </div>
-      </div>
-
       <div className="bg-rose-50 border border-rose-100 rounded-2xl p-6">
         <h4 className="font-bold text-rose-700 flex items-center gap-2 mb-2">
-          <AlertTriangle className="w-5 h-5" /> Danger Zone
+          <AlertTriangle className="w-5 h-5" /> Delete Account
         </h4>
         <p className="text-sm text-rose-600/80 mb-4 max-w-2xl">
           Permanently delete your account and all of your content. This action is not reversible, so please continue with caution.
