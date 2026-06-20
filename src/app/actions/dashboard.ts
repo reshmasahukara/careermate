@@ -82,7 +82,7 @@ export async function getDashboardDataAction(userId: string) {
     if (careerPathsCount > 0) progress += 20;
     if (atsScoresCount > 0) progress += 20;
 
-    // Mock ATS history for chart (use real + fill gaps)
+    // Generate ATS history from real data
     const atsHistory = atsScores.map((s) => ({ date: s.createdAt, score: s.score })).slice(0, 10).reverse();
 
     // Career readiness score

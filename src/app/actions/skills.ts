@@ -260,7 +260,36 @@ export async function getLearningRoadmapAction(userId: string, targetRole: strin
   }
 }
 
-export async function generateRoadmapAction(userId: string, targetRole: string) {
-  // Dummy to prevent compilation error in /roadmap/page.tsx
-  return { id: "dummy", targetRole, roadmapData: "[]" };
+export async function getAllUserRoadmapsAction(userId: string) {
+  isDbConfigured();
+  try {
+    const gaps = await prisma.skillGap.findMany({
+      where: { userId },
+      orderBy: { createdAt: "desc" }
+    });
+    
+    // Get unique target roles
+    const roles = Array.from(new Set(gaps.map(g => g.targetRole)));
+    
+    const roadmaps = [];
+    for (const role of roles) {
+      const steps = await prisma.learningRoadmap.findMany({
+        where: { userId, targetRole: role },
+        orderBy: { week: "asc" }
+      });
+      if (steps.length > 0) {
+        roadmaps.push({
+          id: role,
+          targetRole: role,
+          description: `Personalized learning path to become a ${role}.`,
+          steps
+        });
+      }
+    }
+    
+    return roadmaps;
+  } catch (e) {
+    console.error("Error fetching all roadmaps:", e);
+    return [];
+  }
 }

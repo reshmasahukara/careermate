@@ -335,7 +335,7 @@ export async function generateResumeAuditAction(resumeId: string) {
     dynamicPriorityChanges.push({ level: "Low Priority", text: "Remove any graphical elements or icons that might confuse parsers.", code: "HDR-01" });
   }
   
-  const mockAnalysis = {
+  const generatedAnalysis = {
     resumeId,
     score: Math.min(100, baseScore),
     summary: baseScore > 80 
@@ -398,6 +398,6 @@ export async function generateResumeAuditAction(resumeId: string) {
     priorityChanges: dynamicPriorityChanges.slice(0, 3)
   };
 
-  return mockAnalysis;
+  return generatedAnalysis;
 }
 

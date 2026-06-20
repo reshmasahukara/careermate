@@ -171,18 +171,7 @@ export default function HomePage() {
 
             {/* Trust Row Removed */}
 
-            {/* Mini Social Proof */}
-            <div className="flex flex-col sm:flex-row items-center justify-center gap-3 pt-6 border-t border-[#E5E7EB] w-full max-w-md mx-auto mt-4">
-              <div className="flex -space-x-2.5 overflow-hidden shrink-0">
-                <Image width={32} height={32} className="inline-block h-8 w-8 rounded-full ring-2 ring-white object-cover" src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=80" alt="User 1" />
-                <Image width={32} height={32} className="inline-block h-8 w-8 rounded-full ring-2 ring-white object-cover" src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=80" alt="User 2" />
-                <Image width={32} height={32} className="inline-block h-8 w-8 rounded-full ring-2 ring-white object-cover" src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=80" alt="User 3" />
-                <Image width={32} height={32} className="inline-block h-8 w-8 rounded-full ring-2 ring-white object-cover" src="https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=80" alt="User 4" />
-              </div>
-              <p className="text-xs text-slate-500 font-semibold leading-snug">
-                <span className="text-[#0F172A] font-bold">10,000+ professionals</span> are growing their careers with CareerMate
-              </p>
-            </div>
+            {/* Mini Social Proof Removed */}
           </div>
 
         </div>
@@ -292,65 +281,7 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* 7. STATISTICS SECTION */}
-      <section className="w-full bg-[#F1F5F9] border-b border-[#E5E7EB]/70">
-        <div className="max-w-[1280px] px-6 mx-auto w-full py-8 space-y-6">
-          
-          <div className="text-center space-y-1">
-            <h2 className="text-xl font-black text-[#0F172A] tracking-tight">
-              Our Growing Community
-            </h2>
-            <p className="text-slate-500 text-[11px] font-semibold max-w-md mx-auto">
-              Helping professionals advance their careers.
-            </p>
-          </div>
-
-          <div className="premium-card py-4 px-4 bg-white rounded-2xl border border-[#E5E7EB] shadow-sm max-w-3xl mx-auto">
-            <div className="grid grid-cols-1 md:grid-cols-3 divide-y md:divide-y-0 md:divide-x divide-slate-100 text-center">
-              
-              {/* Stat 1 */}
-              <div className="py-3 md:py-0 flex flex-col items-center justify-center space-y-1">
-                <div className="w-7 h-7 rounded-full bg-slate-100 flex items-center justify-center text-[#1E293B]">
-                  <Users className="w-3.5 h-3.5" />
-                </div>
-                <div className="space-y-0">
-                  <div className="text-xl sm:text-2xl font-black text-[#0F172A] tracking-tight font-sans leading-none">
-                    <Counter value={500} suffix="+" />
-                  </div>
-                  <p className="text-[8px] sm:text-[9px] font-bold uppercase tracking-widest text-[#64748B]">Active Professionals</p>
-                </div>
-              </div>
-
-              {/* Stat 2 */}
-              <div className="py-3 md:py-0 flex flex-col items-center justify-center space-y-1">
-                <div className="w-7 h-7 rounded-full bg-slate-100 flex items-center justify-center text-[#10B981]">
-                  <FileCheck className="w-3.5 h-3.5" />
-                </div>
-                <div className="space-y-0">
-                  <div className="text-xl sm:text-2xl font-black text-[#0F172A] tracking-tight font-sans leading-none">
-                    <Counter value={1000} suffix="+" />
-                  </div>
-                  <p className="text-[8px] sm:text-[9px] font-bold uppercase tracking-widest text-[#64748B]">Resumes Optimized</p>
-                </div>
-              </div>
-
-              {/* Stat 3 */}
-              <div className="py-3 md:py-0 flex flex-col items-center justify-center space-y-1">
-                <div className="w-7 h-7 rounded-full bg-slate-100 flex items-center justify-center text-[#1E293B]">
-                  <Briefcase className="w-3.5 h-3.5" />
-                </div>
-                <div className="space-y-0">
-                  <div className="text-xl sm:text-2xl font-black text-[#0F172A] tracking-tight font-sans leading-none">
-                    <Counter value={400} suffix="+" />
-                  </div>
-                  <p className="text-[8px] sm:text-[9px] font-bold uppercase tracking-widest text-[#64748B]">Opportunities Discovered</p>
-                </div>
-              </div>
-
-            </div>
-          </div>
-        </div>
-      </section>
+    {/* Section removed per requirements to avoid fake numbers */}
 
 
 

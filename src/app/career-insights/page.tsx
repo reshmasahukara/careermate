@@ -1,7 +1,8 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import DashboardLayout from "@/components/DashboardLayout";
+import { useSession } from "next-auth/react";
 import {
   Sparkles,
   TrendingUp,
@@ -16,25 +17,34 @@ import {
   Briefcase,
   Award
 } from "lucide-react";
-import { useToast } from "@/components/Providers";
 
 export default function CareerInsightsPage() {
-  const { toast } = useToast();
-
-  const [targetRole, setTargetRole] = useState("Senior Frontend Engineer");
+  const { data: session } = useSession();
+  const [data, setData] = useState<any>(null);
+  const [isLoading, setIsLoading] = useState(true);
   
   // Interactive Goals
-  const [goals, setGoals] = useState([
-    { id: 1, text: "Upload latest resume draft", completed: true },
-    { id: 2, text: "Optimize ATS keyword match to 80%", completed: false },
-    { id: 3, text: "Complete Next.js milestone module", completed: false },
-    { id: 4, text: "Complete AI technical interview simulation", completed: false }
-  ]);
+  const [goals, setGoals] = useState<{id: number; text: string; completed: boolean}[]>([]);
   const [newGoalText, setNewGoalText] = useState("");
+
+  useEffect(() => {
+    const loadData = async () => {
+      const userId = (session?.user as any)?.id || "demo-user-123";
+      try {
+        const { getDashboardDataAction } = await import("@/app/actions/dashboard");
+        const dashboardData = await getDashboardDataAction(userId);
+        setData(dashboardData);
+      } catch (error) {
+        console.error("Failed to load insights:", error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    if (session) loadData();
+  }, [session]);
 
   const handleToggleGoal = (id: number) => {
     setGoals(prev => prev.map(g => g.id === id ? { ...g, completed: !g.completed } : g));
-    toast("Goal status updated!", "success");
   };
 
   const handleAddGoal = (e: React.FormEvent) => {
@@ -42,11 +52,24 @@ export default function CareerInsightsPage() {
     if (!newGoalText.trim()) return;
     setGoals(prev => [...prev, { id: Date.now(), text: newGoalText.trim(), completed: false }]);
     setNewGoalText("");
-    toast("New goal added!", "success");
   };
 
   const completedGoalsCount = goals.filter(g => g.completed).length;
-  const progressPercent = Math.round((completedGoalsCount / goals.length) * 100) || 0;
+  const progressPercent = goals.length > 0 ? Math.round((completedGoalsCount / goals.length) * 100) : 0;
+
+  if (isLoading) {
+    return (
+      <DashboardLayout>
+        <div className="space-y-6 animate-pulse p-6">
+          <div className="h-10 bg-slate-100 rounded-xl w-1/3"></div>
+          <div className="h-64 bg-slate-100 rounded-2xl w-full"></div>
+        </div>
+      </DashboardLayout>
+    );
+  }
+
+  const targetRole = data?.ats?.latestTargetRole || data?.careerPath?.targetRole || null;
+  const careerReadiness = data?.careerReadiness || 0;
 
   return (
     <DashboardLayout>
@@ -60,17 +83,9 @@ export default function CareerInsightsPage() {
 
         {/* Configurations Row */}
         <div className="bg-white p-5 border border-[#E5E7EB] rounded-[20px] shadow-sm flex flex-col sm:flex-row items-center justify-between gap-4">
-          <div className="flex-1 w-full">
-            <label className="text-[11px] font-bold text-slate-500 uppercase">Selected Target Role</label>
-            <input
-              type="text"
-              value={targetRole}
-              onChange={e => setTargetRole(e.target.value)}
-              className="w-full bg-slate-50 border border-[#E5E7EB] rounded-xl py-2 px-3 text-xs font-semibold outline-none focus:border-emerald-500 focus:bg-white mt-1.5"
-            />
-          </div>
-          <div className="shrink-0 self-end text-xs font-bold text-slate-400">
-            Analytics synced: just now
+          <div className="flex-1 w-full flex items-center gap-2">
+            <span className="text-xs font-bold text-slate-500 uppercase">Target Role:</span>
+            <span className="text-sm font-extrabold text-[#0F172A]">{targetRole || "Not Set"}</span>
           </div>
         </div>
 
@@ -80,78 +95,38 @@ export default function CareerInsightsPage() {
           {/* Left panel: Salary & Trends (col 8) */}
           <div className="lg:col-span-8 space-y-6">
             
-            {/* Salary Insights */}
-            <div className="bg-white border border-[#E5E7EB] p-6 rounded-[20px] shadow-sm space-y-6">
-              <h2 className="text-sm font-extrabold text-[#0F172A] uppercase tracking-wider flex items-center gap-2">
-                <DollarSign className="w-5 h-5 text-emerald-500" />
-                Salary Benchmark Insights
-              </h2>
-
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                <div className="p-4 bg-slate-50 rounded-xl border border-slate-100 text-center space-y-1">
-                  <span className="text-[10px] font-extrabold text-slate-400 uppercase tracking-widest">Low (10th Percentile)</span>
-                  <p className="text-2xl font-black text-slate-700">$115,000</p>
-                </div>
-                <div className="p-4 bg-emerald-50/50 border border-emerald-100 rounded-xl text-center space-y-1">
-                  <span className="text-[10px] font-extrabold text-emerald-600 uppercase tracking-widest">Median / Average</span>
-                  <p className="text-2xl font-black text-emerald-600">$142,000</p>
-                </div>
-                <div className="p-4 bg-slate-50 rounded-xl border border-slate-100 text-center space-y-1">
-                  <span className="text-[10px] font-extrabold text-slate-400 uppercase tracking-widest">High (90th Percentile)</span>
-                  <p className="text-2xl font-black text-slate-700">$185,000</p>
-                </div>
+            {!targetRole ? (
+              <div className="bg-white border border-dashed border-slate-300 p-12 rounded-[20px] shadow-sm text-center flex flex-col items-center">
+                <BarChart2 className="w-12 h-12 text-slate-300 mb-4" />
+                <h3 className="text-lg font-bold text-slate-800 mb-2">Your insights will appear after your first analysis</h3>
+                <p className="text-slate-500 text-sm max-w-sm mb-6">Complete an ATS analysis or Skill Gap check to unlock personalized salary benchmarks and market trends.</p>
+                <a href="/ats-checker" className="bg-[#10B981] text-white px-6 py-2.5 rounded-xl font-bold text-sm hover:bg-[#059669]">Run Scan Now</a>
               </div>
-
-              {/* Graphic bar chart simulated */}
-              <div className="space-y-2 pt-2">
-                <div className="flex justify-between text-xs font-bold text-slate-500">
-                  <span>Entry Level Range</span>
-                  <span>Senior Standard</span>
-                  <span>Principal Target</span>
-                </div>
-                <div className="h-4 bg-slate-100 rounded-full border border-slate-200 overflow-hidden flex">
-                  <div className="h-full bg-slate-300 w-[20%]" title="Junior" />
-                  <div className="h-full bg-emerald-500 w-[60%] border-x border-white" title="Senior Standard" />
-                  <div className="h-full bg-[#0f172a] w-[20%]" title="Principal Target" />
-                </div>
-              </div>
-            </div>
-
-            {/* Industry Trends */}
-            <div className="bg-white border border-[#E5E7EB] p-6 rounded-[20px] shadow-sm space-y-5">
-              <h2 className="text-sm font-extrabold text-[#0F172A] uppercase tracking-wider flex items-center gap-2">
-                <TrendingUp className="w-5 h-5 text-emerald-500" />
-                Market Trends & In-Demand Skills
-              </h2>
-
-              <p className="text-xs text-[#64748B] leading-relaxed font-semibold">
-                Based on recruitment volumes from open platforms, these skills represent the fastest growing trends for <span className="text-[#0F172A] font-bold">{targetRole}</span> roles:
-              </p>
-
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div className="p-4 border border-[#E5E7EB] rounded-xl bg-slate-50 space-y-2.5">
-                  <div className="flex justify-between items-center text-xs font-bold">
-                    <span className="text-[#0F172A]">AI Tool Integration</span>
-                    <span className="text-[#10B981] bg-[#10B981]/15 px-2 py-0.5 rounded text-[10px]">High Growth</span>
+            ) : (
+              <>
+                <div className="bg-white border border-[#E5E7EB] p-6 rounded-[20px] shadow-sm space-y-6">
+                  <h2 className="text-sm font-extrabold text-[#0F172A] uppercase tracking-wider flex items-center gap-2">
+                    <DollarSign className="w-5 h-5 text-emerald-500" />
+                    Salary Benchmark Insights
+                  </h2>
+                  <div className="p-8 text-center bg-slate-50 rounded-xl border border-slate-100">
+                    <p className="text-sm font-bold text-slate-600">Salary data for "{targetRole}" is currently being calculated.</p>
+                    <p className="text-xs text-slate-400 mt-2">Check back later for updated market rates.</p>
                   </div>
-                  <div className="w-full bg-slate-200 h-1.5 rounded-full overflow-hidden">
-                    <div className="bg-[#10B981] h-full" style={{ width: "92%" }} />
-                  </div>
-                  <p className="text-[10px] text-slate-500 leading-normal font-medium">Prompt orchestration, OpenAI APIs, and AI interfaces account for 35% of current specifications.</p>
                 </div>
 
-                <div className="p-4 border border-[#E5E7EB] rounded-xl bg-slate-50 space-y-2.5">
-                  <div className="flex justify-between items-center text-xs font-bold">
-                    <span className="text-[#0F172A]">Server Component Rendering</span>
-                    <span className="text-[#10B981] bg-[#10B981]/15 px-2 py-0.5 rounded text-[10px]">Trending</span>
+                <div className="bg-white border border-[#E5E7EB] p-6 rounded-[20px] shadow-sm space-y-5">
+                  <h2 className="text-sm font-extrabold text-[#0F172A] uppercase tracking-wider flex items-center gap-2">
+                    <TrendingUp className="w-5 h-5 text-emerald-500" />
+                    Market Trends & In-Demand Skills
+                  </h2>
+                  <div className="p-8 text-center bg-slate-50 rounded-xl border border-slate-100">
+                    <p className="text-sm font-bold text-slate-600">Market trends for "{targetRole}" are currently being compiled.</p>
+                    <p className="text-xs text-slate-400 mt-2">Check back later for updated industry demands.</p>
                   </div>
-                  <div className="w-full bg-slate-200 h-1.5 rounded-full overflow-hidden">
-                    <div className="bg-[#10B981] h-full" style={{ width: "85%" }} />
-                  </div>
-                  <p className="text-[10px] text-slate-500 leading-normal font-medium">Next.js App Router architectures and client/server component boundaries are standard expectations.</p>
                 </div>
-              </div>
-            </div>
+              </>
+            )}
 
           </div>
 
@@ -168,69 +143,64 @@ export default function CareerInsightsPage() {
               <div className="relative w-36 h-36 mx-auto flex items-center justify-center">
                 <svg className="w-full h-full transform -rotate-90">
                   <circle cx="72" cy="72" r="56" className="text-slate-100" strokeWidth="12" fill="none" stroke="currentColor" />
-                  <circle cx="72" cy="72" r="56" className="text-emerald-500" strokeWidth="12" fill="none" stroke="currentColor" strokeDasharray="351.8" strokeDashoffset={351.8 - (351.8 * 78) / 100} strokeLinecap="round" />
+                  <circle cx="72" cy="72" r="56" className="text-emerald-500" strokeWidth="12" fill="none" stroke="currentColor" strokeDasharray="351.8" strokeDashoffset={351.8 - (351.8 * careerReadiness) / 100} strokeLinecap="round" />
                 </svg>
                 <div className="absolute flex flex-col items-center">
-                  <span className="text-3xl font-black text-slate-800">78%</span>
+                  <span className="text-3xl font-black text-slate-800">{careerReadiness}%</span>
                   <span className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">Index rating</span>
                 </div>
               </div>
 
-              <div className="space-y-3.5 pt-2 text-xs font-semibold text-slate-600">
-                <div className="flex justify-between border-b pb-1.5">
-                  <span>Resume Strength</span>
-                  <span className="font-bold text-[#0F172A]">Good (75%)</span>
-                </div>
-                <div className="flex justify-between border-b pb-1.5">
-                  <span>Skills Matching</span>
-                  <span className="font-bold text-[#0F172A]">Met (82%)</span>
-                </div>
-                <div className="flex justify-between border-b pb-1.5">
-                  <span>Mock Practice logs</span>
-                  <span className="font-bold text-[#0F172A]">Low (40%)</span>
-                </div>
-              </div>
+              {careerReadiness === 0 && (
+                <p className="text-xs text-center text-slate-500 font-semibold mt-4">Complete your profile to increase your readiness score.</p>
+              )}
             </div>
 
             {/* Goal Tracking */}
             <div className="bg-white border border-[#E5E7EB] p-6 rounded-[20px] shadow-sm space-y-5">
               <h2 className="text-sm font-extrabold text-[#0F172A] uppercase tracking-wider flex items-center gap-1.5">
                 <Target className="w-4.5 h-4.5 text-emerald-500" />
-                Goal Tracking logs
+                Goal Tracking
               </h2>
 
-              {/* Progress visual */}
-              <div className="space-y-1.5">
-                <div className="flex justify-between text-xs font-bold text-[#64748B]">
-                  <span>Progress</span>
-                  <span className="text-emerald-600">{progressPercent}%</span>
+              {goals.length === 0 ? (
+                <div className="p-4 text-center bg-slate-50 border border-slate-100 rounded-xl">
+                  <p className="text-xs font-semibold text-slate-500 mb-3">No active goals. Add one below!</p>
                 </div>
-                <div className="h-1.5 bg-slate-100 rounded-full overflow-hidden border border-slate-200/50">
-                  <div className="h-full bg-emerald-500 transition-all duration-300" style={{ width: `${progressPercent}%` }} />
-                </div>
-              </div>
-
-              {/* Goals list */}
-              <div className="space-y-2.5">
-                {goals.map(g => (
-                  <div
-                    key={g.id}
-                    onClick={() => handleToggleGoal(g.id)}
-                    className="flex items-center gap-3 p-2.5 border border-[#E5E7EB] rounded-xl hover:border-slate-300 transition-all cursor-pointer bg-slate-50/50"
-                  >
-                    <div className={`w-5 h-5 rounded-md border flex items-center justify-center shrink-0 ${
-                      g.completed ? "bg-emerald-500 border-emerald-500 text-white" : "border-slate-300 bg-white"
-                    }`}>
-                      {g.completed && <CheckCircle2 className="w-3.5 h-3.5" />}
+              ) : (
+                <>
+                  <div className="space-y-1.5">
+                    <div className="flex justify-between text-xs font-bold text-[#64748B]">
+                      <span>Progress</span>
+                      <span className="text-emerald-600">{progressPercent}%</span>
                     </div>
-                    <span className={`text-xs font-semibold leading-tight ${
-                      g.completed ? "text-slate-400 line-through" : "text-slate-700"
-                    }`}>
-                      {g.text}
-                    </span>
+                    <div className="h-1.5 bg-slate-100 rounded-full overflow-hidden border border-slate-200/50">
+                      <div className="h-full bg-emerald-500 transition-all duration-300" style={{ width: `${progressPercent}%` }} />
+                    </div>
                   </div>
-                ))}
-              </div>
+
+                  <div className="space-y-2.5 max-h-48 overflow-y-auto pr-1">
+                    {goals.map(g => (
+                      <div
+                        key={g.id}
+                        onClick={() => handleToggleGoal(g.id)}
+                        className="flex items-center gap-3 p-2.5 border border-[#E5E7EB] rounded-xl hover:border-slate-300 transition-all cursor-pointer bg-slate-50/50"
+                      >
+                        <div className={`w-5 h-5 rounded-md border flex items-center justify-center shrink-0 ${
+                          g.completed ? "bg-emerald-500 border-emerald-500 text-white" : "border-slate-300 bg-white"
+                        }`}>
+                          {g.completed && <CheckCircle2 className="w-3.5 h-3.5" />}
+                        </div>
+                        <span className={`text-xs font-semibold leading-tight ${
+                          g.completed ? "text-slate-400 line-through" : "text-slate-700"
+                        }`}>
+                          {g.text}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                </>
+              )}
 
               {/* Add form */}
               <form onSubmit={handleAddGoal} className="flex gap-2">
@@ -248,31 +218,8 @@ export default function CareerInsightsPage() {
                   <Plus className="w-4 h-4" />
                 </button>
               </form>
-
             </div>
-
           </div>
-
-        </div>
-
-        {/* ── NEXT STEP CTA SECTION ── */}
-        <div className="bg-gradient-to-r from-[#0F172A] to-[#1E293B] rounded-[24px] p-6 sm:p-8 text-white flex flex-col sm:flex-row items-center justify-between gap-6 shadow-md">
-          <div className="space-y-1.5">
-            <span className="inline-block bg-emerald-500 text-white font-extrabold text-[10px] px-2.5 py-0.5 rounded-full uppercase tracking-wider">
-              Recommended Next Step
-            </span>
-            <h3 className="text-lg font-bold">Bridge your skill gaps in the analysis lab</h3>
-            <p className="text-xs text-slate-400 max-w-xl font-medium">
-              Run comparative radar analyses on your profile and get custom modules recommended based on your target career keywords.
-            </p>
-          </div>
-          <a
-            href="/skill-gap"
-            className="flex items-center gap-2 px-5 py-3 bg-[#10B981] hover:bg-[#059669] text-white font-bold text-xs rounded-xl shadow-sm transition-all shrink-0 hover:translate-x-0.5"
-          >
-            Run Skill Audit
-            <ArrowRight className="w-4 h-4" />
-          </a>
         </div>
 
       </div>
