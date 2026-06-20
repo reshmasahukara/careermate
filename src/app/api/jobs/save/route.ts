@@ -3,6 +3,31 @@ import { prisma, isDbConfigured } from "@/lib/db";
 
 export const dynamic = "force-dynamic";
 
+export async function GET(request: Request) {
+  try {
+    isDbConfigured();
+
+    const { searchParams } = new URL(request.url);
+    const userId = searchParams.get("userId");
+
+    if (!userId) {
+      return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
+    }
+
+    const savedJobs = await prisma.savedJob.findMany({
+      where: { userId }
+    });
+
+    return NextResponse.json({ success: true, savedJobs });
+  } catch (error: any) {
+    console.error("Fetch saved jobs error:", error);
+    return NextResponse.json(
+      { error: "Failed to fetch saved jobs" },
+      { status: 500 }
+    );
+  }
+}
+
 export async function POST(request: Request) {
   try {
     isDbConfigured();
