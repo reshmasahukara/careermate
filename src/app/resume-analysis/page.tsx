@@ -17,7 +17,8 @@ import {
   Clock,
   ChevronDown,
   BarChart,
-  BookOpen
+  BookOpen,
+  Loader2
 } from "lucide-react";
 import { useToast } from "@/components/Providers";
 import {
