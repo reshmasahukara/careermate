@@ -127,6 +127,15 @@ model Job {
   applyUrl        String   @map("apply_url")
   skills          String[]
   logoUrl         String?  @map("logo_url")
+  
+  // New Fields for Hybrid Job Board
+  isCurated       Boolean  @default(false) @map("is_curated")
+  responsibilities String[]
+  benefits        String[]
+  industry        String?
+  companySize     String?  @map("company_size")
+  companyWebsite  String?  @map("company_website")
+
   createdAt       DateTime @default(now()) @map("created_at")
 
   savedJobs SavedJob[]
