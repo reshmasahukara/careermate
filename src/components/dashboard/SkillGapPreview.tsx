@@ -23,7 +23,7 @@ export default function SkillGapPreview({ missingKeywords, atsScore }: SkillGapP
         </div>
         <h4 className="text-sm font-bold text-slate-800 mb-1">No Analysis Yet</h4>
         <p className="text-xs text-slate-500 max-w-[200px] mb-4">
-          Complete an ATS analysis or Skill Gap check to identify your missing skills.
+          Complete an ATS analysis to identify missing skills.
         </p>
         <Link href="/skill-gap" className="text-xs font-bold text-emerald-700 bg-emerald-50 hover:bg-emerald-100 border border-emerald-100 px-4 py-2 rounded-lg transition-colors">
           Go to Skill Gap

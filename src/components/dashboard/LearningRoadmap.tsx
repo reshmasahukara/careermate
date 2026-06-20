@@ -16,12 +16,12 @@ export default function LearningRoadmap({ careerPath }: LearningRoadmapProps) {
           <BookOpen className="w-6 h-6 text-slate-300" />
         </div>
         <p className="text-sm font-bold text-[#111827] mb-1">No roadmap yet</p>
-        <p className="text-xs text-[#64748B] mb-4">Set a target role to generate your personalized learning roadmap.</p>
+        <p className="text-xs text-[#64748B] mb-4">Complete your profile to generate a roadmap</p>
         <Link
           href="/career-pathways"
           className="flex items-center gap-1.5 text-xs font-bold text-emerald-600 hover:text-emerald-700 transition-colors"
         >
-          Create Roadmap <ArrowRight className="w-3 h-3" />
+          Go to Pathways <ArrowRight className="w-3 h-3" />
         </Link>
       </div>
     );

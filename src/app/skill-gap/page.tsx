@@ -184,13 +184,35 @@ export default function SkillGapPage() {
 
   const fetchJobInsights = async (role: string) => {
     try {
-      const res = await fetch(`/api/jobs?search=${encodeURIComponent(role)}&limit=1`);
+      const res = await fetch(`/api/jobs?search=${encodeURIComponent(role)}&limit=10`);
       if (res.ok) {
         const data = await res.json();
+        const jobs = data.jobs || [];
+        
+        // Calculate dynamic salary range from database matching jobs
+        const jobsWithSalary = jobs.filter((j: any) => j.salaryMin || j.salaryMax);
+        let salaryText = "";
+        if (jobsWithSalary.length > 0) {
+          const avgMin = Math.round(jobsWithSalary.reduce((sum: number, j: any) => sum + (j.salaryMin || 0), 0) / jobsWithSalary.length);
+          const avgMax = Math.round(jobsWithSalary.reduce((sum: number, j: any) => sum + (j.salaryMax || 0), 0) / jobsWithSalary.length);
+          salaryText = `$${Math.round(avgMin / 1000)}k - $${Math.round(avgMax / 1000)}k`;
+        } else {
+          let base = 80000;
+          if (role.toLowerCase().includes("senior") || role.toLowerCase().includes("lead") || role.toLowerCase().includes("architect")) base = 120000;
+          else if (role.toLowerCase().includes("data") || role.toLowerCase().includes("engineer") || role.toLowerCase().includes("ai")) base = 100000;
+          salaryText = `$${Math.round(base * 0.8 / 1000)}k - $${Math.round(base * 1.2 / 1000)}k`;
+        }
+
+        // Extract top companies dynamically from database matching jobs
+        const companies: string[] = Array.from(new Set(jobs.map((j: any) => j.company) as string[])).slice(0, 4);
+        if (companies.length === 0) {
+          companies.push("Vercel", "Stripe", "OpenAI");
+        }
+
         setJobInsights({
           count: data.total > 0 ? data.total : 0,
-          salary: role.includes("Data") || role.includes("Engineer") ? "$110k - $160k" : "$90k - $140k",
-          topCompanies: ["Google", "Amazon", "Microsoft", "Meta"]
+          salary: salaryText,
+          topCompanies: companies
         });
       }
     } catch (e) {
@@ -325,7 +347,7 @@ export default function SkillGapPage() {
             </div>
             <h3 className="text-xl font-bold text-[#0F172A] mb-2">No skill analysis available</h3>
             <p className="text-[#64748B] text-sm max-w-sm mb-6">
-              Upload your resume and select a target role above to discover missing skills and generate your learning roadmap.
+              Complete an ATS analysis to identify missing skills.
             </p>
           </div>
         ) : (

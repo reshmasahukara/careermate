@@ -165,46 +165,45 @@ export default function DashboardPage() {
           <div className="grid grid-cols-2 xl:grid-cols-4 gap-4">
             <MetricCard
               title="ATS Score"
-              value={atsScore ? `${atsScore}/100` : "—"}
+              value={atsScore ? `${atsScore}/100` : "No analysis yet"}
               subtitle={atsScore ? "Resume vs. job description" : "No scan yet"}
               trend={atsScore ? { value: 5, label: "this month" } : undefined}
               icon={<FileSearch className="w-5 h-5" />}
               href="/ats-checker"
               accentColor="#10B981"
               isEmpty={!atsScore}
-              emptyText="Run an ATS scan"
+              emptyText="No analysis yet"
             />
             <MetricCard
-              title="Resume Match"
-              value={resumeMatchRate}
+              title="Match Rate"
+              value={atsScore ? `${atsScore}%` : "--"}
               subtitle={targetRole ? `vs. ${targetRole}` : "Set a target role"}
               icon={<Target className="w-5 h-5" />}
               href="/ats-checker"
               accentColor="#6366F1"
               isEmpty={!atsScore}
-              emptyText="No data yet"
+              emptyText="--"
             />
             <MetricCard
-              title="Jobs Applied"
-              value={jobsApplied}
-              subtitle="Applications this month"
-              trend={jobsApplied > 0 ? { value: jobsApplied, label: "total" } : undefined}
-              icon={<Briefcase className="w-5 h-5" />}
-              href="/jobs"
+              title="Resume Count"
+              value={d?.stats?.resumes ?? 0}
+              subtitle="Uploaded resumes"
+              trend={undefined}
+              icon={<FileText className="w-5 h-5" />}
+              href="/resume-analysis"
               accentColor="#F59E0B"
-              isEmpty={jobsApplied === 0}
-              emptyText="No applications yet"
+              isEmpty={false}
             />
             <MetricCard
               title="Career Readiness"
-              value={`${careerReadiness}%`}
+              value={atsScore ? `${careerReadiness}%` : "--"}
               subtitle="Profile, skills, resume & activity"
-              trend={careerReadiness > 0 ? { value: careerReadiness, label: "overall" } : undefined}
+              trend={undefined}
               icon={<Zap className="w-5 h-5" />}
-              href="/settings"
+              href="/career-insights"
               accentColor="#EF4444"
-              isEmpty={careerReadiness === 0}
-              emptyText="Complete your profile"
+              isEmpty={!atsScore}
+              emptyText="--"
             />
           </div>
 

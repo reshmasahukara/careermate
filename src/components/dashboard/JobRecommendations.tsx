@@ -25,7 +25,7 @@ export default function JobRecommendations({ targetRole }: JobRecommendationsPro
         </div>
         <h4 className="text-sm font-bold text-slate-800 mb-1">No Recommendations</h4>
         <p className="text-xs text-slate-500 max-w-[200px] mb-4">
-          Upload your resume and set a target role to receive personalized job recommendations.
+          Upload your resume to get recommendations
         </p>
         <Link href="/resume-upload" className="text-xs font-bold text-white bg-emerald-600 hover:bg-emerald-700 px-4 py-2 rounded-lg transition-colors">
           Upload Resume

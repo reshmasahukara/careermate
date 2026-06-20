@@ -5,8 +5,12 @@ import { prisma, isDbConfigured } from "@/lib/db";
 export async function getDashboardDataAction(userId: string) {
   isDbConfigured();
   try {
-    const [resumes, resumesCount, skillsCount, careerPaths, atsScores, subscription] =
+    const [user, resumes, resumesCount, skillsCount, careerPaths, atsScores, subscription] =
       await Promise.all([
+        prisma.user.findUnique({
+          where: { id: userId },
+          select: { name: true, jobTitle: true, experienceLevel: true, location: true, bio: true }
+        }),
         prisma.resume.findMany({
           where: { userId },
           orderBy: { createdAt: "desc" },
@@ -75,12 +79,14 @@ export async function getDashboardDataAction(userId: string) {
     }
     pendingActions.push({ title: "Explore job matches", desc: "Browse jobs that match your profile", href: "/jobs", priority: "optional" });
 
-    // Progress percentage
-    let progress = 20;
-    if (resumesCount > 0) progress += 20;
-    if (skillsCount >= 5) progress += 20;
-    if (careerPathsCount > 0) progress += 20;
-    if (atsScoresCount > 0) progress += 20;
+    // Profile Completion = percentage of completed profile fields (name, jobTitle, experienceLevel, location, bio)
+    let completedFields = 0;
+    if (user?.name && user.name.trim() !== "") completedFields++;
+    if (user?.jobTitle && user.jobTitle.trim() !== "") completedFields++;
+    if (user?.experienceLevel && user.experienceLevel.trim() !== "") completedFields++;
+    if (user?.location && user.location.trim() !== "") completedFields++;
+    if (user?.bio && user.bio.trim() !== "") completedFields++;
+    const progress = Math.round((completedFields / 5) * 100);
 
     // Generate ATS history from real data
     const atsHistory = atsScores.map((s) => ({ date: s.createdAt, score: s.score })).slice(0, 10).reverse();
@@ -94,7 +100,7 @@ export async function getDashboardDataAction(userId: string) {
     );
 
     return {
-      user: { id: userId },
+      user: user || { id: userId },
       recentResumes: resumes,
       latestResume,
       stats: {

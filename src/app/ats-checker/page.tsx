@@ -287,7 +287,7 @@ export default function AtsCheckerPage() {
             </div>
             <h1 className="text-2xl sm:text-3xl font-extrabold text-[#0F172A] tracking-tight mt-1.5">ATS Match Checker</h1>
             <p className="text-sm text-[#64748B] font-semibold mt-1">
-              Verify compatibility, parse formatting blockers, and optimize resume copies against specific job criteria.
+              Upload a resume and paste a job description to generate your ATS report.
             </p>
           </div>
 

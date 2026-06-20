@@ -143,7 +143,7 @@ export default function JobListingsPage() {
           </div>
           <h1 className="text-3xl font-black text-[#0F172A] mb-3">No recommendations yet</h1>
           <p className="text-slate-500 font-semibold mb-8 max-w-md leading-relaxed">
-            Upload your resume and complete an ATS analysis to receive personalized job matches tailored exactly to your profile.
+            Upload your resume to receive personalized job recommendations.
           </p>
           <div className="flex flex-col sm:flex-row items-center gap-4">
             <button
