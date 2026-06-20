@@ -10,6 +10,7 @@ export async function updateProfileAction(
     experienceLevel?: string;
     location?: string;
     bio?: string;
+    image?: string | null;
   }
 ) {
   isDbConfigured();

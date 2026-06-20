@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 import { User, Camera, Loader2, Save } from "lucide-react";
 import { useToast } from "@/components/Providers";
 import { updateProfileAction } from "@/app/actions/settings";
@@ -14,7 +14,9 @@ export default function ProfileSettings({ user }: ProfileSettingsProps) {
   const { toast } = useToast();
   const router = useRouter();
   
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const [isSaving, setIsSaving] = useState(false);
+  const [isUploading, setIsUploading] = useState(false);
   const [formData, setFormData] = useState({
     name: user?.name || "",
     jobTitle: user?.jobTitle || "",
@@ -22,6 +24,61 @@ export default function ProfileSettings({ user }: ProfileSettingsProps) {
     location: user?.location || "",
     bio: user?.bio || "",
   });
+
+  const handleTriggerFileInput = () => {
+    fileInputRef.current?.click();
+  };
+
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (!file.type.startsWith("image/")) {
+      toast("Please select an image file.", "error");
+      return;
+    }
+
+    if (file.size > 1024 * 1024) {
+      toast("Image must be smaller than 1MB.", "error");
+      return;
+    }
+
+    setIsUploading(true);
+    const reader = new FileReader();
+    reader.onload = async () => {
+      const base64Data = reader.result as string;
+      try {
+        await updateProfileAction(user.id, { image: base64Data });
+        toast("Profile photo updated successfully!", "success");
+        router.refresh();
+      } catch (err) {
+        toast("Failed to update profile photo.", "error");
+      } finally {
+        setIsUploading(false);
+      }
+    };
+    reader.onerror = () => {
+      toast("Failed to read image file.", "error");
+      setIsUploading(false);
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const handleRemovePhoto = async () => {
+    if (!user?.image) return;
+    if (window.confirm("Are you sure you want to remove your profile photo?")) {
+      setIsUploading(true);
+      try {
+        await updateProfileAction(user.id, { image: null });
+        toast("Profile photo removed successfully!", "success");
+        router.refresh();
+      } catch (err) {
+        toast("Failed to remove profile photo.", "error");
+      } finally {
+        setIsUploading(false);
+      }
+    }
+  };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
@@ -53,28 +110,56 @@ export default function ProfileSettings({ user }: ProfileSettingsProps) {
 
       <div className="bg-white border border-[#E5E7EB] rounded-2xl p-6 sm:p-8 shadow-sm">
         <form onSubmit={handleSubmit} className="space-y-6">
+          {/* Hidden File Input */}
+          <input
+            type="file"
+            ref={fileInputRef}
+            onChange={handleFileChange}
+            accept="image/*"
+            className="hidden"
+          />
+
           {/* Profile Photo */}
           <div className="flex items-center gap-6 pb-6 border-b border-[#E5E7EB]">
-            <div className="relative w-20 h-20 rounded-full bg-emerald-100 flex items-center justify-center border-4 border-white shadow-sm overflow-hidden shrink-0">
-              {user?.image ? (
+            <div 
+              onClick={handleTriggerFileInput}
+              className="relative w-20 h-20 rounded-full bg-emerald-100 flex items-center justify-center border-4 border-white shadow-sm overflow-hidden shrink-0 cursor-pointer group"
+            >
+              {isUploading ? (
+                <Loader2 className="w-8 h-8 text-emerald-600 animate-spin" />
+              ) : user?.image ? (
                 <img src={user.image} alt="Profile" className="w-full h-full object-cover" />
               ) : (
                 <User className="w-8 h-8 text-emerald-600" />
               )}
-              <div className="absolute inset-0 bg-black/40 opacity-0 hover:opacity-100 transition-opacity flex items-center justify-center cursor-pointer">
-                <Camera className="w-6 h-6 text-white" />
-              </div>
+              {!isUploading && (
+                <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                  <Camera className="w-6 h-6 text-white" />
+                </div>
+              )}
             </div>
             <div>
               <h4 className="text-sm font-bold text-[#0F172A]">Profile Photo</h4>
-              <p className="text-xs text-[#64748B] mt-1 mb-3">We recommend a 300x300px image.</p>
+              <p className="text-xs text-[#64748B] mt-1 mb-3">We recommend a 300x300px image. Max 1MB.</p>
               <div className="flex gap-3">
-                <button type="button" className="text-xs font-bold bg-white border border-[#E5E7EB] px-3 py-1.5 rounded-lg hover:bg-slate-50 transition-colors">
+                <button 
+                  type="button" 
+                  onClick={handleTriggerFileInput}
+                  disabled={isUploading}
+                  className="text-xs font-bold bg-white border border-[#E5E7EB] px-3 py-1.5 rounded-lg hover:bg-slate-50 transition-colors cursor-pointer disabled:opacity-50"
+                >
                   Change
                 </button>
-                <button type="button" className="text-xs font-bold text-rose-600 hover:text-rose-700 transition-colors">
-                  Remove
-                </button>
+                {user?.image && (
+                  <button 
+                    type="button" 
+                    onClick={handleRemovePhoto}
+                    disabled={isUploading}
+                    className="text-xs font-bold text-rose-600 hover:text-rose-700 transition-colors cursor-pointer disabled:opacity-50"
+                  >
+                    Remove
+                  </button>
+                )}
               </div>
             </div>
           </div>
