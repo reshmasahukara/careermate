@@ -275,11 +275,38 @@ export async function generateResumeAuditAction(resumeId: string) {
   if (text.length > 500) baseScore += 10;
   if (text.length > 1500) baseScore += 10;
   
-  const strongVerbs = ["spearheaded", "engineered", "optimized", "architected", "managed", "directed", "developed", "increased", "reduced", "delivered"];
+  const strongVerbsList = ["spearheaded", "engineered", "optimized", "architected", "managed", "directed", "developed", "increased", "reduced", "delivered", "implemented", "designed", "created"];
   let strongVerbCount = 0;
-  strongVerbs.forEach(v => {
-    if (lowerText.includes(v)) strongVerbCount++;
+  const foundStrongVerbs: string[] = [];
+  strongVerbsList.forEach(v => {
+    if (lowerText.includes(v)) {
+      strongVerbCount++;
+      foundStrongVerbs.push(v);
+    }
   });
+  
+  const weakVerbsList = [
+    { verb: "responsible for", replace: "Led / Headed" },
+    { verb: "worked on", replace: "Executed / Developed" },
+    { verb: "helped", replace: "Facilitated / Supported" },
+    { verb: "assisted", replace: "Collaborated / Contributed" },
+    { verb: "did", replace: "Achieved / Completed" },
+    { verb: "handled", replace: "Managed / Orchestrated" }
+  ];
+  const foundWeakVerbs: {verb: string, status: string, replace: string}[] = [];
+  weakVerbsList.forEach(v => {
+    if (lowerText.includes(v.verb)) {
+      foundWeakVerbs.push({ verb: v.verb, status: "weak", replace: v.replace });
+    }
+  });
+
+  foundStrongVerbs.slice(0, 4).forEach(v => {
+    foundWeakVerbs.push({ verb: v, status: "strong", replace: "" });
+  });
+
+  if (foundWeakVerbs.length === 0) {
+    foundWeakVerbs.push({ verb: "managed", status: "strong", replace: "" });
+  }
   
   baseScore += Math.min(15, strongVerbCount * 3);
   
@@ -287,6 +314,26 @@ export async function generateResumeAuditAction(resumeId: string) {
   if (hasNumbers) baseScore += 5;
   
   let experienceScore = 50 + Math.min(40, strongVerbCount * 8) + (hasNumbers ? 10 : 0);
+
+  const dynamicPriorityChanges = [];
+  if (!hasNumbers) {
+    dynamicPriorityChanges.push({ level: "High Priority", text: "Quantify work experience achievements with numeric metrics.", code: "EXP-01" });
+  }
+  if (text.length < 800) {
+    dynamicPriorityChanges.push({ level: "Medium Priority", text: "Expand on your experience. Your resume is a bit short.", code: "LEN-01" });
+  } else if (text.length > 4000) {
+    dynamicPriorityChanges.push({ level: "Medium Priority", text: "Your resume is quite long. Consider condensing older experience.", code: "LEN-02" });
+  }
+  if (!lowerText.includes("linkedin.com")) {
+    dynamicPriorityChanges.push({ level: "Medium Priority", text: "Add your LinkedIn profile URL to the header.", code: "HDR-02" });
+  }
+  if (foundWeakVerbs.some(v => v.status === "weak")) {
+    dynamicPriorityChanges.push({ level: "High Priority", text: "Replace passive/weak verbs with strong action verbs.", code: "VRB-01" });
+  }
+  if (dynamicPriorityChanges.length === 0) {
+    dynamicPriorityChanges.push({ level: "Low Priority", text: "Ensure standard fonts are used for maximum ATS readability.", code: "FMT-02" });
+    dynamicPriorityChanges.push({ level: "Low Priority", text: "Remove any graphical elements or icons that might confuse parsers.", code: "HDR-01" });
+  }
   
   const mockAnalysis = {
     resumeId,
@@ -320,11 +367,7 @@ export async function generateResumeAuditAction(resumeId: string) {
           "Replace passive verbs (e.g. 'Responsible for') with active verbs (e.g. 'Engineered', 'Managed').",
           "Add metric indicators: quantify the scale, scope, or results of your work."
         ],
-        verbsAnalyzed: [
-          { verb: "Responsible for", status: "weak", replace: "Led / Headed" },
-          { verb: "Worked on", status: "weak", replace: "Executed / Developed" },
-          { verb: "Optimized", status: "strong", replace: "" },
-        ]
+        verbsAnalyzed: foundWeakVerbs
       },
       {
         id: "skills",
@@ -352,12 +395,9 @@ export async function generateResumeAuditAction(resumeId: string) {
         ]
       }
     ],
-    priorityChanges: [
-      { level: "High Priority", text: "Quantify work experience achievements with numeric metrics.", code: "EXP-01" },
-      { level: "Medium Priority", text: "Ensure standard fonts are used for maximum ATS readability.", code: "FMT-02" },
-      { level: "Low Priority", text: "Remove any graphical elements or icons that might confuse parsers.", code: "HDR-01" },
-    ]
+    priorityChanges: dynamicPriorityChanges.slice(0, 3)
   };
 
   return mockAnalysis;
 }
+
