@@ -19,7 +19,9 @@ import {
   ChevronDown,
   ChevronUp,
   LogOut,
-  TrendingUp
+  TrendingUp,
+  ArrowLeft,
+  Menu
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import Logo from "@/components/Logo";
@@ -67,7 +69,7 @@ export default function Sidebar({ session, isCollapsed, setIsCollapsed }: Sideba
         <div className="h-[76px] border-b border-[#E5E7EB] flex items-center justify-between px-4">
           <div className="flex items-center gap-1.5 overflow-hidden">
             <Link href="/" className="p-1.5 rounded-lg hover:bg-[#F2F5F9] text-[#64748B] hover:text-[#0F172A] cursor-pointer" title="Back to Home">
-              <ChevronLeft className="w-5 h-5" />
+              <ArrowLeft className="w-5 h-5" />
             </Link>
             <Link href="/dashboard" className="flex items-center gap-2 group shrink-0 overflow-hidden">
               <Logo className="w-7 h-7" hideWordmark={isCollapsed} />
@@ -80,7 +82,7 @@ export default function Sidebar({ session, isCollapsed, setIsCollapsed }: Sideba
             className="p-1.5 rounded-lg hover:bg-[#F2F5F9] text-[#64748B] hover:text-[#0F172A] transition-colors cursor-pointer hidden lg:block"
             title={isCollapsed ? "Expand Sidebar" : "Collapse Sidebar"}
           >
-            {isCollapsed ? <ChevronRight className="w-4 h-4" /> : <ChevronLeft className="w-4 h-4" />}
+            <Menu className="w-5 h-5" />
           </button>
         </div>
 
