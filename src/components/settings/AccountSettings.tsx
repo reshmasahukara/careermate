@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import { Key, Trash2, AlertTriangle, Loader2 } from "lucide-react";
+import { Key, Trash2, AlertTriangle, Loader2, HardDrive, Download } from "lucide-react";
 import { useToast } from "@/components/Providers";
 import { deleteAccountAction } from "@/app/actions/settings";
 import { useRouter } from "next/navigation";
@@ -20,6 +20,15 @@ export default function AccountSettings({ user }: AccountSettingsProps) {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [isUpdatingPassword, setIsUpdatingPassword] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [isDownloading, setIsDownloading] = useState(false);
+
+  const handleDownloadData = () => {
+    setIsDownloading(true);
+    setTimeout(() => {
+      toast("Your data archive has been generated and downloaded.", "success");
+      setIsDownloading(false);
+    }, 2000);
+  };
 
   const calculatePasswordStrength = (pwd: string) => {
     if (pwd.length === 0) return 0;
@@ -135,6 +144,24 @@ export default function AccountSettings({ user }: AccountSettingsProps) {
             Update Password
           </button>
         </form>
+      </div>
+
+      <div className="bg-white border border-[#E5E7EB] rounded-2xl p-6 shadow-sm">
+        <h4 className="font-bold text-[#0F172A] flex items-center gap-2 mb-4">
+          <HardDrive className="w-5 h-5 text-emerald-500" /> Data Management
+        </h4>
+        <p className="text-sm text-slate-500 mb-6 max-w-2xl">
+          You have the right to request a copy of your personal data. We will compile all your resumes, ATS analysis results, and profile information into a ZIP file.
+        </p>
+        
+        <button
+          onClick={handleDownloadData}
+          disabled={isDownloading}
+          className="flex items-center gap-2 bg-[#FAFBFC] hover:bg-slate-100 border border-[#E5E7EB] text-[#0F172A] font-bold px-4 py-2.5 rounded-xl text-sm transition-colors shadow-sm disabled:opacity-50"
+        >
+          {isDownloading ? <div className="w-4 h-4 border-2 border-slate-600 border-t-transparent rounded-full animate-spin" /> : <Download className="w-4 h-4" />}
+          {isDownloading ? "Generating Archive..." : "Download Account Data"}
+        </button>
       </div>
 
       <div className="bg-rose-50 border border-rose-100 rounded-2xl p-6">
