@@ -267,16 +267,11 @@ export default function ResumeAnalysisPage() {
     return (
       <DashboardLayout>
         <div className="flex flex-col items-center justify-center min-h-[60vh] gap-3">
-          <RefreshCw className="w-10 h-10 animate-spin text-[#10B981]" />
-          <p className="text-sm font-semibold text-[#64748B]">Loading Resume Hub...</p>
+          <Loader2 className="w-10 h-10 animate-spin text-[#10B981]" />
+          <p className="text-sm font-semibold text-[#64748B]">Loading analysis...</p>
         </div>
       </DashboardLayout>
     );
-  }
-
-  if (status === "unauthenticated") {
-    router.push("/login");
-    return null;
   }
 
   return (

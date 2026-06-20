@@ -113,31 +113,6 @@ export default function DashboardPage() {
     );
   }
 
-  // ── Unauthenticated ──────────────────────────────────────
-  if (status === "unauthenticated") {
-    return (
-      <DashboardLayout>
-        <div className="flex-1 min-h-screen flex items-center justify-center px-4 bg-[#F7F8FA] py-16">
-          <div className="w-full max-w-md bg-white border border-[#E5E7EB] p-10 rounded-2xl shadow-sm text-center space-y-6">
-            <div className="w-14 h-14 bg-emerald-50 rounded-full flex items-center justify-center mx-auto">
-              <LayoutDashboard className="w-7 h-7 text-emerald-500" />
-            </div>
-            <h2 className="text-2xl font-extrabold text-[#111827]">Sign in to continue</h2>
-            <p className="text-sm text-[#64748B]">
-              Access your personalized career intelligence workspace.
-            </p>
-            <Link
-              href="/login"
-              className="w-full bg-[#10B981] hover:bg-[#059669] text-white font-bold py-3 rounded-xl text-sm block shadow-sm transition-all"
-            >
-              Sign In
-            </Link>
-          </div>
-        </div>
-      </DashboardLayout>
-    );
-  }
-
   const d = dashboardData;
   const userName = session?.user?.name?.split(" ")[0] || "there";
   const lastLogin = new Date().toLocaleDateString("en-US", {

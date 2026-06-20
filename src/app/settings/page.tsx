@@ -15,7 +15,11 @@ export default async function SettingsPage() {
   const session = await getServerSession(authOptions);
 
   if (!session?.user) {
-    redirect("/login");
+    return (
+      <DashboardLayout>
+        <div />
+      </DashboardLayout>
+    );
   }
 
   const userId = (session.user as any).id;
@@ -26,7 +30,11 @@ export default async function SettingsPage() {
   });
 
   if (!dbUser) {
-    redirect("/login");
+    return (
+      <DashboardLayout>
+        <div />
+      </DashboardLayout>
+    );
   }
 
   // Fetch subscription

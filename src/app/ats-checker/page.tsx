@@ -226,11 +226,6 @@ export default function AtsCheckerPage() {
     );
   }
 
-  if (status === "unauthenticated") {
-    router.push("/login");
-    return null;
-  }
-
   // Parse recommendations safely
   const getRecommendationsArray = (): any[] => {
     if (!activeReport?.recommendations) return [];

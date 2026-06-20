@@ -97,7 +97,27 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
 
   // If not logged in, render child directly so it can show its own login fallback screen
   if (!session) {
-    return <div className="min-h-screen bg-[#F7F8FA]">{children}</div>;
+    return (
+      <div className="min-h-screen bg-[#F7F8FA] flex items-center justify-center px-4 py-16">
+        <div className="w-full max-w-md bg-white border border-[#E5E7EB] p-10 rounded-2xl shadow-sm text-center space-y-6">
+          <div className="w-14 h-14 bg-emerald-50 rounded-full flex items-center justify-center mx-auto">
+            <svg className="w-7 h-7 text-emerald-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+            </svg>
+          </div>
+          <h2 className="text-2xl font-extrabold text-[#111827]">Sign in to continue</h2>
+          <p className="text-sm text-[#64748B]">
+            Access your personalized career intelligence workspace.
+          </p>
+          <Link
+            href="/login"
+            className="w-full bg-[#10B981] hover:bg-[#059669] text-white font-bold py-3 rounded-xl text-sm block shadow-sm transition-all"
+          >
+            Sign In
+          </Link>
+        </div>
+      </div>
+    );
   }
 
   const getPageTitle = () => {
