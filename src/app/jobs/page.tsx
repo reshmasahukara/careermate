@@ -11,8 +11,6 @@ import JobCardSkeleton from "@/components/jobs/JobCardSkeleton";
 import JobErrorState from "@/components/jobs/JobErrorState";
 import JobDetailsDrawer from "@/components/jobs/JobDetailsDrawer";
 import JobFiltersSidebar from "@/components/jobs/JobFiltersSidebar";
-import TopCompaniesCarousel from "@/components/jobs/TopCompaniesCarousel";
-import PopularTags from "@/components/jobs/PopularTags";
 import {
   FileText,
   Sparkles,
@@ -207,17 +205,9 @@ export default function JobListingsPage() {
           {/* Right Content Area (Jobs) */}
           <div className="flex-1 w-full space-y-6">
             
-            {/* Featured Sections (Only show when no active search/filters) */}
-            {!hasActiveFilters && (
-              <>
-                <TopCompaniesCarousel />
-                <PopularTags onSelectTag={(tag) => setFilters({ ...filters, search: tag })} />
-              </>
-            )}
-
             <div className="flex items-center justify-between">
               <h2 className="text-sm font-black text-[#0F172A] uppercase tracking-wider">
-                {hasActiveFilters ? "Search Results" : (needsResume ? "Trending Jobs" : "Top Personalized Matches")}
+                {hasActiveFilters ? "Search Results" : "Top Personalized Matches"}
               </h2>
               {!isLoading && !isError && (
                 <span className="text-xs font-bold text-slate-400">
@@ -242,20 +232,12 @@ export default function JobListingsPage() {
                 <p className="text-[#64748B] text-sm font-medium mb-6 max-w-sm leading-relaxed">
                   Try changing your search criteria, widening your location, or clearing your filters to see more results.
                 </p>
-                <div className="flex gap-4">
-                  <button
-                    onClick={resetFilters}
-                    className="bg-slate-100 hover:bg-slate-200 text-[#0F172A] font-bold py-2.5 px-6 rounded-xl transition-all text-sm"
-                  >
-                    Clear Filters
-                  </button>
-                  <button
-                    onClick={() => setFilters({ ...filters, search: "Software Engineer" })}
-                    className="bg-emerald-500 hover:bg-emerald-600 text-white font-bold py-2.5 px-6 rounded-xl transition-all text-sm shadow-sm"
-                  >
-                    Explore Software Roles
-                  </button>
-                </div>
+                <button
+                  onClick={resetFilters}
+                  className="bg-slate-100 hover:bg-slate-200 text-[#0F172A] font-bold py-2.5 px-6 rounded-xl transition-all text-sm"
+                >
+                  Clear Filters
+                </button>
               </div>
             ) : (
               <div className="grid grid-cols-1 gap-4">
