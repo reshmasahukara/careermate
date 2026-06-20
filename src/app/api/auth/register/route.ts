@@ -57,28 +57,51 @@ export async function POST(req: NextRequest) {
       passwordLoaded: !!process.env.EMAIL_APP_PASSWORD,
     });
 
-    // Send email via Nodemailer
-    const { getTransporter } = await import("@/lib/mailer");
-    const transporter = getTransporter();
+    let emailSent = false;
+    let emailError = null;
 
-    if (!process.env.EMAIL_USER || !process.env.EMAIL_APP_PASSWORD) {
-      throw new Error(`Email environment variables missing. USER: ${!!process.env.EMAIL_USER}, PASS: ${!!process.env.EMAIL_APP_PASSWORD}`);
+    try {
+      if (!process.env.EMAIL_USER || !process.env.EMAIL_APP_PASSWORD) {
+        throw new Error("SMTP credentials (EMAIL_USER/EMAIL_APP_PASSWORD) are not configured in environment variables.");
+      }
+
+      // Send email via Nodemailer
+      const { getTransporter } = await import("@/lib/mailer");
+      const transporter = getTransporter();
+
+      await transporter.sendMail({
+        from: `"CareerMate" <${process.env.EMAIL_USER}>`,
+        to: email.toLowerCase(),
+        subject: "Verify your CareerMate account",
+        html: `
+          <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #e5e7eb; border-radius: 12px;">
+            <h2 style="color: #10b981; font-weight: 800;">Welcome to CareerMate!</h2>
+            <p style="color: #4b5563; font-size: 14px;">Thank you for registering. Please verify your email using the following One-Time Password (OTP):</p>
+            <div style="background-color: #f3f4f6; padding: 16px; border-radius: 12px; text-align: center; font-size: 32px; font-weight: 900; letter-spacing: 4px; color: #111827; margin: 24px 0;">
+              ${otp}
+            </div>
+            <p style="color: #9ca3af; font-size: 12px;">This code will expire in 10 minutes. If you did not request this, please ignore this email.</p>
+          </div>
+        `,
+      });
+      emailSent = true;
+      console.log(`[Email] OTP successfully sent to ${email.toLowerCase()}`);
+    } catch (err: any) {
+      emailError = err.message || err;
+      console.error("[Email Error] Failed to send OTP email:", err);
+      
+      // Print OTP to terminal in highly visible format so developers/testers can always retrieve it
+      console.log("\n==================================================");
+      console.log(`[OTP BACKUP] Generated OTP for ${email.toLowerCase()}: ${otp}`);
+      console.log("==================================================\n");
     }
-    
-    await transporter.sendMail({
-      from: `"CareerMate" <${process.env.EMAIL_USER}>`,
-      to: email.toLowerCase(),
-      subject: "Verify your CareerMate account",
-      html: `
-        <h2>Your CareerMate OTP</h2>
-        <p>Your verification code is:</p>
-        <h1>${otp}</h1>
-        <p>This code expires in 10 minutes.</p>
-      `,
-    });
 
     return NextResponse.json(
-      { message: "Verification code sent successfully.", email: email.toLowerCase() },
+      { 
+        message: emailSent ? "Verification code sent successfully." : "Verification code generated.", 
+        email: email.toLowerCase(),
+        warning: emailSent ? undefined : "Email delivery failed, but registration is pending. Please verify using the OTP from server terminal logs."
+      },
       { status: 200 }
     );
   } catch (error: any) {

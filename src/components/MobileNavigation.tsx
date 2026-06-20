@@ -22,15 +22,15 @@ export default function MobileNavigation({ toggleMobileMenu }: MobileNavigationP
     if (href === "/dashboard") {
       return pathname === "/dashboard";
     }
-    if (href === "/resume-upload") {
-      return pathname === "/resume-upload" || pathname === "/resume-builder" || pathname === "/resume-analysis";
+    if (href === "/resume-analysis") {
+      return pathname === "/resume-analysis" || pathname === "/resume-builder" || pathname === "/resume-upload";
     }
     return pathname === href || pathname.startsWith(href + "/");
   };
 
   const navItems = [
     { name: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
-    { name: "Resume Hub", href: "/resume-upload", icon: Upload },
+    { name: "Resume Hub", href: "/resume-analysis", icon: Upload },
     { name: "Job Board", href: "/jobs", icon: Briefcase },
     { name: "Settings", href: "/settings", icon: Settings },
   ];

@@ -114,7 +114,7 @@ export default function DashboardPage() {
   }
 
   // ── Unauthenticated ──────────────────────────────────────
-  if (!session) {
+  if (status === "unauthenticated") {
     return (
       <DashboardLayout>
         <div className="flex-1 min-h-screen flex items-center justify-center px-4 bg-[#F7F8FA] py-16">
@@ -139,7 +139,7 @@ export default function DashboardPage() {
   }
 
   const d = dashboardData;
-  const userName = session.user?.name?.split(" ")[0] || "there";
+  const userName = session?.user?.name?.split(" ")[0] || "there";
   const lastLogin = new Date().toLocaleDateString("en-US", {
     weekday: "long", month: "short", day: "numeric",
   });

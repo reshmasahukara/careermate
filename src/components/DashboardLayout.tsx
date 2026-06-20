@@ -13,7 +13,6 @@ import {
   Briefcase,
   Award,
   BookOpen,
-  HelpCircle,
   Settings,
   ChevronLeft,
   ChevronRight,
@@ -103,16 +102,15 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
 
   const getPageTitle = () => {
     if (pathname === "/dashboard") return "Overview";
-    if (pathname === "/resume-upload") return "Upload Resume";
+    if (pathname === "/resume-upload") return "Resume Analyzer";
     if (pathname === "/resume-builder") return "Resume Builder";
-    if (pathname === "/resume-analysis") return "Resume Analysis";
+    if (pathname === "/resume-analysis") return "Resume Analyzer";
     if (pathname === "/ats-checker") return "ATS Checker";
     if (pathname === "/jobs") return "Job Board";
     if (pathname === "/skill-gap") return "Skill Gap Analysis";
     if (pathname === "/roadmap") return "Learning Roadmap";
     if (pathname === "/career-insights") return "Career Insights";
     if (pathname === "/settings") return "Settings";
-    if (pathname === "/help") return "Help & Docs";
     return "Workspace";
   };
 
@@ -195,9 +193,8 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
                     </button>
                     {rhGroupOpen && (
                       <div className="mt-1 pl-10 space-y-1">
-                        <Link href="/resume-upload" className={`flex items-center gap-2 px-3 py-2 rounded-[8px] text-xs font-semibold ${pathname === "/resume-upload" ? "text-[#10B981] bg-[#10B981]/10" : "text-[#64748B]"}`}><Upload className="w-3.5 h-3.5" /> Upload Resume</Link>
+                        <Link href="/resume-analysis" className={`flex items-center gap-2 px-3 py-2 rounded-[8px] text-xs font-semibold ${pathname === "/resume-analysis" ? "text-[#10B981] bg-[#10B981]/10" : "text-[#64748B]"}`}><FileSearch className="w-3.5 h-3.5" /> Resume Analyzer</Link>
                         <Link href="/resume-builder" className={`flex items-center gap-2 px-3 py-2 rounded-[8px] text-xs font-semibold ${pathname === "/resume-builder" ? "text-[#10B981] bg-[#10B981]/10" : "text-[#64748B]"}`}><Sparkles className="w-3.5 h-3.5" /> Resume Builder</Link>
-                        <Link href="/resume-analysis" className={`flex items-center gap-2 px-3 py-2 rounded-[8px] text-xs font-semibold ${pathname === "/resume-analysis" ? "text-[#10B981] bg-[#10B981]/10" : "text-[#64748B]"}`}><FileSearch className="w-3.5 h-3.5" /> Resume Analysis</Link>
                       </div>
                     )}
                   </div>
@@ -221,12 +218,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
                     <TrendingUp className="w-4.5 h-4.5" /> <span>Career Insights</span>
                   </Link>
 
-                  <div className="h-px bg-[#E5E7EB] my-2" />
-
-                  <Link href="/help" className={`flex items-center gap-3 px-3 py-2.5 rounded-[12px] text-sm font-semibold transition-all ${pathname === "/help" ? "bg-[#10B981]/5 text-[#10B981]" : "text-[#64748B]"}`}>
-                    <HelpCircle className="w-4.5 h-4.5" /> <span>Help & Docs</span>
-                  </Link>
-                  <Link href="/settings" className={`flex items-center gap-3 px-3 py-2.5 rounded-[12px] text-sm font-semibold transition-all ${pathname === "/settings" ? "bg-[#10B981]/5 text-[#10B981]" : "text-[#64748B]"}`}>
+                   <Link href="/settings" className={`flex items-center gap-3 px-3 py-2.5 rounded-[12px] text-sm font-semibold transition-all ${pathname === "/settings" ? "bg-[#10B981]/5 text-[#10B981]" : "text-[#64748B]"}`}>
                     <Settings className="w-4.5 h-4.5" /> <span>Settings</span>
                   </Link>
 

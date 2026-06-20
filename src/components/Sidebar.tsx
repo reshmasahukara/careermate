@@ -13,7 +13,6 @@ import {
   Briefcase,
   Award,
   BookOpen,
-  HelpCircle,
   Settings,
   ChevronLeft,
   ChevronRight,
@@ -41,9 +40,8 @@ export default function Sidebar({ session, isCollapsed, setIsCollapsed }: Sideba
   };
 
   const resumeHubItems = [
-    { name: "Upload Resume", href: "/resume-upload", icon: Upload },
-    { name: "Resume Builder", href: "/resume-builder", icon: Sparkles },
-    { name: "Resume Analysis", href: "/resume-analysis", icon: FileSearch }
+    { name: "Resume Analyzer", href: "/resume-analysis", icon: FileSearch },
+    { name: "Resume Builder", href: "/resume-builder", icon: Sparkles }
   ];
 
   const mainNavItems = [
@@ -55,7 +53,6 @@ export default function Sidebar({ session, isCollapsed, setIsCollapsed }: Sideba
   ];
 
   const bottomNavItems = [
-    { name: "Help & Docs", href: "/help", icon: HelpCircle },
     { name: "Settings", href: "/settings", icon: Settings }
   ];
 
@@ -184,7 +181,7 @@ export default function Sidebar({ session, isCollapsed, setIsCollapsed }: Sideba
           {/* Spacer Line */}
           <div className="h-px bg-[#E5E7EB] my-2" />
 
-          {/* Help & Settings */}
+          {/* Settings */}
           {bottomNavItems.map((item) => {
             const Icon = item.icon;
             const active = isActive(item.href);

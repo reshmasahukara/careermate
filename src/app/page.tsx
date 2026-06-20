@@ -17,7 +17,6 @@ import {
   Users,
   Star,
   CheckCircle,
-  HelpCircle,
   ChevronDown,
   BookOpen,
   Check,
