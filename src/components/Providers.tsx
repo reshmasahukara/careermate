@@ -30,7 +30,7 @@ export function useToast() {
   return context;
 }
 
-export default function Providers({ children }: { children: React.ReactNode }) {
+export default function Providers({ children, session }: { children: React.ReactNode, session?: any }) {
   const [toasts, setToasts] = useState<Toast[]>([]);
 
   const toast = (message: string, type: ToastType = "info", duration = 4000) => {
@@ -43,7 +43,7 @@ export default function Providers({ children }: { children: React.ReactNode }) {
   };
 
   return (
-    <SessionProvider>
+    <SessionProvider session={session} refetchOnWindowFocus={false} refetchWhenOffline={false}>
       <ToastContext.Provider value={{ toast, toasts, removeToast }}>
         {children}
         <ToastContainer toasts={toasts} removeToast={removeToast} />

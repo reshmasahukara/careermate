@@ -4,6 +4,8 @@ import "./globals.css";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import Providers from "@/components/Providers";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/auth";
 
 const inter = Inter({
   variable: "--font-inter",
@@ -15,11 +17,13 @@ export const metadata: Metadata = {
   description: "Upload your resume, optimize your ATS score, discover relevant jobs, and identify skill gaps with AI-powered career guidance.",
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const session = await getServerSession(authOptions);
+
   return (
     <html
       lang="en"
@@ -49,7 +53,7 @@ export default function RootLayout({
         />
       </head>
       <body className="min-h-full flex flex-col bg-brand-bg text-brand-text">
-        <Providers>
+        <Providers session={session}>
           <Navbar />
           <main className="flex-1 flex flex-col">{children}</main>
           <Footer />
