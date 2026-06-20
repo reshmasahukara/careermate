@@ -14,21 +14,36 @@ import {
   Layers,
   Award,
   Zap,
-  Users
+  Users,
+  Briefcase,
+  Clock,
+  BookOpen,
+  RefreshCw,
+  Plus
 } from "lucide-react";
 import { useToast } from "@/components/Providers";
-import { getUserSkillsAction } from "@/app/actions/skills";
+import { 
+  getUserSkillsAction, 
+  analyzeSkillGapAction,
+  syncSkillsFromResumeAction,
+  getLatestSkillGapAction,
+  getLearningRoadmapAction,
+  addUserSkillAction,
+  removeUserSkillAction
+} from "@/app/actions/skills";
 
-// Dynamic import for Recharts to avoid SSR issues
-import dynamic from 'next/dynamic';
-const Radar = dynamic(() => import('recharts').then(mod => mod.Radar), { ssr: false });
-const RadarChart = dynamic(() => import('recharts').then(mod => mod.RadarChart), { ssr: false });
-const PolarGrid = dynamic(() => import('recharts').then(mod => mod.PolarGrid), { ssr: false });
-const PolarAngleAxis = dynamic(() => import('recharts').then(mod => mod.PolarAngleAxis), { ssr: false });
-const PolarRadiusAxis = dynamic(() => import('recharts').then(mod => mod.PolarRadiusAxis), { ssr: false });
-const ResponsiveContainer = dynamic(() => import('recharts').then(mod => mod.ResponsiveContainer), { ssr: false });
-const Tooltip = dynamic(() => import('recharts').then(mod => mod.Tooltip), { ssr: false });
-const Legend = dynamic(() => import('recharts').then(mod => mod.Legend), { ssr: false });
+const TARGET_ROLES = [
+  "Frontend Developer",
+  "Backend Developer",
+  "Full Stack Developer",
+  "Data Analyst",
+  "Data Scientist",
+  "Machine Learning Engineer",
+  "AI Engineer",
+  "DevOps Engineer",
+  "UI/UX Designer",
+  "Product Manager"
+];
 
 export default function SkillGapPage() {
   const { data: session } = useSession();
@@ -36,25 +51,79 @@ export default function SkillGapPage() {
 
   const [userSkills, setUserSkills] = useState<any[]>([]);
   const [targetRole, setTargetRole] = useState("");
-  const [hasAnalyzed, setHasAnalyzed] = useState(false);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
-  const [activeTab, setActiveTab] = useState("technical");
+  const [isSyncing, setIsSyncing] = useState(false);
+  
+  const [skillGap, setSkillGap] = useState<any>(null);
+  const [roadmap, setRoadmap] = useState<any[]>([]);
+  const [jobInsights, setJobInsights] = useState<any>(null);
 
-  const [analysisData, setAnalysisData] = useState<any>(null);
+  const [newSkill, setNewSkill] = useState("");
+
+  const userId = (session?.user as any)?.id || "demo-user-123";
 
   useEffect(() => {
     if (session?.user) {
-      loadUserSkills();
+      loadData();
     }
   }, [session]);
 
-  const loadUserSkills = async () => {
+  const loadData = async () => {
     try {
-      const userId = (session?.user as any).id || "demo-user-123";
+      const skills = await getUserSkillsAction(userId);
+      setUserSkills(skills);
+
+      const latestGap = await getLatestSkillGapAction(userId);
+      if (latestGap) {
+        setTargetRole(latestGap.targetRole);
+        setSkillGap(latestGap);
+        const map = await getLearningRoadmapAction(userId, latestGap.targetRole);
+        setRoadmap(map);
+        fetchJobInsights(latestGap.targetRole);
+      }
+    } catch (e) {
+      console.error("Error loading data:", e);
+    }
+  };
+
+  const handleSyncResume = async () => {
+    setIsSyncing(true);
+    try {
+      const success = await syncSkillsFromResumeAction(userId);
+      if (success) {
+        const skills = await getUserSkillsAction(userId);
+        setUserSkills(skills);
+        toast("Successfully extracted skills from your resume", "success");
+      } else {
+        toast("Could not find a parsed resume. Please upload one first.", "error");
+      }
+    } catch (error) {
+      toast("Failed to sync skills", "error");
+    } finally {
+      setIsSyncing(false);
+    }
+  };
+
+  const handleAddSkill = async () => {
+    if (!newSkill.trim()) return;
+    try {
+      await addUserSkillAction(userId, newSkill.trim(), "Intermediate");
+      setNewSkill("");
+      const skills = await getUserSkillsAction(userId);
+      setUserSkills(skills);
+      toast("Skill added manually", "success");
+    } catch (e) {
+      toast("Failed to add skill", "error");
+    }
+  };
+
+  const handleRemoveSkill = async (skillId: string) => {
+    try {
+      await removeUserSkillAction(userId, skillId);
       const skills = await getUserSkillsAction(userId);
       setUserSkills(skills);
     } catch (e) {
-      console.error("Error loading skills:", e);
+      toast("Failed to remove skill", "error");
     }
   };
 
@@ -62,11 +131,12 @@ export default function SkillGapPage() {
     if (!targetRole) return;
     setIsAnalyzing(true);
     try {
-      const userId = (session?.user as any).id || "demo-user-123";
-      const data = await import('@/app/actions/skills').then(mod => mod.analyzeSkillGapAction(userId, targetRole));
-      setAnalysisData(data);
-      setHasAnalyzed(true);
-      toast("Analysis complete!", "success");
+      const gap = await analyzeSkillGapAction(userId, targetRole);
+      setSkillGap(gap);
+      const map = await getLearningRoadmapAction(userId, targetRole);
+      setRoadmap(map);
+      fetchJobInsights(targetRole);
+      toast("Skill Gap Analysis Complete!", "success");
     } catch (e) {
       console.error(e);
       toast("Failed to analyze skill gap", "error");
@@ -75,18 +145,40 @@ export default function SkillGapPage() {
     }
   };
 
-  const getMissingSkillsArray = () => {
-    return analysisData?.missingSkills || [];
+  const fetchJobInsights = async (role: string) => {
+    try {
+      const res = await fetch(`/api/jobs?search=${encodeURIComponent(role)}&limit=1`);
+      if (res.ok) {
+        const data = await res.json();
+        setJobInsights({
+          count: data.total > 500 ? "500+" : data.total,
+          salary: role.includes("Data") || role.includes("Engineer") ? "$110k - $160k" : "$90k - $140k",
+          topCompanies: ["Google", "Amazon", "Microsoft", "Meta"]
+        });
+      }
+    } catch (e) {
+      console.error("Job insights error", e);
+    }
   };
 
   return (
     <DashboardLayout>
-      <div className="space-y-6">
+      <div className="space-y-6 pb-20">
         
         {/* Header */}
-        <div>
-          <h1 className="text-2xl font-bold text-[#0F172A]">Skill Gap Analysis</h1>
-          <p className="text-[#64748B] text-sm font-semibold mt-1">Compare your current skill set against industry requirements.</p>
+        <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
+          <div>
+            <h1 className="text-2xl font-bold text-[#0F172A]">Skill Gap Analysis</h1>
+            <p className="text-[#64748B] text-sm font-semibold mt-1">Discover your missing skills and get a personalized learning path.</p>
+          </div>
+          <button 
+            onClick={handleSyncResume}
+            disabled={isSyncing}
+            className="flex items-center gap-2 bg-white border border-[#E2E8F0] hover:bg-slate-50 text-[#0F172A] font-bold px-4 py-2 rounded-xl text-sm transition-all shadow-sm disabled:opacity-50"
+          >
+            <RefreshCw className={`w-4 h-4 ${isSyncing ? 'animate-spin' : ''}`} />
+            Sync from Resume
+          </button>
         </div>
 
         {/* Configuration Row */}
@@ -94,19 +186,22 @@ export default function SkillGapPage() {
           <div className="w-full md:flex-1 space-y-2">
             <label className="text-sm font-semibold text-[#0F172A]">Target Role</label>
             <div className="relative">
-              <input
-                type="text"
-                placeholder="e.g. Senior Full Stack Engineer"
+              <select
                 value={targetRole}
                 onChange={(e) => setTargetRole(e.target.value)}
-                className="w-full bg-[#F8FAFC] border border-[#E2E8F0] rounded-xl py-3 px-4 text-sm focus:outline-none focus:border-emerald-500 pl-10 transition-colors"
-              />
+                className="w-full bg-[#F8FAFC] border border-[#E2E8F0] rounded-xl py-3 px-4 text-sm font-medium focus:outline-none focus:border-emerald-500 pl-10 transition-colors appearance-none"
+              >
+                <option value="" disabled>Select a Target Role...</option>
+                {TARGET_ROLES.map(role => (
+                  <option key={role} value={role}>{role}</option>
+                ))}
+              </select>
               <Target className="absolute left-3.5 top-3.5 w-4.5 h-4.5 text-slate-400" />
             </div>
           </div>
           <button
             onClick={handleAnalyze}
-            disabled={!targetRole || isAnalyzing}
+            disabled={!targetRole || isAnalyzing || userSkills.length === 0}
             className="w-full md:w-auto px-8 py-3 bg-emerald-600 hover:bg-emerald-700 disabled:bg-slate-300 text-white font-bold rounded-xl transition-all shadow-sm flex justify-center items-center gap-2"
           >
             {isAnalyzing ? (
@@ -120,249 +215,227 @@ export default function SkillGapPage() {
           </button>
         </div>
 
-        {!hasAnalyzed ? (
+        {/* Current Skills Manager */}
+        <div className="bg-white p-6 border border-[#E2E8F0] rounded-[20px] shadow-sm">
+          <h3 className="text-sm font-bold text-[#0F172A] mb-4 flex items-center gap-2">
+            <Layers className="w-4 h-4 text-emerald-500" /> Current Skills Profile
+          </h3>
+          <div className="flex flex-wrap gap-2 mb-4">
+            {userSkills.map(skill => (
+              <span key={skill.id} className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-slate-100 text-slate-700 text-xs font-bold rounded-lg border border-slate-200">
+                {skill.name}
+                <button onClick={() => handleRemoveSkill(skill.skillId)} className="hover:text-rose-500 transition-colors">
+                  &times;
+                </button>
+              </span>
+            ))}
+            {userSkills.length === 0 && (
+              <span className="text-sm text-slate-400 italic">No skills added yet. Sync from your resume or add manually.</span>
+            )}
+          </div>
+          <div className="flex items-center gap-2 max-w-sm">
+            <input
+              type="text"
+              placeholder="Add skill manually (e.g. React)"
+              value={newSkill}
+              onChange={(e) => setNewSkill(e.target.value)}
+              onKeyDown={(e) => e.key === 'Enter' && handleAddSkill()}
+              className="flex-1 bg-[#F8FAFC] border border-[#E2E8F0] rounded-lg py-2 px-3 text-sm focus:outline-none focus:border-emerald-500"
+            />
+            <button onClick={handleAddSkill} className="p-2 bg-emerald-100 text-emerald-700 rounded-lg hover:bg-emerald-200 transition-colors">
+              <Plus className="w-4 h-4" />
+            </button>
+          </div>
+        </div>
+
+        {!skillGap ? (
           /* Empty State */
-          <div className="bg-white border border-[#E2E8F0] rounded-[20px] min-h-[500px] flex flex-col items-center justify-center p-8 text-center shadow-sm">
-            <div className="w-24 h-24 bg-emerald-50 rounded-full flex items-center justify-center mb-6">
-              <TrendingUp className="w-12 h-12 text-emerald-500" />
+          <div className="bg-white border border-[#E2E8F0] rounded-[20px] min-h-[400px] flex flex-col items-center justify-center p-8 text-center shadow-sm">
+            <div className="w-20 h-20 bg-emerald-50 rounded-full flex items-center justify-center mb-6">
+              <TrendingUp className="w-10 h-10 text-emerald-500" />
             </div>
-            <h3 className="text-xl font-bold text-[#0F172A] mb-2">Identify Your Skill Gaps</h3>
-            <p className="text-[#64748B] text-sm max-w-sm">
-              Select a target role and upload your resume to generate a comprehensive comparison of your current skills versus industry demands.
+            <h3 className="text-xl font-bold text-[#0F172A] mb-2">Discover Your Missing Skills</h3>
+            <p className="text-[#64748B] text-sm max-w-sm mb-6">
+              Upload your resume or add skills manually, then select a target role to generate a personalized learning roadmap.
             </p>
+            {userSkills.length === 0 && (
+              <Link href="/resume-upload" className="bg-[#0F172A] hover:bg-slate-800 text-white px-6 py-2.5 rounded-xl font-bold text-sm transition-colors">
+                Upload Resume First
+              </Link>
+            )}
           </div>
         ) : (
           /* Analysis Results */
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+          <div className="space-y-6">
             
-            {/* Main Content (col 8) */}
-            <div className="lg:col-span-8 space-y-6">
-              <div className="bg-white border border-[#E2E8F0] rounded-[20px] shadow-sm overflow-hidden flex flex-col h-full min-h-[600px]">
-                
-                {/* Tabs */}
-                <div className="flex border-b border-[#E2E8F0] overflow-x-auto no-scrollbar bg-slate-50/50">
-                  <button 
-                    onClick={() => setActiveTab("technical")}
-                    className={`flex items-center gap-2 px-6 py-4 text-sm font-bold border-b-2 transition-colors whitespace-nowrap ${
-                      activeTab === "technical" ? "border-emerald-600 text-emerald-600 bg-white" : "border-transparent text-slate-500 hover:text-slate-700"
-                    }`}
-                  >
-                    <Zap className="w-4 h-4" /> Technical Skills
-                  </button>
-                  <button 
-                    onClick={() => setActiveTab("soft")}
-                    className={`flex items-center gap-2 px-6 py-4 text-sm font-bold border-b-2 transition-colors whitespace-nowrap ${
-                      activeTab === "soft" ? "border-emerald-600 text-emerald-600 bg-white" : "border-transparent text-slate-500 hover:text-slate-700"
-                    }`}
-                  >
-                    <Users className="w-4 h-4" /> Soft Skills
-                  </button>
-                  <button 
-                    onClick={() => setActiveTab("certifications")}
-                    className={`flex items-center gap-2 px-6 py-4 text-sm font-bold border-b-2 transition-colors whitespace-nowrap ${
-                      activeTab === "certifications" ? "border-emerald-600 text-emerald-600 bg-white" : "border-transparent text-slate-500 hover:text-slate-700"
-                    }`}
-                  >
-                    <Award className="w-4 h-4" /> Certifications
-                  </button>
+            {/* Overview Cards */}
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+              <div className="bg-white p-5 border border-[#E2E8F0] rounded-[20px] shadow-sm flex flex-col justify-center">
+                <p className="text-xs font-bold text-[#64748B] uppercase tracking-wider mb-1">Match Score</p>
+                <div className="flex items-end gap-2">
+                  <h3 className="text-3xl font-black text-[#0F172A]">{skillGap.matchScore}%</h3>
+                  <TrendingUp className={`w-5 h-5 mb-1.5 ${skillGap.matchScore > 75 ? 'text-emerald-500' : 'text-amber-500'}`} />
                 </div>
-
-                {/* Tab Content */}
-                <div className="p-6 flex-1 bg-white">
-                  {activeTab === "technical" && (
-                    <div className="space-y-8 animate-in fade-in duration-300">
-                      
-                      {/* Priority Action Indicator */}
-                      {getMissingSkillsArray().length > 0 && (
-                        <div className="bg-amber-50 border border-amber-200 rounded-[12px] p-4 flex items-start gap-3">
-                          <AlertCircle className="w-5 h-5 text-amber-500 shrink-0 mt-0.5" />
-                          <div>
-                            <h4 className="font-bold text-amber-800 text-sm">Priority Action Recommended</h4>
-                            <p className="text-xs text-amber-700 mt-1">
-                              You are missing {getMissingSkillsArray().length} critical technical skills required for this role. We strongly recommend adding them to your learning roadmap.
-                            </p>
-                          </div>
-                        </div>
-                      )}
-
-                      {/* Radar Chart */}
-                      <div className="h-[350px] w-full bg-slate-50 rounded-xl border border-slate-100 flex items-center justify-center p-4">
-                        <ResponsiveContainer width="100%" height="100%">
-                          <RadarChart cx="50%" cy="50%" outerRadius="80%" data={analysisData?.radarData || []}>
-                            <PolarGrid stroke="#e2e8f0" />
-                            <PolarAngleAxis dataKey="subject" tick={{ fill: '#64748b', fontSize: 12, fontWeight: 600 }} />
-                            <PolarRadiusAxis angle={30} domain={[0, 150]} tick={false} axisLine={false} />
-                            <Radar name="Your Match" dataKey="A" stroke="#3b82f6" fill="#3b82f6" fillOpacity={0.5} />
-                            <Radar name="Target Role" dataKey="B" stroke="#cbd5e1" fill="#cbd5e1" fillOpacity={0.3} />
-                            <Tooltip contentStyle={{ fontSize: "11px", borderRadius: "8px" }} />
-                            <Legend wrapperStyle={{ fontSize: '12px', fontWeight: 600, paddingTop: '10px' }} />
-                          </RadarChart>
-                        </ResponsiveContainer>
-                      </div>
-
-                      {/* Skills Comparison Grid Table */}
-                      <div className="space-y-4">
-                        <h4 className="font-bold text-slate-800 flex items-center gap-2">
-                          <PieChart className="w-4 h-4 text-emerald-500" /> Comparison Grid
-                        </h4>
-                        <div className="overflow-x-auto border border-[#E2E8F0] rounded-xl">
-                          <table className="w-full text-left border-collapse text-xs sm:text-sm">
-                            <thead>
-                              <tr className="bg-slate-50 border-b border-[#E2E8F0] text-[#64748B] font-bold uppercase tracking-wider text-[10px]">
-                                <th className="p-4">Skill Category / Topic</th>
-                                <th className="p-4">Your Proficiency</th>
-                                <th className="p-4">Target Requirement</th>
-                                <th className="p-4">Gap Status</th>
-                              </tr>
-                            </thead>
-                            <tbody className="divide-y divide-[#E2E8F0] bg-white font-semibold text-xs">
-                              {(analysisData?.radarData || []).map((row: any, i: number) => {
-                                const gap = row.B - row.A;
-                                return (
-                                  <tr key={i} className="hover:bg-slate-50 transition-colors">
-                                    <td className="p-4 text-[#0F172A]">{row.subject}</td>
-                                    <td className="p-4 text-slate-600">{row.A}</td>
-                                    <td className="p-4 text-slate-600">{row.B}</td>
-                                    <td className="p-4">
-                                      {gap <= 0 ? (
-                                        <span className="flex items-center gap-1 text-emerald-600 bg-emerald-50 px-2 py-1 rounded-[6px] w-max font-bold">
-                                          <CheckCircle2 className="w-3.5 h-3.5" /> Met
-                                        </span>
-                                      ) : gap < 30 ? (
-                                        <span className="flex items-center gap-1 text-amber-600 bg-amber-50 px-2 py-1 rounded-[6px] w-max font-bold">
-                                          <TrendingUp className="w-3.5 h-3.5" /> Small Gap
-                                        </span>
-                                      ) : (
-                                        <span className="flex items-center gap-1 text-rose-600 bg-rose-50 px-2 py-1 rounded-[6px] w-max font-bold">
-                                          <AlertCircle className="w-3.5 h-3.5" /> High Priority
-                                        </span>
-                                      )}
-                                    </td>
-                                  </tr>
-                                );
-                              })}
-                            </tbody>
-                          </table>
-                        </div>
-                      </div>
-
-                    </div>
-                  )}
-
-                  {activeTab === "soft" && (
-                    <div className="space-y-6 animate-in fade-in duration-300">
-                      <h3 className="text-lg font-bold text-slate-800 mb-2">Soft Skills Analysis</h3>
-                      <p className="text-sm text-slate-500 mb-6">Compare your behavioral and communication skills.</p>
-                      
-                      <div className="space-y-4">
-                        <div className="flex flex-col sm:flex-row sm:items-center justify-between p-4 border border-emerald-100 bg-emerald-50/30 rounded-xl gap-4">
-                          <div>
-                            <p className="font-bold text-slate-800 text-sm flex items-center gap-2">
-                              <CheckCircle2 className="w-4 h-4 text-emerald-500" />
-                              Cross-functional Communication
-                            </p>
-                            <p className="text-xs text-slate-500 mt-1">Demonstrated frequently in your resume achievements.</p>
-                          </div>
-                          <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-1 bg-emerald-100 text-emerald-700 rounded-[6px]">
-                            Strength
-                          </span>
-                        </div>
-                        <div className="flex flex-col sm:flex-row sm:items-center justify-between p-4 border border-rose-100 bg-rose-50/30 rounded-xl gap-4">
-                          <div>
-                            <p className="font-bold text-slate-800 text-sm flex items-center gap-2">
-                              <AlertCircle className="w-4 h-4 text-rose-500" />
-                              Mentorship & Leadership
-                            </p>
-                            <p className="text-xs text-slate-500 mt-1">Missing indicators. Expected for Senior+ roles.</p>
-                          </div>
-                          <div className="flex items-center gap-3">
-                            <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-1 bg-rose-100 text-rose-700 rounded-[6px]">
-                              Gap Found
-                            </span>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  )}
-
-                  {activeTab === "certifications" && (
-                    <div className="space-y-6 animate-in fade-in duration-300">
-                      <h3 className="text-lg font-bold text-slate-800 mb-2">Certifications Checklist</h3>
-                      <p className="text-sm text-slate-500 mb-6">Industry recognized credentials that boost your match rate for {targetRole}.</p>
-                      
-                      <div className="space-y-4">
-                        <div className="p-5 border border-[#E2E8F0] rounded-xl flex items-start gap-4 hover:border-emerald-200 transition-colors">
-                          <div className="w-6 h-6 rounded-md border-2 border-slate-300 shrink-0 mt-0.5" />
-                          <div>
-                            <h4 className="font-bold text-slate-800 text-sm">AWS Certified Solutions Architect – Associate</h4>
-                            <p className="text-xs text-slate-500 mt-1 leading-relaxed">Highly requested for Cloud/DevOps requirements in modern software stacks.</p>
-                          </div>
-                        </div>
-                        <div className="p-5 border border-[#E2E8F0] rounded-xl flex items-start gap-4 hover:border-emerald-200 transition-colors">
-                          <div className="w-6 h-6 rounded-md border-2 border-slate-300 shrink-0 mt-0.5" />
-                          <div>
-                            <h4 className="font-bold text-slate-800 text-sm">Certified Kubernetes Administrator (CKA)</h4>
-                            <p className="text-xs text-slate-500 mt-1 leading-relaxed">Validates skills in setting up, maintaining and troubleshooting Kubernetes clusters.</p>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  )}
-
+              </div>
+              <div className="bg-white p-5 border border-[#E2E8F0] rounded-[20px] shadow-sm flex flex-col justify-center">
+                <p className="text-xs font-bold text-[#64748B] uppercase tracking-wider mb-1">Missing Skills</p>
+                <div className="flex items-end gap-2">
+                  <h3 className="text-3xl font-black text-[#0F172A]">{skillGap.criticalSkills.length + skillGap.recommendedSkills.length}</h3>
+                  <AlertCircle className="w-5 h-5 mb-1.5 text-rose-500" />
+                </div>
+              </div>
+              <div className="bg-white p-5 border border-[#E2E8F0] rounded-[20px] shadow-sm flex flex-col justify-center">
+                <p className="text-xs font-bold text-[#64748B] uppercase tracking-wider mb-1">Est. Learning Time</p>
+                <div className="flex items-end gap-2">
+                  <h3 className="text-3xl font-black text-[#0F172A]">{roadmap.length}</h3>
+                  <span className="text-sm font-bold text-slate-500 mb-1">weeks</span>
+                </div>
+              </div>
+              <div className="bg-white p-5 border border-[#E2E8F0] rounded-[20px] shadow-sm flex flex-col justify-center">
+                <p className="text-xs font-bold text-[#64748B] uppercase tracking-wider mb-1">Job Readiness</p>
+                <div className="flex items-end gap-2">
+                  <h3 className={`text-xl font-black ${skillGap.jobReadiness === 'Job Ready' ? 'text-emerald-600' : 'text-amber-600'}`}>
+                    {skillGap.jobReadiness}
+                  </h3>
                 </div>
               </div>
             </div>
 
-            {/* Sidebar (col 4) */}
-            <div className="lg:col-span-4 space-y-6">
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
               
-              <div className="bg-white border border-[#E2E8F0] rounded-[20px] shadow-sm p-6 space-y-4">
-                <h3 className="text-sm font-bold text-slate-800 uppercase tracking-wider flex items-center gap-2">
-                  <Layers className="w-4 h-4 text-emerald-500" />
-                  Action Plan
-                </h3>
-                <p className="text-sm text-slate-600">Based on your gaps, we recommend the following learning roadmap updates.</p>
-                
-                <div className="space-y-3 pt-2">
-                  {getMissingSkillsArray().map((skill: any, i: number) => (
-                    <div key={i} className="p-3 bg-emerald-50/50 border border-emerald-100 rounded-xl text-sm">
-                      <p className="font-bold text-slate-800 mb-1">Add {skill.name} Basics</p>
-                      <p className="text-xs text-slate-500 mb-3">Priority: {skill.importance}</p>
-                      <button className="w-full py-2 bg-emerald-600 text-white font-bold rounded-lg text-xs hover:bg-emerald-700 transition-colors">
-                        Add to Roadmap
-                      </button>
+              {/* Missing Skills Section */}
+              <div className="lg:col-span-2 space-y-6">
+                <div className="bg-white border border-[#E2E8F0] rounded-[20px] shadow-sm p-6">
+                  <h3 className="text-lg font-bold text-[#0F172A] mb-6 flex items-center gap-2">
+                    <PieChart className="w-5 h-5 text-emerald-500" /> Identified Skill Gaps
+                  </h3>
+                  
+                  <div className="space-y-6">
+                    {/* Critical */}
+                    <div>
+                      <h4 className="text-sm font-bold text-rose-700 flex items-center gap-2 mb-3">
+                        <AlertCircle className="w-4 h-4" /> Critical Skills (Required)
+                      </h4>
+                      <div className="flex flex-wrap gap-2">
+                        {skillGap.criticalSkills.length > 0 ? skillGap.criticalSkills.map((skill: string) => (
+                          <span key={skill} className="bg-rose-50 border border-rose-200 text-rose-700 px-3 py-1.5 rounded-lg text-sm font-bold shadow-sm">
+                            {skill}
+                          </span>
+                        )) : <span className="text-sm text-slate-500 italic">No critical gaps!</span>}
+                      </div>
                     </div>
-                  ))}
-                  {getMissingSkillsArray().length === 0 && (
-                    <div className="text-xs text-slate-500 italic">No critical actions required. Your profile matches well!</div>
+
+                    {/* Recommended */}
+                    <div>
+                      <h4 className="text-sm font-bold text-amber-700 flex items-center gap-2 mb-3">
+                        <Zap className="w-4 h-4" /> Recommended Skills (Tools & Tech)
+                      </h4>
+                      <div className="flex flex-wrap gap-2">
+                        {skillGap.recommendedSkills.length > 0 ? skillGap.recommendedSkills.map((skill: string) => (
+                          <span key={skill} className="bg-amber-50 border border-amber-200 text-amber-700 px-3 py-1.5 rounded-lg text-sm font-bold shadow-sm">
+                            {skill}
+                          </span>
+                        )) : <span className="text-sm text-slate-500 italic">No recommended gaps!</span>}
+                      </div>
+                    </div>
+
+                    {/* Optional */}
+                    <div>
+                      <h4 className="text-sm font-bold text-slate-600 flex items-center gap-2 mb-3">
+                        <Award className="w-4 h-4" /> Optional Skills (Bonus)
+                      </h4>
+                      <div className="flex flex-wrap gap-2">
+                        {skillGap.optionalSkills.length > 0 ? skillGap.optionalSkills.map((skill: string) => (
+                          <span key={skill} className="bg-slate-50 border border-slate-200 text-slate-600 px-3 py-1.5 rounded-lg text-sm font-bold shadow-sm">
+                            {skill}
+                          </span>
+                        )) : <span className="text-sm text-slate-500 italic">No optional gaps!</span>}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Learning Roadmap */}
+                <div className="bg-white border border-[#E2E8F0] rounded-[20px] shadow-sm p-6">
+                  <h3 className="text-lg font-bold text-[#0F172A] mb-6 flex items-center gap-2">
+                    <BookOpen className="w-5 h-5 text-emerald-500" /> Personalized Learning Roadmap
+                  </h3>
+                  
+                  <div className="space-y-0 relative before:absolute before:inset-0 before:ml-5 before:-translate-x-px md:before:mx-auto md:before:translate-x-0 before:h-full before:w-0.5 before:bg-gradient-to-b before:from-transparent before:via-slate-300 before:to-transparent">
+                    {roadmap.map((step: any, index: number) => (
+                      <div key={step.id} className="relative flex items-center justify-between md:justify-normal md:odd:flex-row-reverse group is-active py-4">
+                        <div className="flex items-center justify-center w-10 h-10 rounded-full border border-white bg-emerald-100 text-emerald-600 shadow shrink-0 md:order-1 md:group-odd:-translate-x-1/2 md:group-even:translate-x-1/2 z-10">
+                          <span className="font-bold text-sm">{step.week}</span>
+                        </div>
+                        <div className="w-[calc(100%-4rem)] md:w-[calc(50%-2.5rem)] bg-white border border-[#E2E8F0] p-4 rounded-xl shadow-sm hover:border-emerald-300 transition-colors">
+                          <div className="flex items-center justify-between mb-1">
+                            <h4 className="font-bold text-slate-800 text-sm">{step.title}</h4>
+                            <span className="text-[10px] font-bold uppercase tracking-wider text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-md">Week {step.week}</span>
+                          </div>
+                          <p className="text-xs text-slate-500 mb-3">{step.description}</p>
+                          <div className="space-y-1.5">
+                            {step.resources.map((res: string, i: number) => (
+                              <a key={i} href={res} target="_blank" rel="noreferrer" className="flex items-center gap-1.5 text-[11px] font-bold text-blue-600 hover:text-blue-800 transition-colors">
+                                <ArrowRight className="w-3 h-3" /> External Resource {i+1}
+                              </a>
+                            ))}
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                  {roadmap.length === 0 && (
+                    <div className="text-center py-8 text-slate-500 text-sm font-medium">
+                      You are fully equipped for this role! No specific roadmap generated.
+                    </div>
+                  )}
+                </div>
+
+              </div>
+
+              {/* Sidebar Insights */}
+              <div className="lg:col-span-1 space-y-6">
+                <div className="bg-gradient-to-b from-slate-900 to-slate-800 rounded-[20px] p-6 text-white shadow-md relative overflow-hidden">
+                  <div className="absolute top-0 right-0 w-32 h-32 bg-emerald-500/10 rounded-full blur-3xl -mr-10 -mt-10" />
+                  <h3 className="text-sm font-bold uppercase tracking-wider text-emerald-400 mb-6 flex items-center gap-2">
+                    <Briefcase className="w-4 h-4" /> Market Insights
+                  </h3>
+                  
+                  {jobInsights ? (
+                    <div className="space-y-5">
+                      <div>
+                        <p className="text-xs text-slate-400 font-medium mb-1">Active Matching Jobs</p>
+                        <p className="text-2xl font-black">{jobInsights.count}</p>
+                      </div>
+                      <div>
+                        <p className="text-xs text-slate-400 font-medium mb-1">Average Salary Range</p>
+                        <p className="text-lg font-bold text-emerald-300">{jobInsights.salary}</p>
+                      </div>
+                      <div>
+                        <p className="text-xs text-slate-400 font-medium mb-2">Top Hiring Companies</p>
+                        <div className="flex flex-wrap gap-2">
+                          {jobInsights.topCompanies.map((c: string) => (
+                            <span key={c} className="text-[10px] font-bold bg-white/10 px-2 py-1 rounded border border-white/5">{c}</span>
+                          ))}
+                        </div>
+                      </div>
+                      <Link href={`/jobs?search=${encodeURIComponent(targetRole)}`} className="block w-full py-2.5 mt-2 bg-emerald-500 hover:bg-emerald-600 text-center text-xs font-bold rounded-xl transition-colors">
+                        View Open Jobs
+                      </Link>
+                    </div>
+                  ) : (
+                    <div className="animate-pulse space-y-4">
+                      <div className="h-10 bg-white/10 rounded-lg w-1/2"></div>
+                      <div className="h-10 bg-white/10 rounded-lg w-3/4"></div>
+                      <div className="h-10 bg-white/10 rounded-lg w-full"></div>
+                    </div>
                   )}
                 </div>
               </div>
 
             </div>
-
           </div>
         )}
-
-        {/* ── NEXT STEP CTA SECTION ── */}
-        <div className="bg-gradient-to-r from-[#0F172A] to-[#1E293B] rounded-[24px] p-6 sm:p-8 text-white flex flex-col sm:flex-row items-center justify-between gap-6 shadow-md mt-8">
-          <div className="space-y-1.5">
-            <span className="inline-block bg-emerald-500 text-white font-extrabold text-[10px] px-2.5 py-0.5 rounded-full uppercase tracking-wider">
-              Recommended Next Step
-            </span>
-            <h3 className="text-lg font-bold">Generate a personalized Learning Roadmap</h3>
-            <p className="text-xs text-slate-400 max-w-xl font-medium">
-              Create a weeks-based milestone timeline with course material recommendations specifically structured to bridge your priority skill gaps.
-            </p>
-          </div>
-          <Link
-            href="/roadmap"
-            className="flex items-center gap-2 px-5 py-3 bg-[#10B981] hover:bg-[#059669] text-white font-bold text-xs rounded-xl shadow-sm transition-all shrink-0 hover:translate-x-0.5"
-          >
-            Create Learning Path
-            <ArrowRight className="w-4 h-4" />
-          </Link>
-        </div>
 
       </div>
     </DashboardLayout>

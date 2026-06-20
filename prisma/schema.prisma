@@ -44,6 +44,10 @@ model User {
 
   savedJobs            SavedJob[]
   jobRecommendations   JobRecommendation[]
+  targetRoles          TargetRole[]
+  skillGaps            SkillGap[]
+  learningRoadmaps     LearningRoadmap[]
+  skillProgresses      SkillProgress[]
 
   @@map("users")
 }
@@ -283,3 +287,57 @@ model ATSAnalysis {
   @@map("ats_analyses")
 }
 
+model TargetRole {
+  id        String   @id @default(cuid())
+  userId    String   @map("user_id")
+  title     String
+  createdAt DateTime @default(now()) @map("created_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("target_roles")
+}
+
+model SkillGap {
+  id             String   @id @default(cuid())
+  userId         String   @map("user_id")
+  targetRole     String   @map("target_role")
+  matchScore     Int      @map("match_score")
+  criticalSkills String[] @map("critical_skills")
+  recommendedSkills String[] @map("recommended_skills")
+  optionalSkills String[] @map("optional_skills")
+  jobReadiness   String   @map("job_readiness") // Beginner, Intermediate, Job Ready
+  createdAt      DateTime @default(now()) @map("created_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("skill_gaps")
+}
+
+model LearningRoadmap {
+  id          String   @id @default(cuid())
+  userId      String   @map("user_id")
+  targetRole  String   @map("target_role")
+  title       String
+  description String   @db.Text
+  week        Int
+  resources   String[] // JSON string array
+  createdAt   DateTime @default(now()) @map("created_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("learning_roadmaps")
+}
+
+model SkillProgress {
+  id        String   @id @default(cuid())
+  userId    String   @map("user_id")
+  skillName String   @map("skill_name")
+  completed Boolean  @default(false)
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("skill_progress")
+}
