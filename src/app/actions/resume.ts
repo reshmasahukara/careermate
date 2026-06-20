@@ -252,3 +252,112 @@ export async function calculateAtsScoreAction(
     throw new Error("Failed to calculate ATS score.");
   }
 }
+
+/**
+ * Server action to dynamically generate an AI audit for a given resume based on its parsed text.
+ */
+export async function generateResumeAuditAction(resumeId: string) {
+  isDbConfigured();
+  
+  const resume = await prisma.resume.findUnique({
+    where: { id: resumeId },
+  });
+
+  if (!resume) {
+    throw new Error("Resume not found");
+  }
+
+  const text = resume.parsedText || "";
+  const lowerText = text.toLowerCase();
+  
+  // Dynamic Score Generation based on length and keywords
+  let baseScore = 60;
+  if (text.length > 500) baseScore += 10;
+  if (text.length > 1500) baseScore += 10;
+  
+  const strongVerbs = ["spearheaded", "engineered", "optimized", "architected", "managed", "directed", "developed", "increased", "reduced", "delivered"];
+  let strongVerbCount = 0;
+  strongVerbs.forEach(v => {
+    if (lowerText.includes(v)) strongVerbCount++;
+  });
+  
+  baseScore += Math.min(15, strongVerbCount * 3);
+  
+  const hasNumbers = /\d/.test(text);
+  if (hasNumbers) baseScore += 5;
+  
+  let experienceScore = 50 + Math.min(40, strongVerbCount * 8) + (hasNumbers ? 10 : 0);
+  
+  const mockAnalysis = {
+    resumeId,
+    score: Math.min(100, baseScore),
+    summary: baseScore > 80 
+      ? "Your resume structure is excellent. You have a solid variety of strong action verbs and quantitative metrics."
+      : "Your resume structure is decent, but it could benefit from stronger action verbs and more numeric metrics to quantify your achievements.",
+    sections: [
+      {
+        id: "header",
+        title: "Header & Contact Details",
+        score: lowerText.includes("gmail.com") || lowerText.includes("linkedin.com") ? 95 : 70,
+        status: lowerText.includes("gmail.com") || lowerText.includes("linkedin.com") ? "good" : "warning",
+        critique: lowerText.includes("linkedin.com") 
+          ? "Contact details are well formatted and professional." 
+          : "Make sure you include a professional email and your LinkedIn profile URL.",
+        improvements: [
+          "Ensure your contact details are at the very top.",
+          "Avoid putting contact details in columns which ATS might misread."
+        ]
+      },
+      {
+        id: "experience",
+        title: "Work Experience & Impact",
+        score: Math.min(100, experienceScore),
+        status: experienceScore > 75 ? "good" : "warning",
+        critique: experienceScore > 75 
+          ? "You have a good use of active verbs and descriptive accomplishments."
+          : "Bullet points lack quantitative achievements and strong action verbs.",
+        improvements: [
+          "Replace passive verbs (e.g. 'Responsible for') with active verbs (e.g. 'Engineered', 'Managed').",
+          "Add metric indicators: quantify the scale, scope, or results of your work."
+        ],
+        verbsAnalyzed: [
+          { verb: "Responsible for", status: "weak", replace: "Led / Headed" },
+          { verb: "Worked on", status: "weak", replace: "Executed / Developed" },
+          { verb: "Optimized", status: "strong", replace: "" },
+        ]
+      },
+      {
+        id: "skills",
+        title: "Skills & Keywords alignment",
+        score: text.length > 800 ? 88 : 65,
+        status: text.length > 800 ? "good" : "warning",
+        critique: text.length > 800 
+          ? "Strong keywords are present, making this resume highly searchable."
+          : "Consider adding a dedicated skills section to boost keyword density.",
+        improvements: [
+          "Integrate standard modern tooling tags related to your industry.",
+          "Categorize technologies under clean visual headers."
+        ]
+      },
+      {
+        id: "education",
+        title: "Education & Certifications",
+        score: lowerText.includes("university") || lowerText.includes("college") || lowerText.includes("bachelor") ? 95 : 60,
+        status: lowerText.includes("university") || lowerText.includes("college") || lowerText.includes("bachelor") ? "good" : "warning",
+        critique: lowerText.includes("university") || lowerText.includes("college") || lowerText.includes("bachelor") 
+          ? "Education details are clearly stated."
+          : "Education details seem to be missing or formatted unusually.",
+        improvements: [
+          "List graduation dates in Year format only (e.g. '2024') rather than month format to maintain alignment standard."
+        ]
+      }
+    ],
+    priorityChanges: [
+      { level: "High Priority", text: "Quantify work experience achievements with numeric metrics.", code: "EXP-01" },
+      { level: "Medium Priority", text: "Ensure standard fonts are used for maximum ATS readability.", code: "FMT-02" },
+      { level: "Low Priority", text: "Remove any graphical elements or icons that might confuse parsers.", code: "HDR-01" },
+    ]
+  };
+
+  return mockAnalysis;
+}

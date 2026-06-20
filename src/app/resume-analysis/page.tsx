@@ -23,7 +23,8 @@ import { useToast } from "@/components/Providers";
 import {
   processResumeUploadAction,
   getResumesAction,
-  deleteResumeAction
+  deleteResumeAction,
+  generateResumeAuditAction
 } from "@/app/actions/resume";
 import DashboardLayout from "@/components/DashboardLayout";
 
@@ -186,7 +187,7 @@ export default function ResumeAnalysisPage() {
   };
 
   // Audit evaluation mock logic
-  const handleRunAnalysis = () => {
+  const handleRunAnalysis = async () => {
     if (!selectedResumeId) {
       toast("Please select a resume version to analyze.", "warning");
       return;
@@ -195,72 +196,16 @@ export default function ResumeAnalysisPage() {
     setIsAnalyzing(true);
     setAnalysisResult(null);
 
-    setTimeout(() => {
-      const mockAnalysis = {
-        resumeId: selectedResumeId,
-        score: 78,
-        summary: "Your resume structure is solid, but the experience section suffers from passive phrasing and a lack of numeric metrics. Core skills are well listed, but layout conventions could be modernized.",
-        sections: [
-          {
-            id: "header",
-            title: "Header & Contact Details",
-            score: 92,
-            status: "good",
-            critique: "Contact details are present. LinkedIn profile is linked properly.",
-            improvements: [
-              "Move contact numbers out of the margins to avoid header parsing problems on older ATS gateways.",
-              "Ensure your GitHub link uses clean URL routing (avoid redirects)."
-            ]
-          },
-          {
-            id: "experience",
-            title: "Work Experience & Impact",
-            score: 68,
-            status: "warning",
-            critique: "Bullet points are descriptive of duties, but they lack quantitative achievements and action verbs.",
-            improvements: [
-              "Replace passive verbs (e.g. 'Responsible for writing React elements') with active verbs (e.g. 'Engineered high-performance React client modules').",
-              "Add metric indicators: instead of 'improved speed', use 'optimized bundle hydration, yielding a 20% faster load speed (Core Web Vitals)'."
-            ],
-            verbsAnalyzed: [
-              { verb: "Responsible for", status: "weak", replace: "Led / Headed" },
-              { verb: "Worked on", status: "weak", replace: "Executed / Developed" },
-              { verb: "Optimized", status: "strong", replace: "" },
-            ]
-          },
-          {
-            id: "skills",
-            title: "Skills & Keywords alignment",
-            score: 80,
-            status: "good",
-            critique: "Strong frontend skill keywords present. Missing core DevOps or tooling entries expected in senior roles.",
-            improvements: [
-              "Integrate standard modern CI/CD tags like Docker, GitHub Actions, or AWS.",
-              "Categorize technologies under clean visual headers (Frontend, DevOps, Tools)."
-            ]
-          },
-          {
-            id: "education",
-            title: "Education & Certifications",
-            score: 95,
-            status: "good",
-            critique: "Excellent representation. Degrees, major, school, and date are clean.",
-            improvements: [
-              "List graduation dates in Year format only (e.g. '2024') rather than month format to maintain alignment standard."
-            ]
-          }
-        ],
-        priorityChanges: [
-          { level: "High Priority", text: "Quantify work experience achievements with numeric metrics.", code: "EXP-01" },
-          { level: "Medium Priority", text: "Replace weak verbs ('Worked on', 'Responsible for') under past employment.", code: "EXP-02" },
-          { level: "Low Priority", text: "Remove contact details from top margins.", code: "HDR-01" },
-        ]
-      };
-
-      setAnalysisResult(mockAnalysis);
-      setIsAnalyzing(false);
+    try {
+      const dynamicAnalysis = await generateResumeAuditAction(selectedResumeId);
+      setAnalysisResult(dynamicAnalysis);
       toast("Detailed section analysis complete!", "success");
-    }, 1200);
+    } catch (error) {
+      console.error("Audit error:", error);
+      toast("Failed to run AI audit.", "error");
+    } finally {
+      setIsAnalyzing(false);
+    }
   };
 
   if (status === "loading") {
