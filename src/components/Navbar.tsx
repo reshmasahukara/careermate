@@ -81,10 +81,13 @@ export default function Navbar() {
   const isAppRoute = [
     "/dashboard",
     "/resume-upload",
+    "/resume-builder",
+    "/resume-analysis",
     "/ats-checker",
     "/jobs",
     "/skill-gap",
     "/roadmap",
+    "/career-insights",
     "/settings"
   ].some(route => pathname === route || pathname.startsWith(route + "/"));
 
