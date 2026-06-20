@@ -93,27 +93,27 @@ export default function LearningPaths({ userId, targetRole }: LearningPathsProps
   return (
     <div className="space-y-8">
       {/* Overview Card */}
-      <div className="bg-white border border-slate-200 rounded-[20px] p-6 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-6">
+      <div className="bg-white border border-[#E5E7EB] rounded-[24px] p-6 sm:p-8 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-6 hover:shadow-md transition-shadow">
         <div>
-          <h2 className="text-xl font-black text-slate-800 mb-1">{targetRole} Learning Path</h2>
-          <p className="text-sm font-medium text-slate-500">Based on your personalized skill gaps.</p>
+          <h2 className="text-[22px] font-black text-[#111827] mb-1">{targetRole} Learning Path</h2>
+          <p className="text-[14px] font-medium text-[#64748B]">Based on your personalized skill gaps.</p>
         </div>
-        <div className="flex items-center gap-6">
+        <div className="flex items-center gap-8 md:gap-10">
           <div className="text-center">
-            <p className="text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-1">Duration</p>
-            <p className="text-lg font-black text-slate-800">{paths.length} <span className="text-sm text-slate-500 font-bold">Weeks</span></p>
+            <p className="text-[11px] font-bold uppercase tracking-wider text-slate-400 mb-1">Duration</p>
+            <p className="text-[24px] font-black text-[#111827]">{paths.length} <span className="text-[13px] text-slate-500 font-bold">Weeks</span></p>
           </div>
           <div className="text-center">
-            <p className="text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-1">Completed</p>
-            <p className="text-lg font-black text-slate-800">{completedCount}/{paths.length}</p>
+            <p className="text-[11px] font-bold uppercase tracking-wider text-slate-400 mb-1">Completed</p>
+            <p className="text-[24px] font-black text-[#111827]">{completedCount}/{paths.length}</p>
           </div>
           <div className="w-16 h-16 relative">
-            <svg className="w-full h-full" viewBox="0 0 36 36">
-              <path className="text-slate-100" strokeWidth="3" stroke="currentColor" fill="none" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
-              <path className="text-emerald-500 transition-all duration-1000 ease-out" strokeDasharray={`${progressPercent}, 100`} strokeWidth="3" stroke="currentColor" fill="none" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
+            <svg className="w-full h-full drop-shadow-sm" viewBox="0 0 36 36">
+              <path className="text-slate-100" strokeWidth="4" stroke="currentColor" fill="none" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
+              <path className="text-[#14B8A6] transition-all duration-1000 ease-out" strokeDasharray={`${progressPercent}, 100`} strokeWidth="4" stroke="currentColor" fill="none" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
             </svg>
             <div className="absolute inset-0 flex items-center justify-center flex-col">
-              <span className="text-xs font-black text-slate-800">{progressPercent}%</span>
+              <span className="text-[13px] font-black text-[#111827]">{progressPercent}%</span>
             </div>
           </div>
         </div>
@@ -126,12 +126,12 @@ export default function LearningPaths({ userId, targetRole }: LearningPathsProps
           return (
             <div 
               key={step.id} 
-              className={`bg-white border rounded-[16px] p-5 shadow-sm transition-all duration-300 relative overflow-hidden group
-                ${isCompleted ? 'border-emerald-200 bg-emerald-50/30' : 'border-slate-200 hover:border-emerald-300 hover:shadow-md'}
+              className={`bg-white border rounded-[20px] p-6 shadow-sm transition-all duration-300 relative overflow-hidden group
+                ${isCompleted ? 'border-[#14B8A6] bg-[#14B8A6]/5' : 'border-[#E5E7EB] hover:border-[#14B8A6]/50 hover:shadow-md'}
               `}
             >
-              {isCompleted && <div className="absolute top-0 right-0 w-2 h-full bg-emerald-500" />}
-              <div className="flex gap-4">
+              {isCompleted && <div className="absolute top-0 right-0 w-1.5 h-full bg-[#14B8A6]" />}
+              <div className="flex gap-5">
                 <div className="flex flex-col items-center gap-2 mt-1 shrink-0">
                   <button 
                     onClick={() => toggleCompletion(step.id, step.title)}
@@ -150,16 +150,16 @@ export default function LearningPaths({ userId, targetRole }: LearningPathsProps
                 
                 <div className="flex-1 pb-2">
                   <div className="flex flex-wrap items-center justify-between gap-2 mb-2">
-                    <h3 className={`text-base font-bold ${isCompleted ? 'text-slate-800' : 'text-slate-800'}`}>{step.title}</h3>
-                    <span className={`text-[10px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-md ${isCompleted ? 'bg-emerald-100 text-emerald-700' : 'bg-slate-100 text-slate-500'}`}>
+                    <h3 className={`text-[17px] font-bold tracking-tight ${isCompleted ? 'text-[#111827]' : 'text-[#111827]'}`}>{step.title}</h3>
+                    <span className={`text-[11px] font-extrabold uppercase tracking-wider px-3 py-1 rounded-md ${isCompleted ? 'bg-[#14B8A6]/10 text-[#0d9488]' : 'bg-slate-100 text-slate-600'}`}>
                       Week {step.week}
                     </span>
                   </div>
-                  <p className="text-sm font-medium text-slate-500 mb-4">{step.description}</p>
+                  <p className="text-[14px] font-medium text-slate-500 mb-5 leading-relaxed">{step.description}</p>
                   
                   {step.resources && step.resources.length > 0 && (
-                    <div className="bg-[#F8FAFC] border border-slate-100 rounded-xl p-3">
-                      <p className="text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-2">Recommended Resources</p>
+                    <div className="bg-[#F8FAFC] border border-slate-200 rounded-[16px] p-4">
+                      <p className="text-[11px] font-bold uppercase tracking-wider text-slate-400 mb-3">Recommended Resources</p>
                       <div className="space-y-1.5">
                         {step.resources.map((res: string, i: number) => {
                           const getResourceLabel = (url: string) => {

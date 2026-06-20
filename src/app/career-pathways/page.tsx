@@ -127,14 +127,14 @@ export default function CareerPathwaysPage() {
               <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                 
                 {/* Meta Attributes */}
-                <div className="lg:col-span-3 bg-white border border-slate-200 rounded-[20px] p-6 shadow-sm flex flex-wrap items-center justify-between gap-6 relative overflow-hidden">
-                  <div className="absolute top-0 left-0 w-2 h-full bg-emerald-500" />
-                  <div className="space-y-1">
+                <div className="lg:col-span-3 bg-white border border-[#E5E7EB] rounded-[24px] p-6 sm:p-8 shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-6 relative overflow-hidden group hover:shadow-md transition-shadow">
+                  <div className="absolute top-0 left-0 w-2 h-full bg-[#14B8A6]" />
+                  <div className="space-y-2 pl-2">
                     <div className="flex items-center gap-2">
-                      <span className="text-[10px] font-extrabold uppercase tracking-wider bg-slate-100 text-slate-500 px-2.5 py-1 rounded-md">
+                      <span className="text-[11px] font-bold uppercase tracking-wider bg-slate-100 text-slate-600 px-3 py-1 rounded-md">
                         {activePathDetails.category}
                       </span>
-                      <span className={`text-[10px] font-extrabold uppercase tracking-wider px-2.5 py-1 rounded-md 
+                      <span className={`text-[11px] font-bold uppercase tracking-wider px-3 py-1 rounded-md 
                         ${activePathDetails.difficulty === "Beginner" ? "bg-emerald-50 text-emerald-700 border border-emerald-100" : 
                           activePathDetails.difficulty === "Intermediate" ? "bg-blue-50 text-blue-700 border border-blue-100" : 
                           "bg-purple-50 text-purple-700 border border-purple-100"}`}
@@ -142,57 +142,60 @@ export default function CareerPathwaysPage() {
                         {activePathDetails.difficulty} Level
                       </span>
                     </div>
-                    <h2 className="text-xl font-black text-slate-800 tracking-tight pt-1">{activePathDetails.role}</h2>
+                    <h2 className="text-[28px] font-extrabold text-[#111827] tracking-tight">{activePathDetails.role}</h2>
                   </div>
                   
-                  <div className="flex items-center gap-6 border-l border-slate-100 pl-6">
-                    <div className="text-center">
-                      <p className="text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-0.5">Est. Duration</p>
-                      <p className="text-2xl font-black text-emerald-600">{activePathDetails.durationWeeks} <span className="text-xs text-slate-500 font-bold">Weeks</span></p>
+                  <div className="flex items-center sm:border-l sm:border-slate-100 sm:pl-8">
+                    <div className="text-left sm:text-center">
+                      <p className="text-[11px] font-bold uppercase tracking-wider text-slate-400 mb-1">Est. Duration</p>
+                      <div className="flex items-baseline gap-1.5">
+                        <p className="text-4xl font-black text-[#14B8A6]">{activePathDetails.durationWeeks}</p>
+                        <span className="text-[15px] text-slate-500 font-semibold">Weeks</span>
+                      </div>
                     </div>
                   </div>
                 </div>
 
                 {/* Prerequisites Card */}
-                <div className="bg-white border border-slate-200 rounded-[20px] p-5 shadow-sm">
-                  <h3 className="text-xs font-black text-slate-800 uppercase tracking-widest mb-3 flex items-center gap-2">
-                    <Sparkles className="w-4 h-4 text-emerald-500" /> Prerequisites
+                <div className="h-full flex flex-col bg-white border border-[#E5E7EB] rounded-[24px] p-6 shadow-sm hover:shadow-md transition-shadow">
+                  <h3 className="text-[13px] font-extrabold text-[#111827] uppercase tracking-widest mb-4 flex items-center gap-2">
+                    <Sparkles className="w-4 h-4 text-[#14B8A6]" /> Prerequisites
                   </h3>
-                  <ul className="space-y-2">
+                  <ul className="space-y-3 mt-auto">
                     {activePathDetails.prerequisites.map((p, i) => (
-                      <li key={i} className="text-xs font-semibold text-slate-600 flex items-start gap-2">
-                        <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 mt-1.5 shrink-0" />
-                        <span>{p}</span>
+                      <li key={i} className="text-[14px] font-medium text-slate-600 flex items-start gap-2.5">
+                        <span className="w-1.5 h-1.5 rounded-full bg-[#14B8A6] mt-2 shrink-0" />
+                        <span className="leading-snug">{p}</span>
                       </li>
                     ))}
                   </ul>
                 </div>
 
                 {/* Projects Card */}
-                <div className="bg-white border border-slate-200 rounded-[20px] p-5 shadow-sm">
-                  <h3 className="text-xs font-black text-slate-800 uppercase tracking-widest mb-3 flex items-center gap-2">
-                    <CheckSquare className="w-4.5 h-4.5 text-blue-500" /> Hands-on Projects
+                <div className="h-full flex flex-col bg-white border border-[#E5E7EB] rounded-[24px] p-6 shadow-sm hover:shadow-md transition-shadow">
+                  <h3 className="text-[13px] font-extrabold text-[#111827] uppercase tracking-widest mb-4 flex items-center gap-2">
+                    <CheckSquare className="w-4 h-4 text-blue-500" /> Hands-on Projects
                   </h3>
-                  <div className="space-y-3">
+                  <div className="space-y-4">
                     {activePathDetails.projects.map((proj, i) => (
-                      <div key={i} className="space-y-0.5">
-                        <p className="text-xs font-bold text-slate-800">{proj.title}</p>
-                        <p className="text-[11px] text-slate-500 font-medium leading-relaxed">{proj.description}</p>
+                      <div key={i} className="space-y-1">
+                        <p className="text-[14px] font-bold text-[#111827]">{proj.title}</p>
+                        <p className="text-[13px] text-slate-500 font-medium leading-relaxed">{proj.description}</p>
                       </div>
                     ))}
                   </div>
                 </div>
 
                 {/* Certifications Card */}
-                <div className="bg-white border border-slate-200 rounded-[20px] p-5 shadow-sm">
-                  <h3 className="text-xs font-black text-slate-800 uppercase tracking-widest mb-3 flex items-center gap-2">
-                    <Award className="w-4.5 h-4.5 text-purple-500" /> Certifications
+                <div className="h-full flex flex-col bg-white border border-[#E5E7EB] rounded-[24px] p-6 shadow-sm hover:shadow-md transition-shadow">
+                  <h3 className="text-[13px] font-extrabold text-[#111827] uppercase tracking-widest mb-4 flex items-center gap-2">
+                    <Award className="w-4 h-4 text-purple-500" /> Certifications
                   </h3>
-                  <ul className="space-y-2">
+                  <ul className="space-y-3">
                     {activePathDetails.certifications.map((cert, i) => (
-                      <li key={i} className="text-xs font-semibold text-slate-600 flex items-start gap-2">
-                        <span className="w-1.5 h-1.5 rounded-full bg-purple-500 mt-1.5 shrink-0" />
-                        <span>{cert}</span>
+                      <li key={i} className="text-[14px] font-medium text-slate-600 flex items-start gap-2.5">
+                        <span className="w-1.5 h-1.5 rounded-full bg-purple-500 mt-2 shrink-0" />
+                        <span className="leading-snug">{cert}</span>
                       </li>
                     ))}
                   </ul>
@@ -201,23 +204,23 @@ export default function CareerPathwaysPage() {
             )}
 
             {/* Main Tabs Container */}
-            <div className="bg-white border border-[#E2E8F0] rounded-[24px] p-4 shadow-sm flex items-center gap-2 bg-slate-100/50 p-1 rounded-xl shrink-0 max-w-max">
+            <div className="bg-slate-50 border border-[#E5E7EB] rounded-[16px] p-1.5 shadow-sm flex items-center gap-1 max-w-max mx-auto md:mx-0 mt-8 mb-6">
               <button
                 onClick={() => setActiveTab("paths")}
-                className={`flex items-center gap-2 px-5 py-2.5 rounded-lg text-sm font-bold transition-all whitespace-nowrap cursor-pointer ${
+                className={`flex items-center justify-center gap-2 px-6 py-2.5 rounded-[12px] text-[14px] font-bold transition-all whitespace-nowrap cursor-pointer ${
                   activeTab === "paths" 
-                    ? "bg-white text-emerald-700 shadow-sm" 
-                    : "text-slate-500 hover:text-slate-700"
+                    ? "bg-white text-emerald-700 shadow-sm border border-slate-200" 
+                    : "text-slate-500 hover:text-slate-700 hover:bg-slate-100/50"
                 }`}
               >
                 <Target className="w-4 h-4" /> Learning Paths
               </button>
               <button
                 onClick={() => setActiveTab("resources")}
-                className={`flex items-center gap-2 px-5 py-2.5 rounded-lg text-sm font-bold transition-all whitespace-nowrap cursor-pointer ${
+                className={`flex items-center justify-center gap-2 px-6 py-2.5 rounded-[12px] text-[14px] font-bold transition-all whitespace-nowrap cursor-pointer ${
                   activeTab === "resources" 
-                    ? "bg-white text-blue-700 shadow-sm" 
-                    : "text-slate-500 hover:text-slate-700"
+                    ? "bg-white text-blue-700 shadow-sm border border-slate-200" 
+                    : "text-slate-500 hover:text-slate-700 hover:bg-slate-100/50"
                 }`}
               >
                 <Book className="w-4 h-4" /> Learning Resources
