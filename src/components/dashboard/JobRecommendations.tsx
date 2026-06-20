@@ -13,7 +13,7 @@ const fetcher = (url: string) => fetch(url).then((res) => res.json());
 
 export default function JobRecommendations({ targetRole }: JobRecommendationsProps) {
   const { data, error, isLoading } = useSWR(
-    targetRole ? `/api/jobs?search=${encodeURIComponent(targetRole)}&limit=3` : null,
+    targetRole ? `/api/jobs?search=${encodeURIComponent(targetRole)}&limit=4` : null,
     fetcher
   );
 
@@ -36,7 +36,7 @@ export default function JobRecommendations({ targetRole }: JobRecommendationsPro
 
   if (isLoading) {
     return (
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {[1, 2, 3].map((i) => (
           <div key={i} className="animate-pulse bg-slate-100 h-32 rounded-[16px] border border-[#E5E7EB]"></div>
         ))}
@@ -55,11 +55,11 @@ export default function JobRecommendations({ targetRole }: JobRecommendationsPro
     );
   }
 
-  const jobs = data.jobs.slice(0, 3);
+  const jobs = data.jobs.slice(0, 4);
 
   return (
     <div className="space-y-4">
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {jobs.map((job: any, i: number) => {
           // Mock match percentage since API doesn't return it
           const matchPercentage = 85 + (i * 4) - i;

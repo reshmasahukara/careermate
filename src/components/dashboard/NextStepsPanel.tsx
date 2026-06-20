@@ -94,22 +94,24 @@ export default function NextStepsPanel({
         <h3 className="text-[18px] font-semibold text-[#111827]">Next Steps</h3>
         <p className="text-[15px] text-[#64748B] mt-1">Personalized recommendations for your career journey</p>
       </div>
-      <div className="p-6 space-y-4">
+      <div className="p-6 grid grid-cols-1 md:grid-cols-3 gap-4">
         {steps.map((step, idx) => (
-          <div key={idx} className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-4 rounded-xl bg-white border border-[#E5E7EB] shadow-sm hover:shadow-md transition-shadow">
-            <div className="flex items-start gap-3">
-              <div className="mt-0.5">{step.icon}</div>
+          <div key={idx} className="flex flex-col justify-between gap-4 p-5 rounded-[16px] bg-white border border-[#E5E7EB] shadow-sm hover:shadow-md transition-all group">
+            <div className="flex flex-col items-start gap-4">
+              <div className="p-3 bg-slate-50 rounded-xl group-hover:scale-110 transition-transform">
+                {step.icon}
+              </div>
               <div>
-                <h4 className="text-[15px] font-semibold text-[#111827]">{step.title}</h4>
-                <p className="text-[13px] text-[#64748B] mt-1">{step.description}</p>
+                <h4 className="text-[16px] font-semibold text-[#111827]">{step.title}</h4>
+                <p className="text-[14px] text-[#64748B] mt-1.5 leading-relaxed">{step.description}</p>
               </div>
             </div>
             <Link
               href={step.href}
-              className={`flex items-center justify-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold transition-colors whitespace-nowrap ${
+              className={`flex items-center justify-center gap-2 w-full py-2.5 rounded-xl text-[14px] font-semibold transition-all mt-2 ${
                 step.isPrimary 
-                  ? "bg-[#14B8A6] text-white hover:bg-[#0d9488]" 
-                  : "bg-white text-[#111827] border border-[#E5E7EB] hover:bg-[#F7F8FA]"
+                  ? "bg-[#14B8A6] text-white hover:bg-[#0d9488] shadow-sm" 
+                  : "bg-[#FAFBFC] text-[#111827] border border-[#E5E7EB] hover:bg-slate-100"
               }`}
             >
               {step.actionText}

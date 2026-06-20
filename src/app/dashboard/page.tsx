@@ -173,18 +173,19 @@ export default function DashboardPage() {
             />
           </div>
 
-          {/* ── MAIN GRID (12 columns) ──────────────────────── */}
+          {/* ── NEXT STEPS (Full Width) ─────────────────────── */}
+          <NextStepsPanel 
+            hasResume={hasResume}
+            atsScore={atsScore}
+            missingSkillsCount={missingSkillsCount}
+          />
+
+          {/* ── MAIN GRID (8 / 4 columns) ───────────────────── */}
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
 
             {/* LEFT — 8 Columns */}
             <div className="lg:col-span-8 space-y-6">
               
-              <NextStepsPanel 
-                hasResume={hasResume}
-                atsScore={atsScore}
-                missingSkillsCount={missingSkillsCount}
-              />
-
               <div className="bg-white border border-[#E5E7EB] rounded-[16px] shadow-sm overflow-hidden">
                 <div className="p-6 border-b border-[#E5E7EB]">
                   <h3 className="text-[18px] font-semibold text-[#111827] flex items-center gap-2">
@@ -229,6 +230,10 @@ export default function DashboardPage() {
             {/* RIGHT — 4 Columns */}
             <div className="lg:col-span-4 space-y-6">
               
+              <div className="h-auto">
+                <CareerInsightsPreview targetRole={targetRole} />
+              </div>
+
               <div className="bg-white border border-[#E5E7EB] rounded-[16px] shadow-sm overflow-hidden">
                 <div className="p-6 border-b border-[#E5E7EB]">
                   <h3 className="text-[18px] font-semibold text-[#111827]">Learning Roadmap</h3>
@@ -237,8 +242,6 @@ export default function DashboardPage() {
                   <LearningRoadmap careerPath={d?.careerPath} />
                 </div>
               </div>
-
-              <CareerInsightsPreview targetRole={targetRole} />
 
             </div>
           </div>
