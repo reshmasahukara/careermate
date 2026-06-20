@@ -1,6 +1,7 @@
 export function calculateMatchScore(job: any, userProfile: any) {
   let score = 0;
   const missingSkills: string[] = [];
+  const matchedSkills: string[] = [];
 
   // Extract job skills
   const jobSkills = (job.skills || []).map((s: string) => s.toLowerCase());
@@ -12,6 +13,7 @@ export function calculateMatchScore(job: any, userProfile: any) {
     jobSkills.forEach((skill: string) => {
       if (userSkills.some((us: string) => us.includes(skill) || skill.includes(us))) {
         matchedSkillsCount++;
+        matchedSkills.push(skill);
       } else {
         missingSkills.push(skill);
       }
@@ -26,21 +28,25 @@ export function calculateMatchScore(job: any, userProfile: any) {
   // Normalize experience levels
   const jobExp = (job.experienceLevel || "").toLowerCase();
   const userExp = (userProfile.experienceLevel || "").toLowerCase();
+  let expMatchMsg = "";
   
   if (!jobExp || !userExp) {
     score += 15; // default middle ground
   } else if (jobExp.includes(userExp) || userExp.includes(jobExp)) {
     score += 30; // perfect match
+    expMatchMsg = "Matches your experience level";
   } else if (
     (jobExp.includes("junior") && userExp.includes("mid")) ||
     (jobExp.includes("mid") && userExp.includes("senior"))
   ) {
     score += 15; // partial match, slight overqualification
+    expMatchMsg = "Aligned with your skill level";
   } else if (
     (jobExp.includes("senior") && userExp.includes("mid")) ||
     (jobExp.includes("mid") && userExp.includes("junior"))
   ) {
     score += 10; // partial match, slight underqualification
+    expMatchMsg = "Fits your skill level";
   } else {
     score += 5; 
   }
@@ -49,11 +55,14 @@ export function calculateMatchScore(job: any, userProfile: any) {
   const jobLocation = (job.location || "").toLowerCase();
   const userLocation = (userProfile.location || "").toLowerCase();
   const isJobRemote = job.remote;
+  let locationMsg = "";
 
   if (isJobRemote) {
     score += 15; // Remote jobs are a match for everyone
+    locationMsg = "Remote opportunity";
   } else if (jobLocation && userLocation && (jobLocation.includes(userLocation) || userLocation.includes(jobLocation))) {
     score += 15;
+    locationMsg = `Located in ${job.location || "your preferred area"}`;
   } else {
     score += 5; 
   }
@@ -82,8 +91,24 @@ export function calculateMatchScore(job: any, userProfile: any) {
     score += 5;
   }
 
+  // Construct whyMatches string
+  let whyMatches = "";
+  if (matchedSkills.length > 0) {
+    whyMatches += `Matches your skills in ${matchedSkills.slice(0, 3).map(s => s.toUpperCase()).join(", ")}. `;
+  }
+  if (expMatchMsg) {
+    whyMatches += `${expMatchMsg}. `;
+  }
+  if (locationMsg) {
+    whyMatches += `${locationMsg}. `;
+  }
+  if (!whyMatches) {
+    whyMatches = "Good general match for your career field.";
+  }
+
   return {
     matchScore: Math.round(score),
-    missingSkills: missingSkills.slice(0, 5) // Return top 5 missing
+    missingSkills: missingSkills.slice(0, 5), // Return top 5 missing
+    whyMatches: whyMatches.trim()
   };
 }

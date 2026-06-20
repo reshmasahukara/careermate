@@ -40,7 +40,7 @@ export async function GET(request: Request) {
       resumeParsedText: user.resumes[0].parsedText
     };
 
-    // Fetch jobs
+    // Fetch jobs pool
     const allJobs = await prisma.job.findMany({
       orderBy: { createdAt: "desc" },
       take: 200 // fetch recent jobs to score
@@ -48,14 +48,17 @@ export async function GET(request: Request) {
 
     // Score jobs
     const scoredJobs = allJobs.map(job => {
-      const { matchScore, missingSkills } = calculateMatchScore(job, userProfile);
-      return { ...job, matchScore, missingSkills };
+      const { matchScore, missingSkills, whyMatches } = calculateMatchScore(job, userProfile);
+      return { ...job, matchScore, missingSkills, whyMatches };
     });
 
-    // Sort by match score
+    // Sort by match score in descending order
     scoredJobs.sort((a, b) => b.matchScore - a.matchScore);
 
-    return NextResponse.json({ jobs: scoredJobs.slice(0, 50), needsResume: false });
+    // Slice to top 10 matches
+    const topMatches = scoredJobs.slice(0, 10);
+
+    return NextResponse.json({ jobs: topMatches, needsResume: false });
   } catch (error: any) {
     console.error("Recommended jobs error:", error);
     return NextResponse.json(

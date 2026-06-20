@@ -49,6 +49,8 @@ model User {
   learningRoadmaps     LearningRoadmap[]
   skillProgresses      SkillProgress[]
   careerGoals          CareerGoal[]
+  searchHistories      SearchHistory[]
+  preferences          UserPreferences?
 
   @@map("users")
 }
@@ -357,4 +359,32 @@ model CareerGoal {
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@map("career_goals")
+}
+
+model SearchHistory {
+  id        String   @id @default(cuid())
+  userId    String   @map("user_id")
+  query     String
+  filters   Json?    @map("filters")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("search_histories")
+}
+
+model UserPreferences {
+  id               String   @id @default(cuid())
+  userId           String   @unique @map("user_id")
+  roles            String[]
+  locations        String[]
+  experienceLevels String[] @map("experience_levels")
+  jobTypes         String[] @map("job_types")
+  remoteOnly       Boolean  @default(false) @map("remote_only")
+  createdAt        DateTime @default(now()) @map("created_at")
+  updatedAt        DateTime @updatedAt @map("updated_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("user_preferences")
 }
