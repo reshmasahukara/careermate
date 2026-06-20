@@ -217,7 +217,9 @@ model Subscription {
 model VerificationOtp {
   id        String   @id @default(cuid())
   email     String
-  otp       String
+  otpHash   String
+  attempts  Int      @default(0)
+  verified  Boolean  @default(false)
   expiresAt DateTime
   createdAt DateTime @default(now())
 
