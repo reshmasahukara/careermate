@@ -26,14 +26,14 @@ export default function MetricCard({
 }: MetricCardProps) {
   const content = (
     <div
-      className="group bg-[#1F2937] border border-[rgba(255,255,255,0.08)] rounded-[16px] p-6 shadow-sm hover:shadow-md transition-all duration-200 hover:-translate-y-0.5 cursor-pointer relative overflow-hidden"
+      className="group bg-white border border-[#E5E7EB] rounded-[16px] p-6 shadow-sm hover:shadow-md transition-all duration-200 hover:-translate-y-0.5 cursor-pointer relative overflow-hidden"
     >
       <div 
         className="absolute top-0 left-0 w-full h-1" 
         style={{ backgroundColor: accentColor }}
       />
       <div className="flex items-start justify-between mb-2">
-        <h3 className="text-[18px] font-semibold text-[#F9FAFB]">
+        <h3 className="text-[18px] font-semibold text-[#111827]">
           {title}
         </h3>
         <div
@@ -46,15 +46,15 @@ export default function MetricCard({
 
       {isEmpty ? (
         <div className="mt-2">
-          <p className="text-[28px] font-bold text-[#9CA3AF] tracking-tight">—</p>
-          <p className="text-[15px] text-[#9CA3AF] mt-1">{emptyText}</p>
+          <p className="text-[28px] font-bold text-slate-300 tracking-tight">—</p>
+          <p className="text-[15px] text-[#64748B] mt-1">{emptyText}</p>
         </div>
       ) : (
         <div className="mt-2">
-          <p className="text-[28px] font-bold text-[#F9FAFB] tracking-tight">
+          <p className="text-[28px] font-bold text-[#111827] tracking-tight">
             {value}
           </p>
-          <p className="text-[15px] text-[#9CA3AF] mt-1 leading-snug">{subtitle}</p>
+          <p className="text-[15px] text-[#64748B] mt-1 leading-snug">{subtitle}</p>
         </div>
       )}
     </div>

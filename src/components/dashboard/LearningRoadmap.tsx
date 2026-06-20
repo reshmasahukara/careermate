@@ -11,12 +11,12 @@ interface LearningRoadmapProps {
 export default function LearningRoadmap({ careerPath }: LearningRoadmapProps) {
   if (!careerPath) {
     return (
-      <div className="flex flex-col items-center justify-center py-6 text-center border-2 border-dashed border-[rgba(255,255,255,0.1)] rounded-[16px] bg-[#111827]">
-        <div className="w-12 h-12 bg-[#1F2937] rounded-full flex items-center justify-center mb-3">
+      <div className="flex flex-col items-center justify-center py-6 text-center border-2 border-dashed border-[#E5E7EB] rounded-[16px] bg-slate-50">
+        <div className="w-12 h-12 bg-white border border-[#E5E7EB] rounded-full flex items-center justify-center mb-3">
           <BookOpen className="w-6 h-6 text-[#64748B]" />
         </div>
-        <p className="text-[15px] font-semibold text-[#F9FAFB] mb-1">No roadmap yet</p>
-        <p className="text-[13px] text-[#9CA3AF] mb-4">Complete your profile to generate a roadmap</p>
+        <p className="text-[15px] font-semibold text-[#111827] mb-1">No roadmap yet</p>
+        <p className="text-[13px] text-[#64748B] mb-4">Complete your profile to generate a roadmap</p>
         <Link
           href="/career-pathways"
           className="flex items-center gap-1.5 text-[13px] font-semibold text-[#14B8A6] hover:text-[#0d9488] transition-colors"
@@ -41,19 +41,19 @@ export default function LearningRoadmap({ careerPath }: LearningRoadmapProps) {
 
   return (
     <div className="space-y-5">
-      <div className="flex items-center gap-3 p-4 bg-[#111827] border border-[rgba(255,255,255,0.05)] rounded-[12px]">
+      <div className="flex items-center gap-3 p-4 bg-white border border-[#E5E7EB] rounded-[12px]">
         <div className="w-12 h-12 rounded-full bg-[#14B8A6] flex items-center justify-center text-white font-bold text-[15px] shrink-0">
           {progress}%
         </div>
         <div className="flex-1 min-w-0">
-          <p className="text-[15px] font-semibold text-[#F9FAFB] truncate">{careerPath.targetRole}</p>
-          <p className="text-[13px] text-[#9CA3AF] mt-0.5">{completed}/{total} milestones completed</p>
+          <p className="text-[15px] font-semibold text-[#111827] truncate">{careerPath.targetRole}</p>
+          <p className="text-[13px] text-[#64748B] mt-0.5">{completed}/{total} milestones completed</p>
         </div>
       </div>
 
       {/* Progress bar */}
       <div>
-        <div className="w-full bg-[#111827] border border-[rgba(255,255,255,0.05)] h-2 rounded-full overflow-hidden">
+        <div className="w-full bg-slate-100 h-2 rounded-full overflow-hidden">
           <div
             className="bg-[#14B8A6] h-full rounded-full transition-all duration-700"
             style={{ width: `${progress}%` }}
@@ -62,13 +62,13 @@ export default function LearningRoadmap({ careerPath }: LearningRoadmapProps) {
       </div>
 
       {inProgress && (
-        <div className="p-4 bg-[rgba(255,255,255,0.03)] border border-[rgba(255,255,255,0.05)] rounded-[12px]">
-          <p className="text-[11px] text-[#9CA3AF] uppercase tracking-wider font-bold mb-1">Current Milestone</p>
-          <p className="text-[14px] font-semibold text-[#F9FAFB]">{inProgress.title}</p>
+        <div className="p-4 bg-[#F7F8FA] border border-[#E5E7EB] rounded-[12px]">
+          <p className="text-[11px] text-[#64748B] uppercase tracking-wider font-bold mb-1">Current Milestone</p>
+          <p className="text-[14px] font-semibold text-[#111827]">{inProgress.title}</p>
         </div>
       )}
 
-      <div className="flex items-center gap-1.5 text-[13px] text-[#9CA3AF]">
+      <div className="flex items-center gap-1.5 text-[13px] text-[#64748B]">
         <Clock className="w-4 h-4" />
         <span>Est. {estWeeks} weeks to complete</span>
       </div>

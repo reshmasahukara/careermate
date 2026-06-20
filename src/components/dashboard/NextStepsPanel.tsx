@@ -89,19 +89,19 @@ export default function NextStepsPanel({
   if (steps.length === 0) return null;
 
   return (
-    <div className="bg-[#1F2937] border border-[rgba(255,255,255,0.08)] rounded-[16px] shadow-sm overflow-hidden">
-      <div className="p-6 border-b border-[rgba(255,255,255,0.08)]">
-        <h3 className="text-[18px] font-semibold text-[#F9FAFB]">Next Steps</h3>
-        <p className="text-[15px] text-[#9CA3AF] mt-1">Personalized recommendations for your career journey</p>
+    <div className="bg-white border border-[#E5E7EB] rounded-[16px] shadow-sm overflow-hidden">
+      <div className="p-6 border-b border-[#E5E7EB]">
+        <h3 className="text-[18px] font-semibold text-[#111827]">Next Steps</h3>
+        <p className="text-[15px] text-[#64748B] mt-1">Personalized recommendations for your career journey</p>
       </div>
       <div className="p-6 space-y-4">
         {steps.map((step, idx) => (
-          <div key={idx} className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-4 rounded-xl bg-[#111827] border border-[rgba(255,255,255,0.05)]">
+          <div key={idx} className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-4 rounded-xl bg-white border border-[#E5E7EB] shadow-sm hover:shadow-md transition-shadow">
             <div className="flex items-start gap-3">
               <div className="mt-0.5">{step.icon}</div>
               <div>
-                <h4 className="text-[15px] font-semibold text-[#F9FAFB]">{step.title}</h4>
-                <p className="text-[13px] text-[#9CA3AF] mt-1">{step.description}</p>
+                <h4 className="text-[15px] font-semibold text-[#111827]">{step.title}</h4>
+                <p className="text-[13px] text-[#64748B] mt-1">{step.description}</p>
               </div>
             </div>
             <Link
@@ -109,7 +109,7 @@ export default function NextStepsPanel({
               className={`flex items-center justify-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold transition-colors whitespace-nowrap ${
                 step.isPrimary 
                   ? "bg-[#14B8A6] text-white hover:bg-[#0d9488]" 
-                  : "bg-[rgba(255,255,255,0.05)] text-[#F9FAFB] hover:bg-[rgba(255,255,255,0.1)]"
+                  : "bg-white text-[#111827] border border-[#E5E7EB] hover:bg-[#F7F8FA]"
               }`}
             >
               {step.actionText}

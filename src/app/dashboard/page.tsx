@@ -28,7 +28,7 @@ function Skeleton({ className = "" }: { className?: string }) {
 
 function DashboardSkeleton() {
   return (
-    <div className="space-y-6 p-6 md:p-8 max-w-[1280px] mx-auto bg-[#111827] min-h-screen">
+    <div className="space-y-6 p-6 md:p-8 max-w-[1280px] mx-auto bg-[#FAFBFC] min-h-screen">
       <Skeleton className="h-10 w-72" />
       <Skeleton className="h-5 w-96" />
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-6">
@@ -97,16 +97,16 @@ export default function DashboardPage() {
 
   return (
     <DashboardLayout>
-      <div className="min-h-screen bg-[#111827] text-[#F9FAFB] pb-12">
+      <div className="min-h-screen bg-[#FAFBFC] text-[#0F172A] pb-12">
         <div className="max-w-[1280px] mx-auto space-y-6 p-6">
 
           {/* ── HEADER ──────────────────────────────────────── */}
           <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
             <div>
-              <h1 className="text-[32px] font-extrabold tracking-tight">
+              <h1 className="text-[32px] font-extrabold tracking-tight text-[#111827]">
                 Welcome, {userName}
               </h1>
-              <p className="text-[15px] text-[#9CA3AF] mt-1">
+              <p className="text-[15px] text-[#64748B] mt-1">
                 {targetRole 
                   ? `Target Role: ${targetRole}` 
                   : "Upload your resume to set your target role."}
@@ -185,9 +185,9 @@ export default function DashboardPage() {
                 missingSkillsCount={missingSkillsCount}
               />
 
-              <div className="bg-[#1F2937] border border-[rgba(255,255,255,0.08)] rounded-[16px] shadow-sm overflow-hidden">
-                <div className="p-6 border-b border-[rgba(255,255,255,0.08)]">
-                  <h3 className="text-[18px] font-semibold text-[#F9FAFB] flex items-center gap-2">
+              <div className="bg-white border border-[#E5E7EB] rounded-[16px] shadow-sm overflow-hidden">
+                <div className="p-6 border-b border-[#E5E7EB]">
+                  <h3 className="text-[18px] font-semibold text-[#111827] flex items-center gap-2">
                     <Briefcase className="w-5 h-5 text-[#14B8A6]" /> Recommended Jobs
                   </h3>
                 </div>
@@ -198,9 +198,9 @@ export default function DashboardPage() {
 
               {/* Recent Activity & Skill Gap Snapshot (2 columns within the 8-col area) */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div className="bg-[#1F2937] border border-[rgba(255,255,255,0.08)] rounded-[16px] shadow-sm overflow-hidden">
-                  <div className="p-6 border-b border-[rgba(255,255,255,0.08)]">
-                    <h3 className="text-[18px] font-semibold text-[#F9FAFB] flex items-center gap-2">
+                <div className="bg-white border border-[#E5E7EB] rounded-[16px] shadow-sm overflow-hidden">
+                  <div className="p-6 border-b border-[#E5E7EB]">
+                    <h3 className="text-[18px] font-semibold text-[#111827] flex items-center gap-2">
                       <Activity className="w-5 h-5 text-[#14B8A6]" /> Recent Activity
                     </h3>
                   </div>
@@ -209,9 +209,9 @@ export default function DashboardPage() {
                   </div>
                 </div>
 
-                <div className="bg-[#1F2937] border border-[rgba(255,255,255,0.08)] rounded-[16px] shadow-sm overflow-hidden">
-                  <div className="p-6 border-b border-[rgba(255,255,255,0.08)]">
-                    <h3 className="text-[18px] font-semibold text-[#F9FAFB] flex items-center gap-2">
+                <div className="bg-white border border-[#E5E7EB] rounded-[16px] shadow-sm overflow-hidden">
+                  <div className="p-6 border-b border-[#E5E7EB]">
+                    <h3 className="text-[18px] font-semibold text-[#111827] flex items-center gap-2">
                       <AlertCircle className="w-5 h-5 text-[#F59E0B]" /> Skill Gap Snapshot
                     </h3>
                   </div>
@@ -229,9 +229,9 @@ export default function DashboardPage() {
             {/* RIGHT — 4 Columns */}
             <div className="lg:col-span-4 space-y-6">
               
-              <div className="bg-[#1F2937] border border-[rgba(255,255,255,0.08)] rounded-[16px] shadow-sm overflow-hidden">
-                <div className="p-6 border-b border-[rgba(255,255,255,0.08)]">
-                  <h3 className="text-[18px] font-semibold text-[#F9FAFB]">Learning Roadmap</h3>
+              <div className="bg-white border border-[#E5E7EB] rounded-[16px] shadow-sm overflow-hidden">
+                <div className="p-6 border-b border-[#E5E7EB]">
+                  <h3 className="text-[18px] font-semibold text-[#111827]">Learning Roadmap</h3>
                 </div>
                 <div className="p-6">
                   <LearningRoadmap careerPath={d?.careerPath} />

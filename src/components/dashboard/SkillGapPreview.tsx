@@ -12,12 +12,12 @@ interface SkillGapPreviewProps {
 export default function SkillGapPreview({ missingKeywords, atsScore }: SkillGapPreviewProps) {
   if (!atsScore || missingKeywords.length === 0) {
     return (
-      <div className="flex flex-col items-center justify-center p-6 text-center border-2 border-dashed border-[rgba(255,255,255,0.1)] rounded-[16px] bg-[#111827]">
+      <div className="flex flex-col items-center justify-center p-6 text-center border-2 border-dashed border-[#E5E7EB] rounded-[16px] bg-slate-50">
         <div className="w-12 h-12 bg-[#14B8A6]15 text-[#14B8A6] rounded-full flex items-center justify-center mb-3">
           <BarChart2 className="w-6 h-6" />
         </div>
-        <h4 className="text-[15px] font-semibold text-[#F9FAFB] mb-1">No Analysis Yet</h4>
-        <p className="text-[13px] text-[#9CA3AF] max-w-[200px] mb-4">
+        <h4 className="text-[15px] font-semibold text-[#111827] mb-1">No Analysis Yet</h4>
+        <p className="text-[13px] text-[#64748B] max-w-[200px] mb-4">
           Complete an ATS analysis to identify missing skills.
         </p>
         <Link href="/skill-gap" className="text-xs font-bold text-white bg-[#14B8A6] hover:bg-[#0d9488] px-4 py-2 rounded-xl transition-colors">
@@ -37,18 +37,18 @@ export default function SkillGapPreview({ missingKeywords, atsScore }: SkillGapP
     <div className="space-y-4">
       <div className="space-y-3">
         {skills.map((skill, i) => (
-          <div key={i} className="p-3 bg-[#111827] border border-[rgba(255,255,255,0.05)] rounded-[12px] flex flex-col gap-2">
+          <div key={i} className="p-3 bg-white border border-[#E5E7EB] rounded-[12px] flex flex-col gap-2">
             <div className="flex justify-between items-start">
-              <span className="text-[14px] font-semibold text-[#F9FAFB]">{skill.name}</span>
+              <span className="text-[14px] font-semibold text-[#111827]">{skill.name}</span>
               <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${
                 skill.priority === "High" 
-                  ? "bg-rose-500 bg-opacity-15 text-rose-400" 
-                  : "bg-amber-500 bg-opacity-15 text-amber-400"
+                  ? "bg-rose-50 text-rose-600" 
+                  : "bg-amber-50 text-amber-600"
               }`}>
                 {skill.priority} Priority
               </span>
             </div>
-            <div className="flex items-start gap-1.5 text-[12px] text-[#9CA3AF]">
+            <div className="flex items-start gap-1.5 text-[12px] text-[#64748B]">
               <Lightbulb className="w-3.5 h-3.5 text-[#14B8A6] shrink-0 mt-0.5" />
               <span>{skill.recommendation}</span>
             </div>
@@ -58,7 +58,7 @@ export default function SkillGapPreview({ missingKeywords, atsScore }: SkillGapP
 
       <Link
         href="/skill-gap"
-        className="w-full flex items-center justify-center gap-2 bg-[rgba(255,255,255,0.03)] hover:bg-[rgba(255,255,255,0.08)] border border-[rgba(255,255,255,0.05)] text-[#F9FAFB] font-semibold py-2.5 rounded-xl text-sm transition-all"
+        className="w-full flex items-center justify-center gap-2 bg-[#F7F8FA] hover:bg-slate-100 border border-[#E5E7EB] text-[#111827] font-semibold py-2.5 rounded-xl text-sm transition-all shadow-sm"
       >
         View Full Analysis <ArrowRight className="w-4 h-4" />
       </Link>

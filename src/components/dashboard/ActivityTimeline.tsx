@@ -42,12 +42,12 @@ const iconMap: Record<string, { icon: React.ReactNode; bg: string; color: string
 export default function ActivityTimeline({ items }: ActivityTimelineProps) {
   if (!items || items.length === 0) {
     return (
-      <div className="flex flex-col items-center justify-center py-8 text-center border-2 border-dashed border-[rgba(255,255,255,0.1)] rounded-[16px] bg-[#111827]">
-        <div className="w-12 h-12 bg-[#1F2937] rounded-full flex items-center justify-center mb-4">
+      <div className="flex flex-col items-center justify-center py-8 text-center border-2 border-dashed border-[#E5E7EB] rounded-[16px] bg-slate-50">
+        <div className="w-12 h-12 bg-white rounded-full flex items-center justify-center mb-4">
           <FileText className="w-6 h-6 text-[#64748B]" />
         </div>
-        <p className="text-[15px] font-semibold text-[#F9FAFB] mb-1">No activity yet</p>
-        <p className="text-[13px] text-[#9CA3AF] mb-5 max-w-xs">
+        <p className="text-[15px] font-semibold text-[#111827] mb-1">No activity yet</p>
+        <p className="text-[13px] text-[#64748B] mb-5 max-w-xs">
           Start by uploading your resume to unlock personalized career insights.
         </p>
         <Link
@@ -68,24 +68,24 @@ export default function ActivityTimeline({ items }: ActivityTimelineProps) {
           <Link
             key={i}
             href={item.href}
-            className="group flex items-start gap-4 p-3 rounded-[12px] hover:bg-[rgba(255,255,255,0.03)] transition-colors"
+            className="group flex items-start gap-4 p-3 rounded-[12px] hover:bg-[#F7F8FA] transition-colors"
           >
             {/* Timeline dot + line */}
             <div className="flex flex-col items-center shrink-0 mt-0.5">
               <div className={`w-8 h-8 rounded-full flex items-center justify-center ${meta.bg} ${meta.color}`}>
                 {meta.icon}
               </div>
-              {i < items.length - 1 && <div className="w-px h-6 bg-[rgba(255,255,255,0.1)] mt-1" />}
+              {i < items.length - 1 && <div className="w-px h-6 bg-[#E5E7EB] mt-1" />}
             </div>
 
             <div className="flex-1 min-w-0 pb-1">
               <div className="flex items-center justify-between gap-2">
-                <p className="text-[14px] font-semibold text-[#F9FAFB] truncate">{item.label}</p>
-                <span className="text-[11px] text-[#9CA3AF] shrink-0 font-medium">
+                <p className="text-[14px] font-semibold text-[#111827] truncate">{item.label}</p>
+                <span className="text-[11px] text-[#64748B] shrink-0 font-medium">
                   {timeAgo(item.date)}
                 </span>
               </div>
-              <p className="text-[13px] text-[#9CA3AF] mt-0.5 truncate">{item.detail}</p>
+              <p className="text-[13px] text-[#64748B] mt-0.5 truncate">{item.detail}</p>
             </div>
 
             <ArrowRight className="w-3.5 h-3.5 text-[#64748B] group-hover:text-[#14B8A6] group-hover:translate-x-0.5 transition-all shrink-0 mt-1.5" />

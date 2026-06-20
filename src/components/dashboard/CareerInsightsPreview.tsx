@@ -14,9 +14,9 @@ export default function CareerInsightsPreview({ targetRole }: CareerInsightsPrev
 
   if (!targetRole) {
     return (
-      <div className="bg-[#1F2937] border border-[rgba(255,255,255,0.08)] rounded-[16px] shadow-sm p-6 flex flex-col items-center justify-center text-center h-full">
+      <div className="bg-slate-50 border-2 border-dashed border-[#E5E7EB] rounded-[16px] shadow-sm p-6 flex flex-col items-center justify-center text-center h-full">
         <Star className="w-8 h-8 text-[#64748B] mb-3" />
-        <p className="text-[15px] text-[#9CA3AF]">
+        <p className="text-[15px] text-[#64748B]">
           Set a target role or upload a resume to view career insights.
         </p>
       </div>
@@ -45,10 +45,10 @@ export default function CareerInsightsPreview({ targetRole }: CareerInsightsPrev
   ];
 
   return (
-    <div className="bg-[#1F2937] border border-[rgba(255,255,255,0.08)] rounded-[16px] shadow-sm overflow-hidden h-full">
-      <div className="p-6 border-b border-[rgba(255,255,255,0.08)]">
-        <h3 className="text-[18px] font-semibold text-[#F9FAFB]">Career Insights</h3>
-        <p className="text-[15px] text-[#9CA3AF] mt-1">Market data for {targetRole}</p>
+    <div className="bg-white border border-[#E5E7EB] rounded-[16px] shadow-sm overflow-hidden h-full">
+      <div className="p-6 border-b border-[#E5E7EB]">
+        <h3 className="text-[18px] font-semibold text-[#111827]">Career Insights</h3>
+        <p className="text-[15px] text-[#64748B] mt-1">Market data for {targetRole}</p>
       </div>
       <div className="p-6 space-y-4">
         {insights.map((insight, idx) => (
@@ -60,8 +60,8 @@ export default function CareerInsightsPreview({ targetRole }: CareerInsightsPrev
               {insight.icon}
             </div>
             <div>
-              <p className="text-[13px] text-[#9CA3AF] font-medium uppercase tracking-wider">{insight.label}</p>
-              <p className="text-[15px] font-semibold text-[#F9FAFB] mt-0.5">{insight.value}</p>
+              <p className="text-[13px] text-[#64748B] font-medium uppercase tracking-wider">{insight.label}</p>
+              <p className="text-[15px] font-semibold text-[#111827] mt-0.5">{insight.value}</p>
             </div>
           </div>
         ))}
