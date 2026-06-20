@@ -48,6 +48,7 @@ model User {
   skillGaps            SkillGap[]
   learningRoadmaps     LearningRoadmap[]
   skillProgresses      SkillProgress[]
+  careerGoals          CareerGoal[]
 
   @@map("users")
 }
@@ -340,4 +341,20 @@ model SkillProgress {
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@map("skill_progress")
+}
+
+model CareerGoal {
+  id             String    @id @default(cuid())
+  userId         String    @map("user_id")
+  targetRole     String    @map("target_role")
+  targetCompany  String?   @map("target_company")
+  targetSalary   Int?      @map("target_salary")
+  targetTimeline String?   @map("target_timeline")
+  completed      Boolean   @default(false)
+  createdAt      DateTime  @default(now()) @map("created_at")
+  updatedAt      DateTime  @updatedAt @map("updated_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("career_goals")
 }
