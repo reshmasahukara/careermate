@@ -129,7 +129,6 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
     if (pathname === "/jobs") return "Job Board";
     if (pathname === "/skill-gap") return "Skill Gap Analysis";
     if (pathname === "/career-pathways") return "Career Pathways";
-    if (pathname === "/career-insights") return "Career Insights";
     if (pathname === "/settings") return "Settings";
     return "Workspace";
   };
@@ -233,9 +232,6 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
                   </Link>
                   <Link href="/career-pathways" className={`flex items-center gap-3 px-3 py-2.5 rounded-[12px] text-sm font-semibold transition-all ${pathname === "/career-pathways" ? "bg-[#10B981]/5 text-[#10B981]" : "text-[#64748B]"}`}>
                     <BookOpen className="w-4.5 h-4.5" /> <span>Career Pathways</span>
-                  </Link>
-                  <Link href="/career-insights" className={`flex items-center gap-3 px-3 py-2.5 rounded-[12px] text-sm font-semibold transition-all ${pathname === "/career-insights" ? "bg-[#10B981]/5 text-[#10B981]" : "text-[#64748B]"}`}>
-                    <TrendingUp className="w-4.5 h-4.5" /> <span>Career Insights</span>
                   </Link>
 
                    <Link href="/settings" className={`flex items-center gap-3 px-3 py-2.5 rounded-[12px] text-sm font-semibold transition-all ${pathname === "/settings" ? "bg-[#10B981]/5 text-[#10B981]" : "text-[#64748B]"}`}>

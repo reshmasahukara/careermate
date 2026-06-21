@@ -50,8 +50,7 @@ export default function Sidebar({ session, isCollapsed, setIsCollapsed }: Sideba
     { name: "ATS Checker", href: "/ats-checker", icon: FileCheck },
     { name: "Job Board", href: "/jobs", icon: Briefcase },
     { name: "Skill Gap Analysis", href: "/skill-gap", icon: Award },
-    { name: "Career Pathways", href: "/career-pathways", icon: BookOpen },
-    { name: "Career Insights", href: "/career-insights", icon: TrendingUp }
+    { name: "Career Pathways", href: "/career-pathways", icon: BookOpen }
   ];
 
   const bottomNavItems = [
