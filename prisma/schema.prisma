@@ -304,6 +304,12 @@ model ATSAnalysis {
   experienceScore   Int
   educationScore    Int
   formattingScore   Int
+  readabilityScore  Int      @default(0)
+  contactInfoScore  Int      @default(0)
+  targetRole        String?
+  industry          String?
+  experienceLevel   String?
+  scoreBreakdown    Json?
   matchedKeywords   String[]
   missingKeywords   String[]
   recommendations   Json

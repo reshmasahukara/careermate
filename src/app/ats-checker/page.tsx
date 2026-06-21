@@ -1,9 +1,7 @@
 "use client";
 
-import React, { useState, useEffect, useCallback, useRef } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { useSession } from "next-auth/react";
-import { useRouter } from "next/navigation";
-import Link from "next/link";
 import { useDropzone } from "react-dropzone";
 import {
   FileText,
@@ -13,68 +11,84 @@ import {
   AlertTriangle,
   CheckCircle2,
   Download,
-  ArrowRight,
   Search,
-  Plus,
-  Calendar,
-  ChevronRight,
-  TrendingUp,
-  X,
+  Printer,
+  ChevronDown,
+  Upload,
+  Briefcase,
+  Layers,
   Award,
   BookOpen,
-  Briefcase,
-  Clock,
-  Printer,
-  RefreshCw,
-  SlidersHorizontal,
-  ChevronDown,
-  History as HistoryIcon,
-  Upload
+  Info,
+  ChevronRight,
+  ChevronLeft
 } from "lucide-react";
 import { useToast } from "@/components/Providers";
 import DashboardLayout from "@/components/DashboardLayout";
 
-// Dynamic imports for Recharts to avoid SSR hydration bugs
-import dynamic from "next/dynamic";
-const AreaChart = dynamic(() => import("recharts").then(mod => mod.AreaChart), { ssr: false });
-const Area = dynamic(() => import("recharts").then(mod => mod.Area), { ssr: false });
-const XAxis = dynamic(() => import("recharts").then(mod => mod.XAxis), { ssr: false });
-const YAxis = dynamic(() => import("recharts").then(mod => mod.YAxis), { ssr: false });
-const CartesianGrid = dynamic(() => import("recharts").then(mod => mod.CartesianGrid), { ssr: false });
-const Tooltip = dynamic(() => import("recharts").then(mod => mod.Tooltip), { ssr: false });
-const ResponsiveContainer = dynamic(() => import("recharts").then(mod => mod.ResponsiveContainer), { ssr: false });
-const BarChart = dynamic(() => import("recharts").then(mod => mod.BarChart), { ssr: false });
-const Bar = dynamic(() => import("recharts").then(mod => mod.Bar), { ssr: false });
+// Types
+interface Report {
+  id: string;
+  resumeName: string;
+  targetRole: string | null;
+  industry: string | null;
+  experienceLevel: string | null;
+  atsScore: number;
+  keywordScore: number;
+  skillsScore: number;
+  experienceScore: number;
+  educationScore: number;
+  formattingScore: number;
+  readabilityScore: number;
+  contactInfoScore: number;
+  matchedKeywords: string[];
+  missingKeywords: string[];
+  formattingFeedback: string[];
+  recommendations: any;
+  scoreBreakdown: any;
+  createdAt: string;
+}
+
+const SCORE_WEIGHTS = {
+  keywordScore: { label: "Keyword Match", weight: 30, desc: "Matches extracted nouns/terms from the JD against the resume." },
+  skillsScore: { label: "Required Skills Match", weight: 25, desc: "Matches explicit skills identified in the text." },
+  experienceScore: { label: "Experience Relevance", weight: 15, desc: "Checks experience overlap and semantic similarity." },
+  educationScore: { label: "Education Match", weight: 10, desc: "Validates degree requirements." },
+  formattingScore: { label: "Resume Formatting", weight: 10, desc: "Checks for tables, columns, and unreadable sections." },
+  readabilityScore: { label: "ATS Readability", weight: 5, desc: "Gauges sentence complexity and action verbs." },
+  contactInfoScore: { label: "Contact Info Completeness", weight: 5, desc: "Validates email, phone, and standard header elements." },
+};
 
 export default function AtsCheckerPage() {
   const { data: session, status } = useSession();
   const { toast } = useToast();
-  const router = useRouter();
 
-  // Core scan setup states
+  // Scan states
   const [file, setFile] = useState<File | null>(null);
   const [jobDescription, setJobDescription] = useState("");
+  const [targetRole, setTargetRole] = useState("");
+  const [industry, setIndustry] = useState("");
+  const [experienceLevel, setExperienceLevel] = useState("Entry-level");
+  
   const [isAnalyzing, setIsAnalyzing] = useState(false);
-  const [activeReport, setActiveReport] = useState<any | null>(null);
-  const [draftSaved, setDraftSaved] = useState(false);
+  const [activeReport, setActiveReport] = useState<Report | null>(null);
 
-  // History & search states
-  const [history, setHistory] = useState<any[]>([]);
-  const [searchQuery, setSearchQuery] = useState("");
+  // History states
+  const [history, setHistory] = useState<Report[]>([]);
   const [isLoadingHistory, setIsLoadingHistory] = useState(true);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [sortBy, setSortBy] = useState<"date" | "score">("date");
+  const [sortOrder, setSortOrder] = useState<"asc" | "desc">("desc");
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 5;
 
-  // Tab view inside active report
-  const [activeTab, setActiveTab] = useState<"overview" | "keywords" | "formatting" | "recommendations">("overview");
+  const [whyScoreExpanded, setWhyScoreExpanded] = useState(false);
 
-  // Load JD Draft from LocalStorage on mount
   useEffect(() => {
     const savedDraft = localStorage.getItem("cm-ats-jd-draft");
-    if (savedDraft) {
-      setJobDescription(savedDraft);
-    }
+    if (savedDraft) setJobDescription(savedDraft);
   }, []);
 
-  // Fetch history on mount / search change
   const loadHistory = useCallback(async (search = "") => {
     setIsLoadingHistory(true);
     try {
@@ -84,7 +98,7 @@ export default function AtsCheckerPage() {
         setHistory(data);
       }
     } catch (e) {
-      console.error("Error loading scan history:", e);
+      console.error("Error loading history:", e);
     } finally {
       setIsLoadingHistory(false);
     }
@@ -96,15 +110,11 @@ export default function AtsCheckerPage() {
     }
   }, [session, loadHistory]);
 
-  // Handle JD input auto-save
   const handleJdChange = (val: string) => {
     setJobDescription(val);
     localStorage.setItem("cm-ats-jd-draft", val);
-    setDraftSaved(true);
-    setTimeout(() => setDraftSaved(false), 800);
   };
 
-  // Dropzone setup
   const onDrop = useCallback((acceptedFiles: File[]) => {
     if (acceptedFiles && acceptedFiles[0]) {
       const selectedFile = acceptedFiles[0];
@@ -113,7 +123,7 @@ export default function AtsCheckerPage() {
         return;
       }
       setFile(selectedFile);
-      toast(`Resume "${selectedFile.name}" selected.`, "success");
+      toast(`Resume selected.`, "success");
     }
   }, [toast]);
 
@@ -126,15 +136,18 @@ export default function AtsCheckerPage() {
     maxFiles: 1
   });
 
-  const handleClearFile = (e: React.MouseEvent) => {
-    e.stopPropagation();
+  const handleClearInputs = () => {
     setFile(null);
+    setJobDescription("");
+    setTargetRole("");
+    setIndustry("");
+    setExperienceLevel("Entry-level");
+    localStorage.removeItem("cm-ats-jd-draft");
   };
 
-  // Trigger ATS analysis POST request
   const handleAnalyze = async () => {
     if (!file || !jobDescription || jobDescription.trim().length < 200) {
-      toast("Please upload a file and enter a description (> 200 chars).", "error");
+      toast("Please upload a file and enter a valid JD (> 200 chars).", "error");
       return;
     }
 
@@ -143,6 +156,9 @@ export default function AtsCheckerPage() {
       const formData = new FormData();
       formData.append("file", file);
       formData.append("jobDescription", jobDescription);
+      formData.append("targetRole", targetRole);
+      formData.append("industry", industry);
+      formData.append("experienceLevel", experienceLevel);
 
       const res = await fetch("/api/ats/analyze", {
         method: "POST",
@@ -156,65 +172,38 @@ export default function AtsCheckerPage() {
 
       const report = await res.json();
       setActiveReport(report);
-      toast("Resume analyzed successfully!", "success");
+      toast("Analysis complete!", "success");
       
-      // Clear inputs
-      setFile(null);
-      setJobDescription("");
-      localStorage.removeItem("cm-ats-jd-draft");
-
-      // Reload scan records
+      handleClearInputs();
       loadHistory();
+      
+      // Scroll to top
+      window.scrollTo({ top: 0, behavior: "smooth" });
     } catch (err: any) {
       console.error(err);
-      toast(err.message || "An error occurred during analysis.", "error");
+      toast(err.message || "An error occurred.", "error");
     } finally {
       setIsAnalyzing(false);
     }
   };
 
-  // Trigger report deletion
-  const handleDeleteReport = async (reportId: string, e: React.MouseEvent) => {
-    e.stopPropagation();
+  const handleDeleteReport = async (reportId: string) => {
     if (confirm("Are you sure you want to delete this scan report permanently?")) {
       try {
-        const res = await fetch(`/api/ats/${reportId}`, {
-          method: "DELETE"
-        });
+        const res = await fetch(`/api/ats/${reportId}`, { method: "DELETE" });
         if (res.ok) {
-          toast("Scan report deleted.", "success");
-          if (activeReport?.id === reportId) {
-            setActiveReport(null);
-          }
+          toast("Report deleted.", "success");
+          if (activeReport?.id === reportId) setActiveReport(null);
           loadHistory(searchQuery);
         } else {
-          const errData = await res.json();
-          toast(errData.error || "Failed to delete report.", "error");
+          toast("Failed to delete report.", "error");
         }
       } catch (err) {
-        console.error(err);
         toast("Error deleting report.", "error");
       }
     }
   };
 
-  // Format file bytes helper
-  const formatBytes = (bytes: number) => {
-    if (bytes === 0) return "0 Bytes";
-    const k = 1024;
-    const sizes = ["Bytes", "KB", "MB"];
-    const i = Math.floor(Math.log(bytes) / Math.log(k));
-    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + " " + sizes[i];
-  };
-
-  // Re-run search
-  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const val = e.target.value;
-    setSearchQuery(val);
-    loadHistory(val);
-  };
-
-  // Auth checking loading state
   if (status === "loading") {
     return (
       <DashboardLayout>
@@ -226,713 +215,492 @@ export default function AtsCheckerPage() {
     );
   }
 
-  // Parse recommendations safely
-  const getRecommendationsArray = (): any[] => {
-    if (!activeReport?.recommendations) return [];
-    try {
-      if (Array.isArray(activeReport.recommendations)) {
-        return activeReport.recommendations;
-      }
-      if (typeof activeReport.recommendations === "string") {
-        return JSON.parse(activeReport.recommendations);
-      }
-    } catch (e) {
-      console.error("JSON parsing of recommendations failed:", e);
+  // Sorting and Pagination
+  const sortedHistory = [...history].sort((a, b) => {
+    if (sortBy === "date") {
+      return sortOrder === "desc" 
+        ? new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+        : new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime();
+    } else {
+      return sortOrder === "desc" ? b.atsScore - a.atsScore : a.atsScore - b.atsScore;
     }
-    return [];
-  };
+  });
 
-  const matchedKeywordsList = activeReport?.matchedKeywords || [];
-  const missingKeywordsList = activeReport?.missingKeywords || [];
-  const recommendationsList = getRecommendationsArray();
+  const totalPages = Math.ceil(sortedHistory.length / itemsPerPage);
+  const paginatedHistory = sortedHistory.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
 
-  // Group recommendations by priority
-  const highPriorityRecs = recommendationsList.filter((r: any) => r.priority === "High Priority");
-  const medPriorityRecs = recommendationsList.filter((r: any) => r.priority === "Medium Priority");
-  const lowPriorityRecs = recommendationsList.filter((r: any) => r.priority === "Low Priority");
-
-  // Format Recharts data
-  const getScoreBreakdownData = () => {
-    if (!activeReport) return [];
-    return [
-      { name: "Keywords", Score: activeReport.keywordScore },
-      { name: "Skills", Score: activeReport.skillsScore },
-      { name: "Experience", Score: activeReport.experienceScore },
-      { name: "Education", Score: activeReport.educationScore },
-      { name: "Formatting", Score: activeReport.formattingScore }
-    ];
-  };
-
-  // Historical score progression chart data
-  const getImprovementTrendData = () => {
-    return history
-      .slice()
-      .reverse()
-      .map(r => ({
-        date: new Date(r.createdAt).toLocaleDateString("en-US", { month: "short", day: "numeric" }),
-        Score: r.atsScore,
-        name: r.resumeName.substring(0, 10) + "..."
-      }));
+  // Helper for Match Level
+  const getMatchLevel = (score: number) => {
+    if (score >= 90) return { label: "Excellent", color: "text-emerald-600", bg: "bg-emerald-50", border: "border-emerald-200" };
+    if (score >= 75) return { label: "Good", color: "text-blue-600", bg: "bg-blue-50", border: "border-blue-200" };
+    if (score >= 60) return { label: "Moderate", color: "text-amber-600", bg: "bg-amber-50", border: "border-amber-200" };
+    return { label: "Needs Improvement", color: "text-rose-600", bg: "bg-rose-50", border: "border-rose-200" };
   };
 
   return (
     <DashboardLayout>
-      <div className="space-y-6">
+      <div className="space-y-8 pb-12 bg-[#F5F7FA] min-h-screen -m-4 sm:-m-6 lg:-m-8 p-4 sm:p-6 lg:p-8">
         
-        {/* Header Title Section */}
-        <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 border-b border-[#E5E7EB] pb-5">
+        <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
           <div>
             <div className="flex items-center gap-2">
-              <span className="bg-emerald-50 text-emerald-700 text-[10px] font-extrabold px-2.5 py-0.5 rounded-full uppercase tracking-wider">Enterprise Match Engine</span>
+              <span className="bg-emerald-100 text-emerald-800 text-[10px] font-extrabold px-2.5 py-0.5 rounded-full uppercase tracking-wider">Enterprise-Grade Match</span>
             </div>
-            <h1 className="text-2xl sm:text-3xl font-extrabold text-[#0F172A] tracking-tight mt-1.5">ATS Match Checker</h1>
-            <p className="text-sm text-[#64748B] font-semibold mt-1">
-              Upload a resume and paste a job description to generate your ATS report.
+            <h1 className="text-2xl sm:text-3xl font-extrabold text-[#0F172A] tracking-tight mt-1.5">ATS Score & Analysis</h1>
+            <p className="text-sm text-[#64748B] font-medium mt-1">
+              Transparent, NLP-driven resume scoring against real-world ATS algorithms.
             </p>
           </div>
-
           {activeReport && (
-            <div className="flex gap-2">
-              <button
-                onClick={() => {
-                  setActiveReport(null);
-                  setFile(null);
-                  setJobDescription("");
-                }}
-                className="px-4 py-2 border border-[#E5E7EB] bg-white text-[#0F172A] hover:bg-slate-50 font-bold text-xs rounded-xl shadow-sm transition-all"
-              >
-                New Scan
-              </button>
-              <button
-                onClick={() => window.print()}
-                className="flex items-center gap-2 px-4 py-2 bg-[#0F172A] text-white hover:bg-slate-800 font-bold text-xs rounded-xl shadow-sm transition-all cursor-pointer"
-              >
-                <Printer className="w-4 h-4" />
-                Print Report
-              </button>
-            </div>
+            <button
+              onClick={() => setActiveReport(null)}
+              className="px-4 py-2 bg-white border border-[#E2E8F0] text-[#0F172A] hover:bg-slate-50 font-bold text-sm rounded-xl shadow-sm transition-all"
+            >
+              Start New Scan
+            </button>
           )}
         </div>
 
-        {/* ───── VIEW A: SCANNED REPORT ACTIVE DASHBOARD ───── */}
-        {activeReport ? (
-          <div className="space-y-6 animate-in fade-in duration-500">
-            
-            {/* Top Stat Overview Cards */}
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+        {/* --- SECTION 3: RESULTS (Only visible if active report exists) --- */}
+        {activeReport && (
+          <div className="space-y-6 animate-in fade-in duration-500 print:bg-white print:m-0 print:p-0">
+            <div className="bg-[#FCFDFE] border border-[#E2E8F0] rounded-[16px] p-6 sm:p-8 shadow-sm flex flex-col lg:flex-row gap-8 items-center justify-between">
               
-              {/* Giant Radial Gauge Card */}
-              <div className="lg:col-span-4 bg-white border border-[#E5E7EB] rounded-[24px] p-6 shadow-sm flex flex-col items-center justify-center text-center relative overflow-hidden">
-                <div className="absolute top-4 left-4 flex items-center gap-1.5 text-slate-400">
-                  <Award className="w-4 h-4 text-emerald-500" />
-                  <span className="text-[10px] font-extrabold uppercase tracking-wider">Overall Score</span>
-                </div>
-
-                {/* Animated Radial SVG progress bar */}
-                <div className="relative w-40 h-40 flex items-center justify-center mt-4">
+              <div className="flex items-center gap-8">
+                {/* Score Circle */}
+                <div className="relative w-36 h-36 flex items-center justify-center">
                   <svg className="w-full h-full transform -rotate-90">
-                    <circle cx="80" cy="80" r="64" stroke="#F1F5F9" strokeWidth="12" fill="transparent" />
+                    <circle cx="72" cy="72" r="60" stroke="#F1F5F9" strokeWidth="12" fill="transparent" />
                     <circle
-                      cx="80"
-                      cy="80"
-                      r="64"
-                      stroke="#10B981"
-                      strokeWidth="12"
-                      fill="transparent"
-                      strokeDasharray="402"
-                      strokeDashoffset={402 - (402 * activeReport.atsScore) / 100}
-                      strokeLinecap="round"
+                      cx="72" cy="72" r="60"
+                      stroke={activeReport.atsScore >= 75 ? "#10B981" : activeReport.atsScore >= 60 ? "#F59E0B" : "#EF4444"}
+                      strokeWidth="12" fill="transparent" strokeLinecap="round"
+                      strokeDasharray="377" strokeDashoffset={377 - (377 * activeReport.atsScore) / 100}
                       className="transition-all duration-1000 ease-out"
                     />
                   </svg>
                   <div className="absolute flex flex-col items-center">
-                    <span className="text-4xl font-black text-slate-900 tracking-tight">{activeReport.atsScore}%</span>
-                    <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider mt-0.5">Compatibility</span>
+                    <span className="text-4xl font-black text-[#0F172A]">{activeReport.atsScore}%</span>
                   </div>
                 </div>
 
-                <div className="mt-6 space-y-1">
-                  <h4 className="font-extrabold text-sm text-[#0F172A] truncate max-w-[250px]">{activeReport.resumeName}</h4>
-                  <p className="text-xs text-[#64748B] font-semibold">
-                    Analyzed on {new Date(activeReport.createdAt).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}
+                <div className="space-y-2">
+                  <h2 className="text-2xl font-bold text-[#0F172A]">{activeReport.resumeName}</h2>
+                  <div className="flex items-center gap-2">
+                    <span className="text-sm font-semibold text-[#64748B]">Match Level:</span>
+                    <span className={`text-xs font-bold px-2.5 py-0.5 rounded-full border ${getMatchLevel(activeReport.atsScore).bg} ${getMatchLevel(activeReport.atsScore).color} ${getMatchLevel(activeReport.atsScore).border}`}>
+                      {getMatchLevel(activeReport.atsScore).label}
+                    </span>
+                  </div>
+                  <p className="text-xs text-[#64748B] pt-1">
+                    Analyzed on {new Date(activeReport.createdAt).toLocaleDateString()}
                   </p>
                 </div>
               </div>
 
-              {/* Stat breakdown columns */}
-              <div className="lg:col-span-8 grid grid-cols-1 sm:grid-cols-3 gap-6">
-                
-                {/* Metric Box 1 */}
-                <div className="bg-white border border-[#E5E7EB] rounded-[20px] p-6 shadow-sm flex flex-col justify-between">
-                  <div>
-                    <span className="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider block">Keyword Match Rate</span>
-                    <h3 className="text-3xl font-black text-[#0F172A] mt-2">{activeReport.keywordScore}%</h3>
-                  </div>
-                  <div className="mt-4 space-y-2">
-                    <div className="w-full bg-slate-100 h-1.5 rounded-full overflow-hidden">
-                      <div className="bg-blue-500 h-full rounded-full" style={{ width: `${activeReport.keywordScore}%` }} />
-                    </div>
-                    <span className="text-[10px] text-slate-500 font-bold block">{matchedKeywordsList.length} matched / {missingKeywordsList.length} missing</span>
-                  </div>
-                </div>
-
-                {/* Metric Box 2 */}
-                <div className="bg-white border border-[#E5E7EB] rounded-[20px] p-6 shadow-sm flex flex-col justify-between">
-                  <div>
-                    <span className="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider block">Formatting Strength</span>
-                    <h3 className="text-3xl font-black text-[#0F172A] mt-2">{activeReport.formattingScore}%</h3>
-                  </div>
-                  <div className="mt-4 space-y-2">
-                    <div className="w-full bg-slate-100 h-1.5 rounded-full overflow-hidden">
-                      <div className="bg-emerald-500 h-full rounded-full" style={{ width: `${activeReport.formattingScore}%` }} />
-                    </div>
-                    <span className="text-[10px] text-slate-500 font-bold block">{activeReport.formattingScore === 100 ? "Perfect layout structure" : "Formatting blockers found"}</span>
-                  </div>
-                </div>
-
-                {/* Metric Box 3 */}
-                <div className="bg-white border border-[#E5E7EB] rounded-[20px] p-6 shadow-sm flex flex-col justify-between">
-                  <div>
-                    <span className="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider block">Required Skills Met</span>
-                    <h3 className="text-3xl font-black text-[#0F172A] mt-2">{activeReport.skillsScore}%</h3>
-                  </div>
-                  <div className="mt-4 space-y-2">
-                    <div className="w-full bg-slate-100 h-1.5 rounded-full overflow-hidden">
-                      <div className="bg-amber-500 h-full rounded-full" style={{ width: `${activeReport.skillsScore}%` }} />
-                    </div>
-                    <span className="text-[10px] text-slate-500 font-bold block">{activeReport.skillsScore >= 80 ? "High qualification fit" : "Moderate skills mismatch"}</span>
-                  </div>
-                </div>
-
-              </div>
-
-            </div>
-
-            {/* Navigation Tabs (Dashboard Sub-Tab Bar) */}
-            <div className="flex border-b border-[#E5E7EB] overflow-x-auto no-scrollbar">
-              <button
-                onClick={() => setActiveTab("overview")}
-                className={`py-3.5 px-6 font-bold text-sm border-b-2 transition-all cursor-pointer whitespace-nowrap ${
-                  activeTab === "overview" ? "border-[#10B981] text-[#10B981]" : "border-transparent text-[#64748B] hover:text-[#0F172A]"
-                }`}
-              >
-                Dashboard Overview
-              </button>
-              <button
-                onClick={() => setActiveTab("keywords")}
-                className={`py-3.5 px-6 font-bold text-sm border-b-2 transition-all cursor-pointer whitespace-nowrap ${
-                  activeTab === "keywords" ? "border-[#10B981] text-[#10B981]" : "border-transparent text-[#64748B] hover:text-[#0F172A]"
-                }`}
-              >
-                Keyword Analysis ({matchedKeywordsList.length + missingKeywordsList.length})
-              </button>
-              <button
-                onClick={() => setActiveTab("formatting")}
-                className={`py-3.5 px-6 font-bold text-sm border-b-2 transition-all cursor-pointer whitespace-nowrap ${
-                  activeTab === "formatting" ? "border-[#10B981] text-[#10B981]" : "border-transparent text-[#64748B] hover:text-[#0F172A]"
-                }`}
-              >
-                Layout & Formatting
-              </button>
-              <button
-                onClick={() => setActiveTab("recommendations")}
-                className={`py-3.5 px-6 font-bold text-sm border-b-2 transition-all cursor-pointer whitespace-nowrap ${
-                  activeTab === "recommendations" ? "border-[#10B981] text-[#10B981]" : "border-transparent text-[#64748B] hover:text-[#0F172A]"
-                }`}
-              >
-                Recommendations ({recommendationsList.length})
-              </button>
-            </div>
-
-            {/* Tab Contents */}
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-
-              {/* Left Column: Tab-specific Views (col 8) */}
-              <div className="lg:col-span-8 space-y-6">
-
-                {/* OVERVIEW TAB */}
-                {activeTab === "overview" && (
-                  <div className="space-y-6">
-                    
-                    {/* Score Breakdown Chart */}
-                    <div className="bg-white border border-[#E5E7EB] rounded-[20px] p-6 shadow-sm space-y-4">
-                      <h3 className="text-sm font-extrabold text-[#0F172A] uppercase tracking-wider flex items-center gap-2">
-                        <SlidersHorizontal className="w-4 h-4 text-emerald-500" />
-                        Weighted Score Breakdown
-                      </h3>
-                      <div className="h-64 w-full pt-4">
-                        <ResponsiveContainer width="100%" height="100%">
-                          <BarChart data={getScoreBreakdownData()} layout="vertical" margin={{ left: -10, right: 10 }}>
-                            <CartesianGrid strokeDasharray="3 3" stroke="#F1F5F9" horizontal={false} />
-                            <XAxis type="number" domain={[0, 100]} stroke="#64748B" fontSize={10} />
-                            <YAxis type="category" dataKey="name" stroke="#64748B" fontSize={10} width={80} />
-                            <Tooltip contentStyle={{ borderRadius: "8px", fontSize: "11px" }} />
-                            <Bar dataKey="Score" fill="#10B981" radius={[0, 4, 4, 0]} barSize={16} />
-                          </BarChart>
-                        </ResponsiveContainer>
-                      </div>
-                    </div>
-
-                    {/* Quick Warning Check Banner */}
-                    {activeReport.formattingScore < 100 && (
-                      <div className="p-4 bg-amber-50 border border-amber-200 rounded-xl flex items-start gap-3">
-                        <AlertTriangle className="w-5 h-5 text-amber-500 shrink-0 mt-0.5" />
-                        <div>
-                          <h4 className="font-bold text-amber-800 text-sm">Potential Compliance Blocks Detected</h4>
-                          <p className="text-xs text-amber-700 mt-1">
-                            Your document scored a formatting index of {activeReport.formattingScore}%. Check the Layout tab to view formatting blockers that could trip up automated parsing tools.
-                          </p>
-                        </div>
-                      </div>
-                    )}
-
-                    {/* Brief Recommendations Box */}
-                    <div className="bg-white border border-[#E5E7EB] rounded-[20px] p-6 shadow-sm space-y-4">
-                      <h3 className="text-sm font-extrabold text-[#0F172A] uppercase tracking-wider flex items-center gap-2">
-                        <Sparkles className="w-4 h-4 text-emerald-500" />
-                        High-Impact Priority Fixes
-                      </h3>
-                      
-                      <div className="space-y-3">
-                        {highPriorityRecs.length > 0 ? (
-                          highPriorityRecs.map((rec: any, idx: number) => (
-                            <div key={idx} className="p-4 border border-rose-100 bg-rose-50/20 rounded-xl flex gap-3">
-                              <span className="shrink-0 font-extrabold text-[10px] text-rose-700 bg-rose-100 px-2 py-0.5 rounded uppercase tracking-wider h-fit mt-0.5">High</span>
-                              <p className="text-xs font-semibold text-[#0F172A] leading-relaxed">{rec.text}</p>
-                            </div>
-                          ))
-                        ) : (
-                          <div className="text-xs italic text-slate-400 p-4 border border-dashed rounded-xl text-center">
-                            No high-priority recommendations! Excellent job matching primary criteria.
-                          </div>
-                        )}
-                      </div>
-                    </div>
-
-                  </div>
-                )}
-
-                {/* KEYWORDS TAB */}
-                {activeTab === "keywords" && (
-                  <div className="bg-white border border-[#E5E7EB] rounded-[20px] p-6 shadow-sm space-y-6">
-                    <div>
-                      <h3 className="text-sm font-extrabold text-[#0F172A] uppercase tracking-wider flex items-center gap-2">
-                        <SlidersHorizontal className="w-4 h-4 text-emerald-500" />
-                        Keyword Cloud Comparison
-                      </h3>
-                      <p className="text-xs text-[#64748B] font-semibold mt-1">
-                        Identify matching tags (green) and bridge missing competencies (gray/red) in your next drafting revisions.
-                      </p>
-                    </div>
-
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                      
-                      {/* Matched Keywords */}
-                      <div className="space-y-3">
-                        <h4 className="text-xs font-extrabold uppercase text-[#0F172A] tracking-wider flex items-center gap-2 border-b pb-2 border-slate-100">
-                          <CheckCircle2 className="w-4 h-4 text-emerald-500" />
-                          Matched Keywords ({matchedKeywordsList.length})
-                        </h4>
-                        <div className="flex flex-wrap gap-2">
-                          {matchedKeywordsList.length > 0 ? (
-                            matchedKeywordsList.map((tag: string, idx: number) => (
-                              <span
-                                key={idx}
-                                className="px-2.5 py-1 bg-emerald-50 border border-emerald-200 text-emerald-800 rounded-lg text-xs font-bold transition-all hover:scale-102"
-                              >
-                                {tag}
-                              </span>
-                            ))
-                          ) : (
-                            <span className="text-xs italic text-slate-400">No matching keywords detected.</span>
-                          )}
-                        </div>
-                      </div>
-
-                      {/* Missing Keywords */}
-                      <div className="space-y-3">
-                        <h4 className="text-xs font-extrabold uppercase text-[#0F172A] tracking-wider flex items-center gap-2 border-b pb-2 border-slate-100">
-                          <AlertTriangle className="w-4 h-4 text-rose-500" />
-                          Missing Keywords ({missingKeywordsList.length})
-                        </h4>
-                        <div className="flex flex-wrap gap-2">
-                          {missingKeywordsList.length > 0 ? (
-                            missingKeywordsList.map((tag: string, idx: number) => (
-                              <span
-                                key={idx}
-                                className="px-2.5 py-1 bg-slate-50 border border-slate-200 text-slate-600 rounded-lg text-xs font-bold transition-all hover:scale-102 flex items-center gap-1"
-                              >
-                                <span className="w-1.5 h-1.5 rounded-full bg-rose-500" />
-                                {tag}
-                              </span>
-                            ))
-                          ) : (
-                            <span className="text-xs italic text-slate-400">All target keywords found! Excellent job.</span>
-                          )}
-                        </div>
-                      </div>
-
-                    </div>
-                  </div>
-                )}
-
-                {/* FORMATTING TAB */}
-                {activeTab === "formatting" && (
-                  <div className="bg-white border border-[#E5E7EB] rounded-[20px] p-6 shadow-sm space-y-6">
-                    <div>
-                      <h3 className="text-sm font-extrabold text-[#0F172A] uppercase tracking-wider flex items-center gap-2">
-                        <SlidersHorizontal className="w-4 h-4 text-emerald-500" />
-                        Layout Compatibility Audit
-                      </h3>
-                      <p className="text-xs text-[#64748B] font-semibold mt-1">
-                        Checks for structural components and layouts that standard parsing algorithms may have difficulty extracting.
-                      </p>
-                    </div>
-
-                    <div className="space-y-3">
-                      {activeReport.formattingScore === 100 ? (
-                        <div className="p-8 border border-dashed border-emerald-200 bg-emerald-50/10 rounded-xl text-center space-y-3">
-                          <CheckCircle2 className="w-10 h-10 text-emerald-500 mx-auto" />
-                          <h4 className="font-bold text-[#0F172A] text-sm">Perfect Layout Compatibility!</h4>
-                          <p className="text-xs text-slate-500 max-w-sm mx-auto leading-relaxed">
-                            No layout obstacles (tables, multiple columns, missing contact fields) were flagged in this file copy.
-                          </p>
-                        </div>
-                      ) : (
-                        activeReport.formattingFeedback && activeReport.formattingFeedback.map((issue: string, idx: number) => (
-                          <div key={idx} className="p-4 border border-amber-100 bg-amber-50/10 rounded-xl flex items-start gap-3">
-                            <AlertTriangle className="w-4 h-4 text-amber-500 shrink-0 mt-0.5" />
-                            <p className="text-xs font-semibold text-slate-700 leading-relaxed">{issue}</p>
-                          </div>
-                        ))
-                      )}
-                    </div>
-                  </div>
-                )}
-
-                {/* RECOMMENDATIONS TAB */}
-                {activeTab === "recommendations" && (
-                  <div className="bg-white border border-[#E5E7EB] rounded-[20px] p-6 shadow-sm space-y-6">
-                    <div>
-                      <h3 className="text-sm font-extrabold text-[#0F172A] uppercase tracking-wider flex items-center gap-2">
-                        <SlidersHorizontal className="w-4 h-4 text-emerald-500" />
-                        Complete Optimization Blueprint
-                      </h3>
-                      <p className="text-xs text-[#64748B] font-semibold mt-1">
-                        Action items generated by evaluating job expectations, required keywords, and layout barriers.
-                      </p>
-                    </div>
-
-                    <div className="space-y-4">
-                      {/* High Priority */}
-                      {highPriorityRecs.length > 0 && (
-                        <div className="space-y-2.5">
-                          <h4 className="text-[10px] font-extrabold text-rose-600 uppercase tracking-wider">High Priority Action Required</h4>
-                          {highPriorityRecs.map((rec: any, idx: number) => (
-                            <div key={idx} className="p-4 bg-rose-50/20 border border-rose-100 rounded-xl text-xs font-semibold text-rose-950 flex gap-2">
-                              <span>•</span>
-                              <span>{rec.text}</span>
-                            </div>
-                          ))}
-                        </div>
-                      )}
-
-                      {/* Medium Priority */}
-                      {medPriorityRecs.length > 0 && (
-                        <div className="space-y-2.5">
-                          <h4 className="text-[10px] font-extrabold text-amber-600 uppercase tracking-wider">Medium Priority Recommended</h4>
-                          {medPriorityRecs.map((rec: any, idx: number) => (
-                            <div key={idx} className="p-4 bg-amber-50/20 border border-amber-100 rounded-xl text-xs font-semibold text-amber-950 flex gap-2">
-                              <span>•</span>
-                              <span>{rec.text}</span>
-                            </div>
-                          ))}
-                        </div>
-                      )}
-
-                      {/* Low Priority */}
-                      {lowPriorityRecs.length > 0 && (
-                        <div className="space-y-2.5">
-                          <h4 className="text-[10px] font-extrabold text-slate-500 uppercase tracking-wider">Low Priority Optimizations</h4>
-                          {lowPriorityRecs.map((rec: any, idx: number) => (
-                            <div key={idx} className="p-4 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold text-slate-700 flex gap-2">
-                              <span>•</span>
-                              <span>{rec.text}</span>
-                            </div>
-                          ))}
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                )}
-
-              </div>
-
-              {/* Right Column: Score Trends & History list (col 4) */}
-              <div className="lg:col-span-4 space-y-6">
-                
-                {/* Score improvement graph */}
-                {history.length > 1 && (
-                  <div className="bg-white border border-[#E5E7EB] rounded-[20px] p-6 shadow-sm space-y-4">
-                    <h3 className="text-xs font-extrabold text-[#0F172A] uppercase tracking-wider flex items-center gap-1.5">
-                      <TrendingUp className="w-4 h-4 text-emerald-500" />
-                      Score Progression
-                    </h3>
-                    <div className="h-32 w-full pt-2">
-                      <ResponsiveContainer width="100%" height="100%">
-                        <AreaChart data={getImprovementTrendData()} margin={{ top: 5, left: -25, right: 5 }}>
-                          <defs>
-                            <linearGradient id="scoreColor" x1="0" y1="0" x2="0" y2="1">
-                              <stop offset="5%" stopColor="#10B981" stopOpacity={0.2} />
-                              <stop offset="95%" stopColor="#10B981" stopOpacity={0} />
-                            </linearGradient>
-                          </defs>
-                          <CartesianGrid strokeDasharray="3 3" stroke="#F1F5F9" vertical={false} />
-                          <XAxis dataKey="date" stroke="#94A3B8" fontSize={9} />
-                          <YAxis domain={[0, 100]} stroke="#94A3B8" fontSize={9} />
-                          <Tooltip contentStyle={{ fontSize: "10px", borderRadius: "6px" }} />
-                          <Area type="monotone" dataKey="Score" stroke="#10B981" strokeWidth={2} fillOpacity={1} fill="url(#scoreColor)" />
-                        </AreaChart>
-                      </ResponsiveContainer>
-                    </div>
-                  </div>
-                )}
-
-                {/* Quick History Scans List */}
-                <div className="bg-white border border-[#E5E7EB] rounded-[20px] p-6 shadow-sm space-y-4">
-                  <h3 className="text-xs font-extrabold text-[#0F172A] uppercase tracking-wider flex items-center gap-2">
-                    <HistoryIcon className="w-4 h-4 text-slate-400" />
-                    Past Scans ({history.length})
-                  </h3>
-
-                  <div className="space-y-2 max-h-72 overflow-y-auto no-scrollbar">
-                    {history
-                      .filter(r => r.id !== activeReport.id)
-                      .slice(0, 5)
-                      .map(item => (
-                        <div
-                          key={item.id}
-                          onClick={() => {
-                            setActiveReport(item);
-                            setActiveTab("overview");
-                          }}
-                          className="p-3 border border-[#E5E7EB] rounded-xl hover:border-slate-300 bg-slate-50/50 hover:bg-slate-50 transition-all cursor-pointer flex items-center justify-between gap-3"
-                        >
-                          <div className="min-w-0">
-                            <h4 className="font-bold text-[#0F172A] text-xs truncate max-w-[150px]">{item.resumeName}</h4>
-                            <p className="text-[9px] text-[#64748B] mt-0.5">Score: {item.atsScore}% • {new Date(item.createdAt).toLocaleDateString("en-US", { month: "short", day: "numeric" })}</p>
-                          </div>
-                          <ChevronRight className="w-4 h-4 text-slate-400 shrink-0" />
-                        </div>
-                      ))}
-                    {history.filter(r => r.id !== activeReport.id).length === 0 && (
-                      <div className="text-[11px] text-slate-400 italic text-center py-4">No other previous scans found.</div>
-                    )}
-                  </div>
-                </div>
-
-              </div>
-
-            </div>
-
-          </div>
-        ) : (
-          /* ───── VIEW B: SCANNERS DRAFT SETUP VIEW ───── */
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start animate-in fade-in duration-500">
-            
-            {/* Left side: Upload & JD Details Setup Forms */}
-            <div className="lg:col-span-8 space-y-6">
-              
-              <div className="bg-white border border-[#E5E7EB] rounded-[24px] p-6 sm:p-8 shadow-sm space-y-6">
-                <h2 className="text-lg font-bold text-[#0F172A] border-b pb-3 border-slate-100">Setup ATS Compatibility Scan</h2>
-                
-                {/* Resume Upload Box */}
-                <div className="space-y-2">
-                  <div className="flex justify-between items-center">
-                    <label className="text-sm font-bold text-[#0F172A] block">Upload Resume Copy</label>
-                    <button
-                      type="button"
-                      onClick={() => {
-                        const testContent = `
-                        Alex Morgan
-                        alex@example.com | 123-456-7890
-                        Professional Summary
-                        Experienced Senior React Developer with 6+ years of building web applications.
-                        Skills
-                        React, Node.js, TypeScript, Next.js, Tailwind CSS, PostgreSQL, AWS, Git, Docker, CI/CD, Agile.
-                        Experience
-                        Senior Software Engineer - Tech Corp (2020 - Present)
-                        - Developed key frontend features using React and TypeScript.
-                        - Managed AWS deployments and Docker containers.
-                        Education
-                        Bachelor of Science in Computer Science - University of State (2016 - 2020)
-                        `;
-                        const mockFile = new File([testContent], "test_resume.docx", {
-                          type: "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-                        });
-                        setFile(mockFile);
-                        toast("Loaded test resume copy!", "success");
-                      }}
-                      className="text-[10px] font-bold text-[#10B981] hover:underline cursor-pointer"
-                      id="load-test-resume-btn"
-                    >
-                      Load Test Resume
-                    </button>
-                  </div>
-                  
-                  {file ? (
-                    <div className="p-4 border border-[#E5E7EB] rounded-xl bg-slate-50/50 flex items-center justify-between gap-4">
-                      <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 rounded-lg bg-emerald-100 flex items-center justify-center text-emerald-600">
-                          <FileText className="w-5 h-5" />
-                        </div>
-                        <div>
-                          <h4 className="text-xs font-bold text-[#0F172A] break-all max-w-[200px] sm:max-w-xs">{file.name}</h4>
-                          <p className="text-[10px] text-[#64748B] mt-0.5">{formatBytes(file.size)} • Ready for analysis</p>
-                        </div>
-                      </div>
-                      <button
-                        onClick={handleClearFile}
-                        className="p-2 text-slate-400 hover:text-rose-600 transition-colors"
-                        title="Remove file"
-                      >
-                        <Trash2 className="w-4.5 h-4.5" />
-                      </button>
-                    </div>
-                  ) : (
-                    <div
-                      {...getRootProps()}
-                      className={`border-2 border-dashed rounded-xl p-8 text-center transition-all cursor-pointer flex flex-col items-center justify-center min-h-[160px] ${
-                        isDragActive
-                          ? "border-emerald-500 bg-emerald-50/40"
-                          : "border-[#E5E7EB] bg-slate-50 hover:bg-slate-100/60 hover:border-slate-300"
-                      }`}
-                    >
-                      <input {...getInputProps()} />
-                      <div className="w-10 h-10 rounded-lg bg-white border border-[#E5E7EB] shadow-sm flex items-center justify-center text-slate-400 mb-3">
-                        <Upload className="w-5 h-5" />
-                      </div>
-                      <h4 className="text-xs font-bold text-[#0F172A]">{isDragActive ? "Drop the resume here" : "Drag and drop resume copy"}</h4>
-                      <p className="text-[10px] text-[#64748B] mt-1 font-semibold">Or click to search folder directories. Only PDF or DOCX up to 5MB.</p>
-                    </div>
-                  )}
-                </div>
-
-                {/* Job Description Textarea */}
-                <div className="space-y-2">
-                  <div className="flex justify-between items-center">
-                    <label className="text-sm font-bold text-[#0F172A] block">Target Job Description</label>
-                    <div className="flex items-center gap-2">
-                      {draftSaved && <span className="text-[9px] text-slate-400 animate-pulse">Draft saved</span>}
-                      <span className={`text-[10px] font-bold ${jobDescription.trim().length >= 200 ? "text-emerald-600" : "text-slate-400"}`}>
-                        {jobDescription.trim().length} characters (min 200)
-                      </span>
-                    </div>
-                  </div>
-
-                  <textarea
-                    value={jobDescription}
-                    onChange={(e) => handleJdChange(e.target.value)}
-                    placeholder="Paste the job description or target role requirements directly from the clipboard..."
-                    className="w-full bg-[#FAFBFC] border border-[#E5E7EB] rounded-xl py-3 px-4 text-xs font-semibold outline-none focus:border-emerald-500 focus:bg-white transition-all h-60 resize-none"
-                  />
-                </div>
-
-                {/* Submit Action Button */}
+              <div className="flex flex-col gap-3 min-w-[200px]">
                 <button
-                  onClick={handleAnalyze}
-                  disabled={isAnalyzing || !file || jobDescription.trim().length < 200}
-                  className="w-full py-3 bg-[#0F172A] hover:bg-slate-800 text-white font-bold text-xs rounded-xl shadow-sm transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                  onClick={() => window.print()}
+                  className="w-full flex justify-center items-center gap-2 px-4 py-2.5 bg-[#0F172A] text-white hover:bg-slate-800 font-bold text-sm rounded-xl shadow-sm transition-all"
                 >
-                  {isAnalyzing ? (
-                    <>
-                      <Loader2 className="w-4.5 h-4.5 animate-spin" />
-                      Processing files and running ATS analysis...
-                    </>
-                  ) : (
-                    <>
-                      <Sparkles className="w-4.5 h-4.5 text-amber-300" />
-                      Run ATS Compatibility Scan
-                    </>
-                  )}
+                  <Printer className="w-4 h-4" />
+                  Download PDF
                 </button>
               </div>
 
             </div>
 
-            {/* Right side: Historical scan history (col 4) */}
-            <div className="lg:col-span-4 space-y-6">
+            {/* Breakdown & Feedback */}
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
               
-              <div className="bg-white border border-[#E5E7EB] rounded-[24px] p-6 shadow-sm space-y-5">
-                <h3 className="text-base font-extrabold text-[#0F172A] border-b pb-3 border-slate-100 flex items-center gap-2">
-                  <HistoryIcon className="w-5 h-5 text-slate-400" />
-                  ATS Reports History
-                </h3>
-
-                {/* Search Bar */}
-                <div className="relative">
-                  <input
-                    type="text"
-                    placeholder="Search by resume name..."
-                    value={searchQuery}
-                    onChange={handleSearchChange}
-                    className="w-full bg-slate-50 border border-[#E5E7EB] rounded-xl py-2 pl-9 pr-4 text-xs font-semibold focus:outline-none focus:border-emerald-500 focus:bg-white transition-all"
-                  />
-                  <Search className="absolute left-3 top-2.5 w-4 h-4 text-slate-400" />
-                </div>
-
-                {/* History List */}
-                <div className="space-y-2.5 max-h-[360px] overflow-y-auto no-scrollbar pt-1">
-                  {isLoadingHistory ? (
-                    <div className="space-y-2">
-                      {[...Array(3)].map((_, i) => (
-                        <div key={i} className="h-14 bg-slate-50 animate-pulse rounded-xl border border-slate-100" />
-                      ))}
-                    </div>
-                  ) : history.length > 0 ? (
-                    history.map(item => (
-                      <div
-                        key={item.id}
-                        onClick={() => {
-                          setActiveReport(item);
-                          setActiveTab("overview");
-                        }}
-                        className="p-3 border border-[#E5E7EB] rounded-xl hover:border-slate-300 bg-slate-50/50 hover:bg-slate-50 transition-all cursor-pointer flex items-center justify-between gap-3 relative group"
-                      >
-                        <div className="min-w-0 pr-6">
-                          <h4 className="font-extrabold text-[#0F172A] text-xs truncate max-w-[170px] sm:max-w-[200px]">{item.resumeName}</h4>
-                          <p className="text-[10px] text-[#64748B] mt-1 font-semibold flex items-center gap-1.5">
-                            <span className="text-emerald-600 font-extrabold">{item.atsScore}% Score</span>
-                            <span>•</span>
-                            <span>{new Date(item.createdAt).toLocaleDateString("en-US", { month: "short", day: "numeric" })}</span>
-                          </p>
+              <div className="lg:col-span-4 space-y-6">
+                {/* Score Breakdown (Static context of the active report) */}
+                <div className="bg-[#FCFDFE] border border-[#E2E8F0] rounded-[16px] p-6 shadow-sm">
+                  <h3 className="text-sm font-bold text-[#0F172A] border-b border-slate-100 pb-3 mb-4">ATS Formula Breakdown</h3>
+                  <div className="space-y-4">
+                    {Object.entries(SCORE_WEIGHTS).map(([key, info]) => {
+                      const scoreVal = activeReport[key as keyof Report] as number;
+                      const maxPoints = info.weight;
+                      const achieved = Math.round((scoreVal / 100) * maxPoints);
+                      return (
+                        <div key={key} className="space-y-1.5">
+                          <div className="flex justify-between items-center text-xs">
+                            <span className="font-semibold text-[#0F172A] flex items-center gap-1">
+                              {info.label}
+                              <span className="group relative cursor-pointer">
+                                <Info className="w-3 h-3 text-slate-400 hover:text-slate-600" />
+                                <div className="absolute left-1/2 -translate-x-1/2 bottom-full mb-2 w-48 p-2 bg-[#0F172A] text-white text-[10px] rounded shadow-lg opacity-0 group-hover:opacity-100 pointer-events-none z-10 transition-opacity">
+                                  {info.desc}
+                                </div>
+                              </span>
+                            </span>
+                            <span className="font-bold text-emerald-600">{achieved} / {maxPoints} pts</span>
+                          </div>
+                          <div className="w-full h-1.5 bg-slate-100 rounded-full overflow-hidden">
+                            <div className="h-full bg-emerald-500 rounded-full transition-all" style={{ width: `${scoreVal}%` }} />
+                          </div>
                         </div>
-                        
-                        <div className="flex items-center gap-1.5">
-                          <button
-                            onClick={(e) => handleDeleteReport(item.id, e)}
-                            className="p-1.5 text-slate-400 hover:text-rose-600 rounded-lg hover:bg-white transition-all cursor-pointer"
-                            title="Delete Report"
-                          >
-                            <Trash2 className="w-3.5 h-3.5" />
-                          </button>
-                          <ChevronRight className="w-4 h-4 text-slate-400 shrink-0" />
-                        </div>
+                      );
+                    })}
+                    <div className="pt-4 mt-2 border-t border-slate-100">
+                      <div className="p-3 bg-slate-50 rounded-xl text-[10px] text-slate-500 font-mono font-bold text-center">
+                        ATS Score = Σ (Category Score × Weight)
                       </div>
-                    ))
-                  ) : (
-                    <div className="text-xs text-slate-400 italic text-center py-8">
-                      No previous ATS scan records found. Set up your first analysis above!
                     </div>
-                  )}
+                  </div>
                 </div>
               </div>
 
+              <div className="lg:col-span-8 space-y-6">
+                {/* Issues and Feedback */}
+                <div className="bg-[#FCFDFE] border border-[#E2E8F0] rounded-[16px] p-6 shadow-sm">
+                  <h3 className="text-base font-bold text-[#0F172A] mb-4">Analysis Insights</h3>
+                  
+                  <div className="space-y-6">
+                    {/* Critical Issues */}
+                    {(activeReport.contactInfoScore < 100 || activeReport.formattingScore < 80) && (
+                      <div className="p-4 bg-rose-50 border border-rose-200 rounded-xl space-y-2">
+                        <div className="flex items-center gap-2 text-rose-700 font-bold text-sm">
+                          <AlertTriangle className="w-4 h-4" />
+                          Critical ATS Blockers Detected
+                        </div>
+                        <ul className="list-disc pl-5 text-xs text-rose-900 space-y-1">
+                          {activeReport.formattingFeedback && activeReport.formattingFeedback.map((f, i) => <li key={i}>{f}</li>)}
+                          {activeReport.contactInfoScore < 100 && <li>Missing critical contact information (email/phone/LinkedIn).</li>}
+                        </ul>
+                      </div>
+                    )}
+
+                    {/* Keywords */}
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div className="p-4 border border-[#E2E8F0] rounded-xl">
+                        <h4 className="text-xs font-bold text-[#0F172A] mb-2 flex items-center gap-1">
+                          <CheckCircle2 className="w-4 h-4 text-emerald-500" /> Matched Keywords
+                        </h4>
+                        <div className="flex flex-wrap gap-1.5">
+                          {activeReport.matchedKeywords.length > 0 ? activeReport.matchedKeywords.map((k, i) => (
+                            <span key={i} className="px-2 py-0.5 bg-emerald-50 text-emerald-700 text-[10px] font-bold rounded">{k}</span>
+                          )) : <span className="text-xs text-slate-400 italic">No matches found.</span>}
+                        </div>
+                      </div>
+                      <div className="p-4 border border-[#E2E8F0] rounded-xl">
+                        <h4 className="text-xs font-bold text-[#0F172A] mb-2 flex items-center gap-1">
+                          <AlertTriangle className="w-4 h-4 text-amber-500" /> Missing Keywords
+                        </h4>
+                        <div className="flex flex-wrap gap-1.5">
+                          {activeReport.missingKeywords.length > 0 ? activeReport.missingKeywords.slice(0, 15).map((k, i) => (
+                            <span key={i} className="px-2 py-0.5 bg-slate-100 text-slate-600 text-[10px] font-bold rounded">{k}</span>
+                          )) : <span className="text-xs text-slate-400 italic">No missing keywords!</span>}
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Recommendations */}
+                    <div>
+                      <h4 className="text-sm font-bold text-[#0F172A] mb-3">Improvement Recommendations</h4>
+                      <div className="space-y-2">
+                        {activeReport.recommendations && (activeReport.recommendations as any[]).map((rec, i) => (
+                          <div key={i} className="p-3 border border-[#E2E8F0] rounded-xl flex items-start gap-3 bg-white">
+                            <span className={`shrink-0 px-2 py-0.5 rounded text-[9px] font-extrabold uppercase tracking-wider mt-0.5 ${
+                              rec.priority === 'High Priority' ? 'bg-rose-100 text-rose-700' :
+                              rec.priority === 'Medium Priority' ? 'bg-amber-100 text-amber-700' :
+                              'bg-slate-100 text-slate-600'
+                            }`}>
+                              {rec.priority.split(' ')[0]}
+                            </span>
+                            <p className="text-xs text-[#0F172A] font-medium leading-relaxed">{rec.text}</p>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* --- SECTION 1 & 2: SCAN SETUP (Visible when no active report) --- */}
+        {!activeReport && (
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+            
+            {/* Left 70%: Scan Setup */}
+            <div className="lg:col-span-8 space-y-6">
+              <div className="bg-[#FCFDFE] border border-[#E2E8F0] rounded-[16px] p-6 sm:p-8 shadow-sm space-y-6">
+                <h2 className="text-lg font-bold text-[#0F172A] border-b pb-3 border-slate-100">Setup ATS Compatibility Scan</h2>
+                
+                {/* Upload */}
+                <div className="space-y-2">
+                  <label className="text-sm font-bold text-[#0F172A] block">1. Upload Resume</label>
+                  {file ? (
+                    <div className="p-4 border border-[#E2E8F0] rounded-xl bg-slate-50 flex items-center justify-between">
+                      <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 rounded-lg bg-emerald-100 text-emerald-600 flex items-center justify-center">
+                          <FileText className="w-5 h-5" />
+                        </div>
+                        <div>
+                          <h4 className="text-sm font-bold text-[#0F172A]">{file.name}</h4>
+                          <p className="text-xs text-[#64748B]">Ready for analysis</p>
+                        </div>
+                      </div>
+                      <button onClick={handleClearInputs} className="p-2 text-slate-400 hover:text-rose-500">
+                        <Trash2 className="w-4 h-4" />
+                      </button>
+                    </div>
+                  ) : (
+                    <div
+                      {...getRootProps()}
+                      className={`border-2 border-dashed rounded-2xl p-8 text-center cursor-pointer transition-all ${
+                        isDragActive ? "border-[#10B981] bg-emerald-50" : "border-[#E2E8F0] hover:border-slate-400 hover:bg-slate-50"
+                      }`}
+                    >
+                      <input {...getInputProps()} />
+                      <div className="w-12 h-12 rounded-full bg-slate-100 flex items-center justify-center mx-auto mb-3">
+                        <Upload className="w-5 h-5 text-slate-400" />
+                      </div>
+                      <h3 className="text-sm font-bold text-[#0F172A]">Drag & drop your resume</h3>
+                      <p className="text-xs text-[#64748B] mt-1">Supports PDF and DOCX (Max 5MB)</p>
+                    </div>
+                  )}
+                </div>
+
+                {/* JD Input */}
+                <div className="space-y-2">
+                  <label className="text-sm font-bold text-[#0F172A] block">2. Target Job Description</label>
+                  <textarea
+                    value={jobDescription}
+                    onChange={(e) => handleJdChange(e.target.value)}
+                    placeholder="Paste the full job description here..."
+                    className="w-full h-40 p-4 border border-[#E2E8F0] rounded-xl text-sm focus:outline-none focus:border-[#0F172A] focus:ring-1 focus:ring-[#0F172A] resize-none"
+                  />
+                  <div className="text-right text-[10px] text-slate-400 font-semibold">
+                    {jobDescription.length} characters
+                  </div>
+                </div>
+
+                {/* Additional Context Dropdowns */}
+                <div className="space-y-2">
+                  <label className="text-sm font-bold text-[#0F172A] block">3. Context (Optional)</label>
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                    <div>
+                      <input 
+                        type="text" 
+                        placeholder="Target Role (e.g. Frontend Dev)" 
+                        value={targetRole}
+                        onChange={e => setTargetRole(e.target.value)}
+                        className="w-full p-2.5 border border-[#E2E8F0] rounded-xl text-sm focus:outline-none focus:border-[#0F172A]"
+                      />
+                    </div>
+                    <div>
+                      <input 
+                        type="text" 
+                        placeholder="Industry (e.g. Finance)" 
+                        value={industry}
+                        onChange={e => setIndustry(e.target.value)}
+                        className="w-full p-2.5 border border-[#E2E8F0] rounded-xl text-sm focus:outline-none focus:border-[#0F172A]"
+                      />
+                    </div>
+                    <div>
+                      <select 
+                        value={experienceLevel}
+                        onChange={e => setExperienceLevel(e.target.value)}
+                        className="w-full p-2.5 border border-[#E2E8F0] rounded-xl text-sm focus:outline-none focus:border-[#0F172A] bg-white"
+                      >
+                        <option value="Entry-level">Entry-level</option>
+                        <option value="Mid-level">Mid-level</option>
+                        <option value="Senior">Senior</option>
+                      </select>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="pt-2">
+                  <button
+                    onClick={handleAnalyze}
+                    disabled={isAnalyzing || !file || jobDescription.length < 200}
+                    className="w-full sm:w-auto px-8 py-3.5 bg-[#0F172A] hover:bg-[#1E293B] text-white font-bold text-sm rounded-xl shadow-md transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                  >
+                    {isAnalyzing ? (
+                      <><Loader2 className="w-4 h-4 animate-spin" /> Analyzing...</>
+                    ) : (
+                      <><Sparkles className="w-4 h-4" /> Analyze ATS Score</>
+                    )}
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            {/* Right 30%: Score Breakdown Explainer */}
+            <div className="lg:col-span-4">
+              <div className="bg-[#FCFDFE] border border-[#E2E8F0] rounded-[16px] p-6 shadow-sm sticky top-6">
+                <div className="flex items-center gap-2 mb-4">
+                  <Info className="w-5 h-5 text-indigo-500" />
+                  <h3 className="text-base font-bold text-[#0F172A]">How We Calculate</h3>
+                </div>
+                <p className="text-xs text-[#64748B] mb-6 font-medium leading-relaxed">
+                  Our transparent ATS scoring engine strictly mimics real enterprise parsing algorithms without using random estimations.
+                </p>
+
+                <div className="space-y-4">
+                  {Object.entries(SCORE_WEIGHTS).map(([key, info]) => (
+                    <div key={key} className="space-y-1">
+                      <div className="flex justify-between items-center text-xs">
+                        <span className="font-semibold text-[#0F172A]">{info.label}</span>
+                        <span className="font-bold text-slate-500">{info.weight}%</span>
+                      </div>
+                      <div className="w-full h-1.5 bg-slate-100 rounded-full overflow-hidden">
+                        <div className="h-full bg-slate-300 rounded-full" style={{ width: `${info.weight}%` }} />
+                      </div>
+                    </div>
+                  ))}
+                </div>
+
+                <button 
+                  onClick={() => setWhyScoreExpanded(!whyScoreExpanded)}
+                  className="mt-6 w-full py-2.5 border border-[#E2E8F0] rounded-xl text-xs font-bold text-[#0F172A] hover:bg-slate-50 transition-all flex items-center justify-center gap-2"
+                >
+                  Why transparency matters {whyScoreExpanded ? <ChevronDown className="w-3 h-3" /> : <ChevronRight className="w-3 h-3" />}
+                </button>
+                
+                {whyScoreExpanded && (
+                  <div className="mt-4 p-4 bg-indigo-50 rounded-xl border border-indigo-100 text-xs text-indigo-900 leading-relaxed font-medium animate-in fade-in slide-in-from-top-2">
+                    Many platforms provide "black box" arbitrary percentages. CareerMate's engine strictly searches for semantic overlap, keyword density, and formatting compliance using natural language processing to show exactly where you stand against the job req.
+                  </div>
+                )}
+              </div>
             </div>
 
           </div>
         )}
 
+        {/* --- SECTION 4: HISTORY TABLE --- */}
+        <div className="bg-[#FCFDFE] border border-[#E2E8F0] rounded-[16px] shadow-sm overflow-hidden mt-8 print:hidden">
+          <div className="p-6 border-b border-[#E2E8F0] flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+            <h3 className="text-base font-bold text-[#0F172A]">ATS Report History</h3>
+            
+            <div className="flex items-center gap-3 w-full sm:w-auto">
+              <div className="relative flex-1 sm:w-64">
+                <input
+                  type="text"
+                  placeholder="Search reports..."
+                  value={searchQuery}
+                  onChange={(e) => {
+                    setSearchQuery(e.target.value);
+                    loadHistory(e.target.value);
+                  }}
+                  className="w-full pl-9 pr-3 py-2 text-xs border border-[#E2E8F0] rounded-lg focus:outline-none focus:border-[#0F172A]"
+                />
+                <Search className="absolute left-3 top-2.5 w-3.5 h-3.5 text-slate-400" />
+              </div>
+              <select
+                value={`${sortBy}-${sortOrder}`}
+                onChange={(e) => {
+                  const [b, o] = e.target.value.split("-");
+                  setSortBy(b as any);
+                  setSortOrder(o as any);
+                }}
+                className="py-2 px-3 text-xs border border-[#E2E8F0] rounded-lg focus:outline-none bg-white font-semibold"
+              >
+                <option value="date-desc">Newest First</option>
+                <option value="date-asc">Oldest First</option>
+                <option value="score-desc">Highest Score</option>
+                <option value="score-asc">Lowest Score</option>
+              </select>
+            </div>
+          </div>
+
+          <div className="overflow-x-auto">
+            <table className="w-full text-left text-sm whitespace-nowrap">
+              <thead className="bg-[#F8FAFC] text-[#64748B] text-[10px] uppercase font-bold tracking-wider">
+                <tr>
+                  <th className="px-6 py-4">Resume Name</th>
+                  <th className="px-6 py-4">Target Role</th>
+                  <th className="px-6 py-4">ATS Score</th>
+                  <th className="px-6 py-4">Analysis Date</th>
+                  <th className="px-6 py-4 text-right">Actions</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-[#E2E8F0]">
+                {isLoadingHistory ? (
+                  <tr>
+                    <td colSpan={5} className="px-6 py-12 text-center text-slate-400">
+                      <Loader2 className="w-5 h-5 animate-spin mx-auto mb-2" />
+                      Loading history...
+                    </td>
+                  </tr>
+                ) : paginatedHistory.length > 0 ? (
+                  paginatedHistory.map((report) => (
+                    <tr key={report.id} className="hover:bg-slate-50 transition-colors group">
+                      <td className="px-6 py-4">
+                        <div className="font-bold text-[#0F172A] truncate max-w-[200px]">{report.resumeName}</div>
+                      </td>
+                      <td className="px-6 py-4 text-[#64748B] font-medium">{report.targetRole || "Unspecified"}</td>
+                      <td className="px-6 py-4">
+                        <span className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-bold ${getMatchLevel(report.atsScore).bg} ${getMatchLevel(report.atsScore).color}`}>
+                          {report.atsScore}%
+                        </span>
+                      </td>
+                      <td className="px-6 py-4 text-[#64748B] font-medium text-xs">
+                        {new Date(report.createdAt).toLocaleDateString()}
+                      </td>
+                      <td className="px-6 py-4 text-right">
+                        <div className="flex items-center justify-end gap-2">
+                          <button
+                            onClick={() => {
+                              setActiveReport(report);
+                              window.scrollTo({ top: 0, behavior: "smooth" });
+                            }}
+                            className="px-3 py-1.5 text-xs font-bold text-indigo-600 bg-indigo-50 hover:bg-indigo-100 rounded-lg transition-colors"
+                          >
+                            View
+                          </button>
+                          <button
+                            onClick={() => handleDeleteReport(report.id)}
+                            className="p-1.5 text-slate-400 hover:text-rose-600 transition-colors rounded-lg hover:bg-rose-50 opacity-0 group-hover:opacity-100"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))
+                ) : (
+                  <tr>
+                    <td colSpan={5} className="px-6 py-12 text-center text-slate-400 text-xs italic">
+                      No scan history found.
+                    </td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
+          </div>
+
+          {totalPages > 1 && (
+            <div className="p-4 border-t border-[#E2E8F0] flex items-center justify-between">
+              <span className="text-xs text-[#64748B] font-medium">
+                Showing {((currentPage - 1) * itemsPerPage) + 1} to {Math.min(currentPage * itemsPerPage, sortedHistory.length)} of {sortedHistory.length}
+              </span>
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+                  disabled={currentPage === 1}
+                  className="p-1 border border-[#E2E8F0] rounded hover:bg-slate-50 disabled:opacity-50"
+                >
+                  <ChevronLeft className="w-4 h-4" />
+                </button>
+                <span className="text-xs font-bold text-[#0F172A]">Page {currentPage} of {totalPages}</span>
+                <button
+                  onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+                  disabled={currentPage === totalPages}
+                  className="p-1 border border-[#E2E8F0] rounded hover:bg-slate-50 disabled:opacity-50"
+                >
+                  <ChevronRight className="w-4 h-4" />
+                </button>
+              </div>
+            </div>
+          )}
+
+        </div>
       </div>
     </DashboardLayout>
   );

@@ -1,25 +1,4 @@
-/**
- * ATS Analysis Engine
- * Calculates compatibility scores, formatting feedback, and recommendations.
- */
-
-interface Recommendation {
-  priority: "High Priority" | "Medium Priority" | "Low Priority";
-  text: string;
-}
-
-export interface ATSAnalysisResult {
-  atsScore: number;
-  keywordScore: number;
-  skillsScore: number;
-  experienceScore: number;
-  educationScore: number;
-  formattingScore: number;
-  matchedKeywords: string[];
-  missingKeywords: string[];
-  formattingFeedback: string[];
-  recommendations: Recommendation[];
-}
+import nlp from "compromise";
 
 // Dictionary of common technical and soft skills to match against
 const SKILLS_DICTIONARY = [
@@ -44,86 +23,113 @@ const SKILLS_DICTIONARY = [
   "accessibility", "performance optimization", "security", "testing", "jest", "cypress"
 ];
 
-/**
- * Local Fallback Analyzer using Regex and dictionary matching.
- */
-export function analyzeLocally(resumeText: string, jobDescription: string): ATSAnalysisResult {
+interface Recommendation {
+  priority: "High Priority" | "Medium Priority" | "Low Priority";
+  text: string;
+}
+
+export interface ATSAnalysisResult {
+  atsScore: number;
+  keywordScore: number;
+  skillsScore: number;
+  experienceScore: number;
+  educationScore: number;
+  formattingScore: number;
+  readabilityScore: number;
+  contactInfoScore: number;
+  matchedKeywords: string[];
+  missingKeywords: string[];
+  formattingFeedback: string[];
+  recommendations: Recommendation[];
+  scoreBreakdown: any;
+}
+
+export async function analyzeATSCompatibility(
+  resumeText: string, 
+  jobDescription: string,
+  targetRole?: string,
+  industry?: string,
+  experienceLevel?: string
+): Promise<ATSAnalysisResult> {
   const resumeLower = resumeText.toLowerCase();
   const jdLower = jobDescription.toLowerCase();
 
-  // 1. Keyword Analysis
-  // Find which dictionary terms appear in the Job Description (target keywords)
-  const targetKeywords = SKILLS_DICTIONARY.filter(skill => {
-    const regex = new RegExp(`\\b${skill.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\b`, 'i');
-    return regex.test(jdLower);
-  });
+  const docResume = nlp(resumeText);
+  const docJd = nlp(jobDescription);
 
-  // Fallback if no dictionary keywords match: extract common capitalized words
+  // 1. Keyword Match (30%)
+  // Extract nouns and entities from JD
+  const jdNouns = docJd.nouns().out('array').map((n: string) => n.toLowerCase());
+  const uniqueJdNouns = Array.from(new Set(jdNouns)).filter((n: unknown) => typeof n === 'string' && n.length > 4);
+  
+  const targetKeywords = SKILLS_DICTIONARY.filter(skill => jdLower.includes(skill.toLowerCase()));
   if (targetKeywords.length === 0) {
-    const jdWords = jobDescription.match(/\b[A-Za-z]{3,15}\b/g) || [];
-    const uniqueWords = Array.from(new Set(jdWords.map(w => w.toLowerCase())));
-    // Match common nouns/keywords
-    const stopWords = ["the", "and", "for", "with", "this", "that", "from", "your", "will", "have", "been", "role", "team", "work"];
-    targetKeywords.push(...uniqueWords.filter(w => w.length > 4 && !stopWords.includes(w)).slice(0, 15));
+    targetKeywords.push(...uniqueJdNouns.slice(0, 15) as string[]);
   }
 
   const matchedKeywords: string[] = [];
   const missingKeywords: string[] = [];
 
   targetKeywords.forEach(keyword => {
-    const regex = new RegExp(`\\b${keyword.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\b`, 'i');
-    if (regex.test(resumeLower)) {
-      // Capitalize the first letter for presentation
+    if (resumeLower.includes(keyword.toLowerCase())) {
       matchedKeywords.push(keyword.split(' ').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' '));
     } else {
       missingKeywords.push(keyword.split(' ').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' '));
     }
   });
 
-  const keywordScore = targetKeywords.length > 0 
-    ? Math.round((matchedKeywords.length / targetKeywords.length) * 100)
-    : 70;
+  let keywordScore = 0;
+  if (targetKeywords.length > 0) {
+    keywordScore = Math.round((matchedKeywords.length / targetKeywords.length) * 100);
+  } else {
+    keywordScore = 100; // No keywords to match
+  }
 
-  // 2. Skills Match Score (based on matching common tech tags)
-  const skillsScore = keywordScore; // Simply align with keyword match rate for this baseline fallback
-
-  // 3. Experience Match Score
-  // Look for job level context in job description vs resume
-  let experienceScore = 75;
-  const isSeniorJd = jdLower.includes("senior") || jdLower.includes("lead") || jdLower.includes("manager") || jdLower.includes("5+") || jdLower.includes("8+");
-  const isSeniorResume = resumeLower.includes("senior") || resumeLower.includes("lead") || resumeLower.includes("manager") || resumeLower.includes("architect") || resumeLower.includes("principal");
+  // 2. Required Skills Match (25%)
+  const requiredSkills = SKILLS_DICTIONARY.filter(skill => jdLower.includes(skill.toLowerCase()));
+  const matchedSkills = requiredSkills.filter(skill => resumeLower.includes(skill.toLowerCase()));
   
-  if (isSeniorJd) {
-    if (isSeniorResume) experienceScore = 95;
-    else experienceScore = 55; // junior trying to apply for senior
+  let skillsScore = 0;
+  if (requiredSkills.length > 0) {
+    skillsScore = Math.round((matchedSkills.length / requiredSkills.length) * 100);
   } else {
-    experienceScore = 85; // general match
+    skillsScore = keywordScore;
   }
 
-  // 4. Education Match Score
+  // 3. Experience Relevance (15%)
+  let experienceScore = 75;
+  const isSeniorJd = jdLower.includes("senior") || jdLower.includes("lead") || jdLower.includes("manager") || jdLower.includes("5+");
+  const isSeniorResume = resumeLower.includes("senior") || resumeLower.includes("lead") || resumeLower.includes("manager") || resumeLower.includes("principal");
+  
+  if (experienceLevel === "Senior" || isSeniorJd) {
+    experienceScore = isSeniorResume ? 95 : 50;
+  } else if (experienceLevel === "Entry-level" || experienceLevel === "Junior") {
+    experienceScore = 85; 
+  } else {
+    experienceScore = isSeniorResume === isSeniorJd ? 90 : 70;
+  }
+
+  // 4. Education Match (10%)
   let educationScore = 60;
-  const degrees = ["bachelor", "master", "phd", "ph.d", "b.s", "m.s", "computer science", "degree", "university", "college"];
-  const JdMentionsDegree = degrees.some(d => jdLower.includes(d));
-  const ResumeMentionsDegree = degrees.some(d => resumeLower.includes(d));
+  const degrees = ["bachelor", "master", "phd", "ph.d", "b.s", "m.s", "degree", "university", "college"];
+  const jdNeedsDegree = degrees.some(d => jdLower.includes(d));
+  const resumeHasDegree = degrees.some(d => resumeLower.includes(d));
 
-  if (JdMentionsDegree) {
-    if (ResumeMentionsDegree) educationScore = 95;
-    else educationScore = 50;
+  if (jdNeedsDegree) {
+    educationScore = resumeHasDegree ? 100 : 40;
   } else {
-    educationScore = 90; // If not explicitly specified, assume matched
+    educationScore = resumeHasDegree ? 100 : 90;
   }
 
-  // 5. Formatting & Warnings Check
+  // 5. Resume Formatting (10%)
   const formattingFeedback: string[] = [];
   let formattingScore = 100;
 
-  // Detect tables (continuous grid lines or piping)
   if (resumeText.includes("|") || resumeText.includes("+---") || resumeText.includes("║")) {
     formattingFeedback.push("Tables detected: ATS parsers often scramble table contents.");
-    formattingScore -= 15;
+    formattingScore -= 30;
   }
 
-  // Detect multi-columns (heuristically look for spaces of 4 or more spaces separating text blocks on same line)
   const lines = resumeText.split("\n");
   let multiColumnLinesCount = 0;
   for (const line of lines) {
@@ -133,18 +139,9 @@ export function analyzeLocally(resumeText: string, jobDescription: string): ATSA
   }
   if (multiColumnLinesCount > 5) {
     formattingFeedback.push("Multi-column layout detected: Text extraction may read columns side-by-side instead of sequentially.");
-    formattingScore -= 10;
+    formattingScore -= 30;
   }
 
-  // Detect contact details
-  const hasEmail = /\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b/.test(resumeText);
-  const hasPhone = /(\+?\d{1,4}[-.\s]??)?(\(?\d{2,3}\)?[-.\s]??)?\d{3,4}[-.\s]??\d{4}/.test(resumeText);
-  if (!hasEmail && !hasPhone) {
-    formattingFeedback.push("Missing contact details: Ensure email and phone number are clearly visible.");
-    formattingScore -= 15;
-  }
-
-  // Detect sections presence
   const sections = {
     summary: /summary|profile|objective|about me/i.test(resumeText),
     skills: /skills|technologies|expertise|core competencies/i.test(resumeText),
@@ -153,43 +150,73 @@ export function analyzeLocally(resumeText: string, jobDescription: string): ATSA
   };
 
   if (!sections.summary) {
-    formattingFeedback.push("Missing summary section: Add a professional profile/summary block.");
+    formattingFeedback.push("Missing professional summary section.");
     formattingScore -= 10;
   }
   if (!sections.skills) {
-    formattingFeedback.push("Missing skills section: Group your technologies and capabilities in a dedicated section.");
+    formattingFeedback.push("Missing dedicated skills section.");
     formattingScore -= 10;
   }
   if (!sections.experience) {
-    formattingFeedback.push("Missing experience section: Professional history must be clearly defined.");
-    formattingScore -= 15;
+    formattingFeedback.push("Missing professional experience section.");
+    formattingScore -= 20;
   }
-  if (!sections.education) {
-    formattingFeedback.push("Missing education section: Add academic details or degrees.");
-    formattingScore -= 10;
+  
+  formattingScore = Math.max(0, formattingScore);
+
+  // 6. ATS Readability (5%)
+  let readabilityScore = 100;
+  const sentences = docResume.sentences().out('array');
+  if (sentences.length < 5) {
+    readabilityScore = 40;
+  } else {
+    const longSentences = sentences.filter((s: string) => s.split(" ").length > 30);
+    if (longSentences.length > 5) {
+      readabilityScore -= 20;
+    }
+    const verbs = docResume.verbs().out('array');
+    if (verbs.length < 10) {
+      readabilityScore -= 20;
+    }
   }
+  readabilityScore = Math.max(0, readabilityScore);
 
-  // Ensure formatting score doesn't drop below 30
-  formattingScore = Math.max(formattingScore, 30);
+  // 7. Contact Information Completeness (5%)
+  let contactInfoScore = 100;
+  const hasEmail = /\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b/.test(resumeText);
+  const hasPhone = /(\+?\d{1,4}[-.\s]??)?(\(?\d{2,3}\)?[-.\s]??)?\d{3,4}[-.\s]??\d{4}/.test(resumeText);
+  const hasLinkedIn = /linkedin\.com/i.test(resumeText);
 
-  // 6. Calculate Weighted ATS Score
-  // Weights: Keyword Match: 40%, Skills Match: 25%, Experience Relevance: 20%, Education Match: 10%, Resume Formatting: 5%
+  if (!hasEmail) contactInfoScore -= 40;
+  if (!hasPhone) contactInfoScore -= 40;
+  if (!hasLinkedIn) contactInfoScore -= 20;
+
+  contactInfoScore = Math.max(0, contactInfoScore);
+
+  // FINAL ATS SCORE CALCULATION
   const atsScore = Math.round(
-    keywordScore * 0.40 +
+    keywordScore * 0.30 +
     skillsScore * 0.25 +
-    experienceScore * 0.20 +
+    experienceScore * 0.15 +
     educationScore * 0.10 +
-    formattingScore * 0.05
+    formattingScore * 0.10 +
+    readabilityScore * 0.05 +
+    contactInfoScore * 0.05
   );
 
-  // 7. Generate Recommendations
+  // Generate Recommendations
   const recommendations: Recommendation[] = [];
 
-  // High Priority
   if (missingKeywords.length > 0) {
     recommendations.push({
       priority: "High Priority",
-      text: `Add missing high-impact technical keywords: ${missingKeywords.slice(0, 3).join(", ")}.`
+      text: `Add missing keywords to improve match: ${missingKeywords.slice(0, 5).join(", ")}.`
+    });
+  }
+  if (!hasEmail || !hasPhone) {
+    recommendations.push({
+      priority: "High Priority",
+      text: "Ensure your email and phone number are clearly visible at the top of the resume."
     });
   }
   if (!sections.skills || !sections.experience) {
@@ -198,42 +225,34 @@ export function analyzeLocally(resumeText: string, jobDescription: string): ATSA
       text: "Re-organize resume structure into standard sections (Professional Summary, Technical Skills, Experience, Education)."
     });
   }
-  if (!hasEmail && !hasPhone) {
-    recommendations.push({
-      priority: "High Priority",
-      text: "Add complete contact details (email and phone) to the very top header."
-    });
-  }
-
-  // Medium Priority
-  if (missingKeywords.length > 3) {
+  if (formattingScore < 80) {
     recommendations.push({
       priority: "Medium Priority",
-      text: `Integrate additional secondary keywords: ${missingKeywords.slice(3, 6).join(", ")}.`
+      text: "Simplify your resume layout. Avoid tables and multi-column designs for better ATS parsing."
     });
   }
-  if (formattingScore < 90) {
+  if (readabilityScore < 80) {
     recommendations.push({
       priority: "Medium Priority",
-      text: "Simplify layout styling by removing tables, icons, graphics, and multi-column divisions."
+      text: "Use shorter, more impactful sentences starting with strong action verbs."
     });
   }
-  recommendations.push({
-    priority: "Medium Priority",
-    text: "Quantify achievements using metrics and percentages (e.g. 'Optimized performance by 15%')."
-  });
-
-  // Low Priority
-  if (!sections.summary) {
+  if (!hasLinkedIn) {
     recommendations.push({
       priority: "Low Priority",
-      text: "Write a short 3-line professional profile highlighting your target job alignment."
+      text: "Include a link to your LinkedIn profile in your contact header."
     });
   }
-  recommendations.push({
-    priority: "Low Priority",
-    text: "Review formatting consistency (font-size, margins, clear date ranges)."
-  });
+
+  const scoreBreakdown = {
+    keywordWeight: 30,
+    skillsWeight: 25,
+    experienceWeight: 15,
+    educationWeight: 10,
+    formattingWeight: 10,
+    readabilityWeight: 5,
+    contactInfoWeight: 5
+  };
 
   return {
     atsScore,
@@ -242,118 +261,12 @@ export function analyzeLocally(resumeText: string, jobDescription: string): ATSA
     experienceScore,
     educationScore,
     formattingScore,
+    readabilityScore,
+    contactInfoScore,
     matchedKeywords,
     missingKeywords,
     formattingFeedback,
-    recommendations
+    recommendations,
+    scoreBreakdown
   };
-}
-
-/**
- * OpenAI Semantic Analyzer.
- */
-export async function analyzeWithOpenAI(resumeText: string, jobDescription: string, apiKey: string): Promise<ATSAnalysisResult> {
-  try {
-    const response = await fetch("https://api.openai.com/v1/chat/completions", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${apiKey}`
-      },
-      body: JSON.stringify({
-        model: "gpt-4o-mini",
-        response_format: { type: "json_object" },
-        messages: [
-          {
-            role: "system",
-            content: `You are an expert Applicant Tracking System (ATS) parser and recruiter. 
-            Analyze the provided Resume text against the Job Description. 
-            Perform formatting checks, keyword matching, skills gap assessment, education alignment, and experience relevance calculation.
-            
-            Return your response as a valid JSON object matching the following structure:
-            {
-              "atsScore": number, // Overall composite score between 0 and 100
-              "keywordScore": number, // 0 to 100
-              "skillsScore": number, // 0 to 100
-              "experienceScore": number, // 0 to 100
-              "educationScore": number, // 0 to 100
-              "formattingScore": number, // 0 to 100
-              "matchedKeywords": string[],
-              "missingKeywords": string[],
-              "formattingFeedback": string[], // List any formatting warnings (e.g. columns, tables, headers, footers, missing contact details, missing standard sections)
-              "recommendations": [
-                {
-                  "priority": "High Priority" | "Medium Priority" | "Low Priority",
-                  "text": string
-                }
-              ]
-            }
-
-            You must strictly calculate 'atsScore' using the following weighted parameters:
-            - Keyword Match: 40%
-            - Skills Match: 25%
-            - Experience Relevance: 20%
-            - Education Match: 10%
-            - Resume Formatting: 5%
-            
-            Formula: atsScore = Math.round(keywordScore * 0.40 + skillsScore * 0.25 + experienceScore * 0.20 + educationScore * 0.10 + formattingScore * 0.05)
-            Ensure that formattingFeedback lists actionable warnings, and recommendations are practical.`
-          },
-          {
-            role: "user",
-            content: `Resume:
-            ${resumeText}
-            
-            Job Description:
-            ${jobDescription}`
-          }
-        ],
-        temperature: 0.1
-      })
-    });
-
-    if (!response.ok) {
-      const errorMsg = await response.text();
-      console.warn("OpenAI API call failed, falling back to local analysis:", errorMsg);
-      return analyzeLocally(resumeText, jobDescription);
-    }
-
-    const data = await response.json();
-    const resultText = data.choices?.[0]?.message?.content;
-    if (!resultText) {
-      throw new Error("No response choices returned from OpenAI API.");
-    }
-
-    const parsedResult = JSON.parse(resultText) as ATSAnalysisResult;
-
-    // Validate the parsed values just to make sure
-    return {
-      atsScore: typeof parsedResult.atsScore === 'number' ? parsedResult.atsScore : 70,
-      keywordScore: typeof parsedResult.keywordScore === 'number' ? parsedResult.keywordScore : 70,
-      skillsScore: typeof parsedResult.skillsScore === 'number' ? parsedResult.skillsScore : 70,
-      experienceScore: typeof parsedResult.experienceScore === 'number' ? parsedResult.experienceScore : 70,
-      educationScore: typeof parsedResult.educationScore === 'number' ? parsedResult.educationScore : 70,
-      formattingScore: typeof parsedResult.formattingScore === 'number' ? parsedResult.formattingScore : 90,
-      matchedKeywords: Array.isArray(parsedResult.matchedKeywords) ? parsedResult.matchedKeywords : [],
-      missingKeywords: Array.isArray(parsedResult.missingKeywords) ? parsedResult.missingKeywords : [],
-      formattingFeedback: Array.isArray(parsedResult.formattingFeedback) ? parsedResult.formattingFeedback : [],
-      recommendations: Array.isArray(parsedResult.recommendations) ? parsedResult.recommendations : []
-    };
-  } catch (error) {
-    console.error("OpenAI analysis failed. Falling back to local analysis:", error);
-    return analyzeLocally(resumeText, jobDescription);
-  }
-}
-
-/**
- * Universal Analysis Entry Point
- */
-export async function analyzeATSCompatibility(resumeText: string, jobDescription: string): Promise<ATSAnalysisResult> {
-  const apiKey = process.env.OPENAI_API_KEY;
-  if (apiKey) {
-    return analyzeWithOpenAI(resumeText, jobDescription, apiKey);
-  } else {
-    console.log("No OPENAI_API_KEY configured. Performing local analysis...");
-    return analyzeLocally(resumeText, jobDescription);
-  }
 }

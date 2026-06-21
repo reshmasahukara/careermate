@@ -18,6 +18,9 @@ export async function POST(req: NextRequest) {
     const formData = await req.formData();
     const file = formData.get("file") as File | null;
     const jobDescription = formData.get("jobDescription") as string | null;
+    const targetRole = formData.get("targetRole") as string | null;
+    const industry = formData.get("industry") as string | null;
+    const experienceLevel = formData.get("experienceLevel") as string | null;
 
     // 1. Validation
     if (!file) {
@@ -53,7 +56,13 @@ export async function POST(req: NextRequest) {
     }
 
     // 3. Analyze ATS Compatibility
-    const analysis = await analyzeATSCompatibility(resumeText, jobDescription);
+    const analysis = await analyzeATSCompatibility(
+      resumeText, 
+      jobDescription, 
+      targetRole || undefined, 
+      industry || undefined, 
+      experienceLevel || undefined
+    );
 
     // 4. Save to Database
     const report = await prisma.aTSAnalysis.create({
@@ -66,6 +75,12 @@ export async function POST(req: NextRequest) {
         experienceScore: analysis.experienceScore,
         educationScore: analysis.educationScore,
         formattingScore: analysis.formattingScore,
+        readabilityScore: analysis.readabilityScore,
+        contactInfoScore: analysis.contactInfoScore,
+        targetRole,
+        industry,
+        experienceLevel,
+        scoreBreakdown: analysis.scoreBreakdown,
         matchedKeywords: analysis.matchedKeywords,
         missingKeywords: analysis.missingKeywords,
         recommendations: analysis.recommendations as any, // Array of Recommendations serialized to JSON automatically by Prisma
