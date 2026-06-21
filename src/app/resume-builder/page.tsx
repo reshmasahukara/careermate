@@ -13,7 +13,6 @@ import {
   Check,
   Eye,
   Edit,
-  ArrowRight,
   User,
   Briefcase,
   GraduationCap,
@@ -21,14 +20,52 @@ import {
 } from "lucide-react";
 import { useToast } from "@/components/Providers";
 
+type TemplateConfig = {
+  id: string;
+  name: string;
+  desc: string;
+  font: string;
+  headerAlign: "left" | "center" | "right";
+  nameColor: string;
+  nameSize: string;
+  jobTitleColor: string;
+  headerBg: string;
+  headerBorder: string;
+  sectionTitleAlign: "left" | "center" | "right";
+  sectionTitleColor: string;
+  sectionTitleBorder: string;
+  skillBullet: string;
+  companyColor: string;
+};
+
+const templates: TemplateConfig[] = [
+  { id: "modern", name: "Modern Executive", desc: "Emerald Accent", font: "font-sans", headerAlign: "left", nameColor: "text-emerald-600", nameSize: "text-3xl font-black", jobTitleColor: "text-slate-700", headerBg: "bg-transparent", headerBorder: "border-b border-emerald-500/20", sectionTitleAlign: "left", sectionTitleColor: "text-emerald-600", sectionTitleBorder: "border-b border-emerald-100", skillBullet: "bg-emerald-500", companyColor: "text-emerald-600" },
+  { id: "classic", name: "Classic Scholar", desc: "Monochrome Serif", font: "font-serif", headerAlign: "center", nameColor: "text-slate-900", nameSize: "text-4xl font-bold", jobTitleColor: "text-slate-600", headerBg: "bg-transparent", headerBorder: "border-b border-slate-300", sectionTitleAlign: "center", sectionTitleColor: "text-slate-900", sectionTitleBorder: "border-b border-slate-200", skillBullet: "none", companyColor: "text-slate-900" },
+  { id: "minimal", name: "Minimalist Developer", desc: "Clean Sans-Serif", font: "font-sans", headerAlign: "left", nameColor: "text-slate-900", nameSize: "text-2xl tracking-tighter font-semibold", jobTitleColor: "text-slate-500", headerBg: "bg-transparent", headerBorder: "border-b-2 border-slate-900", sectionTitleAlign: "left", sectionTitleColor: "text-slate-900", sectionTitleBorder: "border-none", skillBullet: "none", companyColor: "text-slate-900" },
+  { id: "creative", name: "Creative Director", desc: "Vibrant & Bold", font: "font-sans", headerAlign: "left", nameColor: "text-fuchsia-600", nameSize: "text-4xl font-black", jobTitleColor: "text-fuchsia-500", headerBg: "bg-fuchsia-50", headerBorder: "border-none", sectionTitleAlign: "left", sectionTitleColor: "text-fuchsia-600", sectionTitleBorder: "border-b-4 border-fuchsia-100", skillBullet: "bg-fuchsia-500", companyColor: "text-fuchsia-600" },
+  { id: "corporate", name: "Corporate Leader", desc: "Navy Blue", font: "font-serif", headerAlign: "center", nameColor: "text-blue-900", nameSize: "text-3xl font-bold", jobTitleColor: "text-blue-700", headerBg: "bg-transparent", headerBorder: "border-b-2 border-blue-900", sectionTitleAlign: "left", sectionTitleColor: "text-blue-900", sectionTitleBorder: "border-b border-blue-200", skillBullet: "bg-blue-900", companyColor: "text-blue-900" },
+  { id: "startup", name: "Startup Innovator", desc: "Indigo Modern", font: "font-sans", headerAlign: "left", nameColor: "text-indigo-600", nameSize: "text-3xl font-bold", jobTitleColor: "text-indigo-500", headerBg: "bg-indigo-50/50", headerBorder: "border-b border-indigo-200", sectionTitleAlign: "left", sectionTitleColor: "text-indigo-600", sectionTitleBorder: "border-l-4 border-indigo-500 pl-2", skillBullet: "bg-indigo-500", companyColor: "text-indigo-600" },
+  { id: "data", name: "Data Scientist", desc: "Teal Analytical", font: "font-mono", headerAlign: "left", nameColor: "text-teal-700", nameSize: "text-2xl font-bold", jobTitleColor: "text-teal-600", headerBg: "bg-transparent", headerBorder: "border-b border-dashed border-teal-300", sectionTitleAlign: "left", sectionTitleColor: "text-teal-700", sectionTitleBorder: "border-b border-dashed border-teal-200", skillBullet: "bg-teal-500", companyColor: "text-teal-700" },
+  { id: "finance", name: "Finance Pro", desc: "Slate Conservative", font: "font-serif", headerAlign: "left", nameColor: "text-slate-800", nameSize: "text-3xl font-bold", jobTitleColor: "text-slate-600", headerBg: "bg-transparent", headerBorder: "border-b border-slate-400", sectionTitleAlign: "left", sectionTitleColor: "text-slate-800", sectionTitleBorder: "border-b border-slate-300", skillBullet: "bg-slate-400", companyColor: "text-slate-800" },
+  { id: "marketing", name: "Marketing Expert", desc: "Pink Accent", font: "font-sans", headerAlign: "center", nameColor: "text-pink-600", nameSize: "text-4xl font-light", jobTitleColor: "text-pink-500", headerBg: "bg-transparent", headerBorder: "border-none", sectionTitleAlign: "center", sectionTitleColor: "text-pink-600", sectionTitleBorder: "border-b border-pink-200", skillBullet: "bg-pink-500", companyColor: "text-pink-600" },
+  { id: "healthcare", name: "Healthcare Expert", desc: "Cyan Clean", font: "font-sans", headerAlign: "left", nameColor: "text-cyan-700", nameSize: "text-3xl font-bold", jobTitleColor: "text-cyan-600", headerBg: "bg-cyan-50/50", headerBorder: "border-b border-cyan-200", sectionTitleAlign: "left", sectionTitleColor: "text-cyan-700", sectionTitleBorder: "border-b-2 border-cyan-100", skillBullet: "bg-cyan-500", companyColor: "text-cyan-700" },
+  { id: "legal", name: "Legal Counsel", desc: "Crimson Serif", font: "font-serif", headerAlign: "center", nameColor: "text-rose-900", nameSize: "text-3xl font-bold", jobTitleColor: "text-rose-800", headerBg: "bg-transparent", headerBorder: "border-b-4 border-double border-rose-900", sectionTitleAlign: "center", sectionTitleColor: "text-rose-900", sectionTitleBorder: "border-b border-rose-200", skillBullet: "none", companyColor: "text-rose-900" },
+  { id: "academic", name: "Academic Researcher", desc: "Classic Dense", font: "font-serif", headerAlign: "center", nameColor: "text-black", nameSize: "text-2xl font-bold uppercase", jobTitleColor: "text-slate-700", headerBg: "bg-transparent", headerBorder: "border-b border-black", sectionTitleAlign: "left", sectionTitleColor: "text-black uppercase", sectionTitleBorder: "border-b border-black", skillBullet: "none", companyColor: "text-black" },
+  { id: "pm", name: "Product Manager", desc: "Violet Blocks", font: "font-sans", headerAlign: "left", nameColor: "text-violet-700", nameSize: "text-4xl tracking-tight font-bold", jobTitleColor: "text-violet-600", headerBg: "bg-transparent", headerBorder: "border-b border-violet-200", sectionTitleAlign: "left", sectionTitleColor: "text-violet-700 bg-violet-50 px-2 py-1 inline-block", sectionTitleBorder: "border-none", skillBullet: "bg-violet-500", companyColor: "text-violet-700" },
+  { id: "sales", name: "Sales Executive", desc: "Orange Dynamic", font: "font-sans", headerAlign: "right", nameColor: "text-orange-600", nameSize: "text-3xl italic font-bold", jobTitleColor: "text-orange-500", headerBg: "bg-transparent", headerBorder: "border-b border-orange-200", sectionTitleAlign: "right", sectionTitleColor: "text-orange-600", sectionTitleBorder: "border-b border-orange-200", skillBullet: "bg-orange-500", companyColor: "text-orange-600" },
+  { id: "visionary", name: "Bold Visionary", desc: "Dark Mode Header", font: "font-sans", headerAlign: "left", nameColor: "text-white", nameSize: "text-3xl font-black", jobTitleColor: "text-slate-300", headerBg: "bg-slate-900", headerBorder: "border-none", sectionTitleAlign: "left", sectionTitleColor: "text-slate-900", sectionTitleBorder: "border-b-4 border-slate-900", skillBullet: "bg-slate-900", companyColor: "text-slate-900" },
+];
+
 export default function ResumeBuilderPage() {
   const { data: session } = useSession();
   const { toast } = useToast();
 
   const [activeTab, setActiveTab] = useState<"edit" | "preview">("edit");
-  const [selectedTemplate, setSelectedTemplate] = useState<"modern" | "classic" | "minimal">("modern");
+  const [selectedTemplateId, setSelectedTemplateId] = useState<string>("modern");
   const [isSaving, setIsSaving] = useState(false);
   const [isExporting, setIsExporting] = useState(false);
+
+  const selectedTemplate = templates.find(t => t.id === selectedTemplateId) || templates[0];
 
   // Resume Data State
   const [resumeData, setResumeData] = useState({
@@ -120,18 +157,20 @@ export default function ResumeBuilderPage() {
     setTimeout(() => {
       setIsExporting(false);
       toast("PDF export ready! Your download has started.", "success");
+      // Trigger native print dialog which can be saved to PDF
+      window.print();
     }, 1500);
   };
 
   return (
     <DashboardLayout>
-      <div className="max-w-[1400px] mx-auto space-y-6">
+      <div className="max-w-[1400px] mx-auto space-y-6 pb-20">
         
         {/* Header */}
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
           <div>
             <h1 className="text-2xl font-bold text-[#0F172A]">Resume Builder</h1>
-            <p className="text-sm text-[#64748B]">Build a premium, ATS-optimized resume using our live editor.</p>
+            <p className="text-sm text-[#64748B]">Build a premium, optimized resume using our live editor.</p>
           </div>
           <div className="flex items-center gap-3">
             <button
@@ -148,41 +187,39 @@ export default function ResumeBuilderPage() {
               className="flex items-center gap-2 px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold transition-all shadow-sm disabled:opacity-50 cursor-pointer"
             >
               <Download className="w-4 h-4" />
-              {isExporting ? "Exporting..." : "Export PDF"}
+              {isExporting ? "Preparing..." : "Export PDF"}
             </button>
           </div>
         </div>
 
         {/* Templates Selector */}
-        <div className="bg-white border border-[#E5E7EB] p-4 rounded-[16px] shadow-sm flex flex-wrap items-center gap-4">
-          <span className="text-xs font-extrabold text-[#0F172A] uppercase tracking-wider">Select Style Template</span>
-          <div className="flex gap-2">
-            {[
-              { id: "modern", label: "Modern Executive", desc: "Emerald Accent" },
-              { id: "classic", label: "Classic Scholar", desc: "Monochrome Serif" },
-              { id: "minimal", label: "Minimalist Developer", desc: "Clean Sans-Serif" }
-            ].map(tpl => (
+        <div className="bg-white border border-[#E5E7EB] p-4 rounded-[16px] shadow-sm space-y-3 print:hidden">
+          <span className="text-xs font-extrabold text-[#0F172A] uppercase tracking-wider block">Select Style Template (15 Options)</span>
+          <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-thin scrollbar-thumb-slate-200">
+            {templates.map(tpl => (
               <button
                 key={tpl.id}
-                onClick={() => setSelectedTemplate(tpl.id as any)}
-                className={`px-4 py-2 rounded-xl border text-xs font-semibold text-left transition-all cursor-pointer flex flex-col ${
-                  selectedTemplate === tpl.id
-                    ? "border-emerald-500 bg-emerald-50 text-emerald-700"
-                    : "border-[#E5E7EB] hover:border-slate-300 bg-white"
+                onClick={() => setSelectedTemplateId(tpl.id)}
+                className={`min-w-[160px] px-4 py-3 rounded-xl border text-xs font-semibold text-left transition-all cursor-pointer flex flex-col shrink-0 ${
+                  selectedTemplateId === tpl.id
+                    ? "border-emerald-500 bg-emerald-50 text-emerald-700 shadow-sm"
+                    : "border-[#E5E7EB] hover:border-slate-300 bg-white hover:bg-slate-50"
                 }`}
               >
-                <span>{tpl.label}</span>
-                <span className="text-[10px] text-slate-400 font-medium">{tpl.desc}</span>
+                <span>{tpl.name}</span>
+                <span className={`text-[10px] font-medium mt-0.5 ${selectedTemplateId === tpl.id ? "text-emerald-600/80" : "text-slate-400"}`}>
+                  {tpl.desc}
+                </span>
               </button>
             ))}
           </div>
         </div>
 
         {/* Editor Split View */}
-        <div className="grid grid-cols-1 xl:grid-cols-12 gap-6 items-start">
+        <div className="grid grid-cols-1 xl:grid-cols-12 gap-6 items-start print:block">
           
           {/* Left Panel: Form Editor */}
-          <div className="xl:col-span-6 bg-white border border-[#E5E7EB] rounded-[20px] shadow-sm overflow-hidden">
+          <div className="xl:col-span-6 bg-white border border-[#E5E7EB] rounded-[20px] shadow-sm overflow-hidden print:hidden">
             <div className="flex border-b border-[#E5E7EB]">
               <button
                 onClick={() => setActiveTab("edit")}
@@ -216,7 +253,7 @@ export default function ResumeBuilderPage() {
                       type="text"
                       value={resumeData.fullName}
                       onChange={e => handleUpdateField("fullName", e.target.value)}
-                      className="w-full bg-slate-50 border border-[#E5E7EB] rounded-xl py-2 px-3 text-xs font-semibold outline-none focus:border-emerald-500 focus:bg-white"
+                      className="w-full bg-slate-50 border border-[#E5E7EB] rounded-xl py-2 px-3 text-xs font-semibold outline-none focus:border-emerald-500 focus:bg-white transition-colors"
                     />
                   </div>
                   <div className="space-y-1">
@@ -225,7 +262,7 @@ export default function ResumeBuilderPage() {
                       type="text"
                       value={resumeData.jobTitle}
                       onChange={e => handleUpdateField("jobTitle", e.target.value)}
-                      className="w-full bg-slate-50 border border-[#E5E7EB] rounded-xl py-2 px-3 text-xs font-semibold outline-none focus:border-emerald-500 focus:bg-white"
+                      className="w-full bg-slate-50 border border-[#E5E7EB] rounded-xl py-2 px-3 text-xs font-semibold outline-none focus:border-emerald-500 focus:bg-white transition-colors"
                     />
                   </div>
                   <div className="space-y-1">
@@ -234,7 +271,7 @@ export default function ResumeBuilderPage() {
                       type="email"
                       value={resumeData.email}
                       onChange={e => handleUpdateField("email", e.target.value)}
-                      className="w-full bg-slate-50 border border-[#E5E7EB] rounded-xl py-2 px-3 text-xs font-semibold outline-none focus:border-emerald-500 focus:bg-white"
+                      className="w-full bg-slate-50 border border-[#E5E7EB] rounded-xl py-2 px-3 text-xs font-semibold outline-none focus:border-emerald-500 focus:bg-white transition-colors"
                     />
                   </div>
                   <div className="space-y-1">
@@ -243,7 +280,7 @@ export default function ResumeBuilderPage() {
                       type="text"
                       value={resumeData.phone}
                       onChange={e => handleUpdateField("phone", e.target.value)}
-                      className="w-full bg-slate-50 border border-[#E5E7EB] rounded-xl py-2 px-3 text-xs font-semibold outline-none focus:border-emerald-500 focus:bg-white"
+                      className="w-full bg-slate-50 border border-[#E5E7EB] rounded-xl py-2 px-3 text-xs font-semibold outline-none focus:border-emerald-500 focus:bg-white transition-colors"
                     />
                   </div>
                   <div className="space-y-1 md:col-span-2">
@@ -252,7 +289,7 @@ export default function ResumeBuilderPage() {
                       type="text"
                       value={resumeData.location}
                       onChange={e => handleUpdateField("location", e.target.value)}
-                      className="w-full bg-slate-50 border border-[#E5E7EB] rounded-xl py-2 px-3 text-xs font-semibold outline-none focus:border-emerald-500 focus:bg-white"
+                      className="w-full bg-slate-50 border border-[#E5E7EB] rounded-xl py-2 px-3 text-xs font-semibold outline-none focus:border-emerald-500 focus:bg-white transition-colors"
                     />
                   </div>
                 </div>
@@ -267,7 +304,7 @@ export default function ResumeBuilderPage() {
                 <textarea
                   value={resumeData.summary}
                   onChange={e => handleUpdateField("summary", e.target.value)}
-                  className="w-full bg-slate-50 border border-[#E5E7EB] rounded-xl py-2.5 px-3.5 text-xs font-semibold outline-none focus:border-emerald-500 focus:bg-white h-24 resize-none"
+                  className="w-full bg-slate-50 border border-[#E5E7EB] rounded-xl py-2.5 px-3.5 text-xs font-semibold outline-none focus:border-emerald-500 focus:bg-white h-24 resize-none transition-colors"
                 />
               </div>
 
@@ -354,7 +391,7 @@ export default function ResumeBuilderPage() {
                         (e.target as HTMLInputElement).value = "";
                       }
                     }}
-                    className="flex-1 bg-slate-50 border border-[#E5E7EB] rounded-xl py-2 px-3 text-xs font-semibold outline-none focus:border-emerald-500 focus:bg-white"
+                    className="flex-1 bg-slate-50 border border-[#E5E7EB] rounded-xl py-2 px-3 text-xs font-semibold outline-none focus:border-emerald-500 focus:bg-white transition-colors"
                   />
                 </div>
                 <div className="flex flex-wrap gap-2 pt-2">
@@ -378,55 +415,59 @@ export default function ResumeBuilderPage() {
           </div>
 
           {/* Right Panel: Live Preview Panel */}
-          <div className={`xl:col-span-6 bg-slate-100 p-6 rounded-[20px] border border-[#E5E7EB] ${activeTab === "preview" ? "block" : "hidden xl:block"}`}>
+          <div className={`xl:col-span-6 bg-slate-100 p-6 rounded-[20px] border border-[#E5E7EB] print:col-span-12 print:border-none print:p-0 print:bg-white ${activeTab === "preview" ? "block" : "hidden xl:block"}`}>
             
-            {/* Paper Sheet Preview container */}
-            <div className={`w-full min-h-[750px] bg-white shadow-lg p-8 sm:p-12 font-sans border border-slate-200/50 rounded-xl leading-relaxed text-slate-800 ${
-              selectedTemplate === "classic" ? "font-serif" : "font-sans"
-            }`}>
+            {/* Paper Sheet Preview container - strictly respects selectedTemplate constraints */}
+            <div className={`w-full min-h-[750px] bg-white shadow-lg print:shadow-none p-8 sm:p-12 border border-slate-200/50 rounded-xl print:border-none print:rounded-none leading-relaxed text-slate-800 transition-all duration-300 ${selectedTemplate.font}`}>
               
               {/* Header block */}
-              <div className={`border-b pb-6 ${
-                selectedTemplate === "modern" ? "border-emerald-500/20" : "border-slate-200"
-              }`}>
-                <div className="flex flex-col sm:flex-row justify-between items-start gap-4">
+              <div className={`${selectedTemplate.headerBg} ${selectedTemplate.headerBorder} pb-6 ${selectedTemplate.headerBg !== 'bg-transparent' ? 'p-6 -mt-12 -mx-12 rounded-t-xl mb-6' : ''}`}>
+                <div className={`flex flex-col justify-between gap-4 ${
+                  selectedTemplate.headerAlign === "center" ? "items-center text-center" : 
+                  selectedTemplate.headerAlign === "right" ? "items-end text-right" : "items-start text-left"
+                }`}>
                   <div>
-                    <h2 className={`font-black tracking-tight text-slate-900 ${
-                      selectedTemplate === "modern" ? "text-3xl text-emerald-600" : "text-2xl"
-                    }`}>
+                    <h2 className={`tracking-tight ${selectedTemplate.nameColor} ${selectedTemplate.nameSize}`}>
                       {resumeData.fullName}
                     </h2>
-                    <p className={`text-sm font-bold uppercase tracking-wider mt-1 ${
-                      selectedTemplate === "modern" ? "text-slate-700" : "text-slate-500"
-                    }`}>
+                    <p className={`text-sm font-bold uppercase tracking-wider mt-1.5 ${selectedTemplate.jobTitleColor}`}>
                       {resumeData.jobTitle}
                     </p>
                   </div>
-                  <div className="text-left sm:text-right text-[11px] font-semibold text-slate-500 space-y-0.5">
-                    <p>{resumeData.email}</p>
-                    <p>{resumeData.phone}</p>
-                    <p>{resumeData.location}</p>
+                  <div className={`text-[11px] font-semibold text-slate-500 space-x-3 flex flex-wrap ${
+                    selectedTemplate.headerAlign === "center" ? "justify-center" : 
+                    selectedTemplate.headerAlign === "right" ? "justify-end" : "justify-start"
+                  }`}>
+                    {resumeData.email && <span>{resumeData.email}</span>}
+                    {resumeData.phone && <span>• {resumeData.phone}</span>}
+                    {resumeData.location && <span>• {resumeData.location}</span>}
                   </div>
                 </div>
               </div>
 
               {/* Summary Block */}
               {resumeData.summary && (
-                <div className="py-6 border-b border-slate-100">
-                  <h4 className="text-xs font-bold uppercase tracking-wider text-slate-500 mb-2">Professional Summary</h4>
-                  <p className="text-xs text-slate-600 leading-relaxed font-medium">{resumeData.summary}</p>
+                <div className="py-6">
+                  <h4 className={`text-xs font-bold uppercase tracking-wider mb-2 ${selectedTemplate.sectionTitleColor} ${selectedTemplate.sectionTitleBorder} pb-1 ${
+                    selectedTemplate.sectionTitleAlign === "center" ? "text-center mx-auto" : 
+                    selectedTemplate.sectionTitleAlign === "right" ? "text-right ml-auto" : "text-left"
+                  }`}>Professional Summary</h4>
+                  <p className="text-xs text-slate-600 leading-relaxed font-medium mt-3">{resumeData.summary}</p>
                 </div>
               )}
 
               {/* Work Experience list */}
               {resumeData.experience.length > 0 && (
-                <div className="py-6 border-b border-slate-100">
-                  <h4 className="text-xs font-bold uppercase tracking-wider text-slate-500 mb-4">Work Experience</h4>
-                  <div className="space-y-5">
+                <div className="py-6">
+                  <h4 className={`text-xs font-bold uppercase tracking-wider mb-4 ${selectedTemplate.sectionTitleColor} ${selectedTemplate.sectionTitleBorder} pb-1 ${
+                    selectedTemplate.sectionTitleAlign === "center" ? "text-center mx-auto" : 
+                    selectedTemplate.sectionTitleAlign === "right" ? "text-right ml-auto" : "text-left"
+                  }`}>Work Experience</h4>
+                  <div className="space-y-6 mt-3">
                     {resumeData.experience.map(exp => (
-                      <div key={exp.id} className="space-y-1">
+                      <div key={exp.id} className="space-y-1.5">
                         <div className="flex justify-between items-start text-xs font-bold text-slate-800">
-                          <span>{exp.role} @ <span className={selectedTemplate === "modern" ? "text-emerald-600" : "text-slate-950"}>{exp.company}</span></span>
+                          <span>{exp.role} @ <span className={selectedTemplate.companyColor}>{exp.company}</span></span>
                           <span className="text-slate-500 font-semibold">{exp.duration}</span>
                         </div>
                         <p className="text-xs text-slate-600 leading-relaxed font-medium">{exp.description}</p>
@@ -438,12 +479,20 @@ export default function ResumeBuilderPage() {
 
               {/* Skills block */}
               {resumeData.skills.length > 0 && (
-                <div className="py-6 border-b border-slate-100">
-                  <h4 className="text-xs font-bold uppercase tracking-wider text-slate-500 mb-3">Skills & Expertise</h4>
-                  <div className="flex flex-wrap gap-x-4 gap-y-2 text-xs font-semibold text-slate-700">
+                <div className="py-6">
+                  <h4 className={`text-xs font-bold uppercase tracking-wider mb-3 ${selectedTemplate.sectionTitleColor} ${selectedTemplate.sectionTitleBorder} pb-1 ${
+                    selectedTemplate.sectionTitleAlign === "center" ? "text-center mx-auto" : 
+                    selectedTemplate.sectionTitleAlign === "right" ? "text-right ml-auto" : "text-left"
+                  }`}>Skills & Expertise</h4>
+                  <div className={`flex flex-wrap gap-x-4 gap-y-2 text-xs font-semibold text-slate-700 mt-3 ${
+                    selectedTemplate.sectionTitleAlign === "center" ? "justify-center" : 
+                    selectedTemplate.sectionTitleAlign === "right" ? "justify-end" : "justify-start"
+                  }`}>
                     {resumeData.skills.map((skill, i) => (
                       <span key={skill} className="flex items-center gap-1.5">
-                        {selectedTemplate === "modern" && <span className="w-1 h-1 rounded-full bg-emerald-500" />}
+                        {selectedTemplate.skillBullet !== "none" && (
+                          <span className={`w-1.5 h-1.5 rounded-sm ${selectedTemplate.skillBullet}`} />
+                        )}
                         {skill}
                       </span>
                     ))}
@@ -454,13 +503,18 @@ export default function ResumeBuilderPage() {
               {/* Education section */}
               {resumeData.education.length > 0 && (
                 <div className="py-6">
-                  <h4 className="text-xs font-bold uppercase tracking-wider text-slate-500 mb-3">Education</h4>
-                  {resumeData.education.map(edu => (
-                    <div key={edu.id} className="flex justify-between items-start text-xs font-bold text-slate-800">
-                      <span>{edu.degree} — <span className="text-slate-600 font-semibold">{edu.school}</span></span>
-                      <span className="text-slate-500 font-semibold">{edu.duration}</span>
-                    </div>
-                  ))}
+                  <h4 className={`text-xs font-bold uppercase tracking-wider mb-3 ${selectedTemplate.sectionTitleColor} ${selectedTemplate.sectionTitleBorder} pb-1 ${
+                    selectedTemplate.sectionTitleAlign === "center" ? "text-center mx-auto" : 
+                    selectedTemplate.sectionTitleAlign === "right" ? "text-right ml-auto" : "text-left"
+                  }`}>Education</h4>
+                  <div className="mt-3">
+                    {resumeData.education.map(edu => (
+                      <div key={edu.id} className="flex justify-between items-start text-xs font-bold text-slate-800 mb-2">
+                        <span>{edu.degree} — <span className="text-slate-600 font-semibold">{edu.school}</span></span>
+                        <span className="text-slate-500 font-semibold">{edu.duration}</span>
+                      </div>
+                    ))}
+                  </div>
                 </div>
               )}
 
@@ -468,26 +522,6 @@ export default function ResumeBuilderPage() {
 
           </div>
 
-        </div>
-
-        {/* ── NEXT STEP CTA SECTION ── */}
-        <div className="bg-gradient-to-r from-[#0F172A] to-[#1E293B] rounded-[24px] p-6 sm:p-8 text-white flex flex-col sm:flex-row items-center justify-between gap-6 shadow-md">
-          <div className="space-y-1.5">
-            <span className="inline-block bg-emerald-500 text-white font-extrabold text-[10px] px-2.5 py-0.5 rounded-full uppercase tracking-wider">
-              Recommended Next Step
-            </span>
-            <h3 className="text-lg font-bold">Audit your draft with the ATS Match Checker</h3>
-            <p className="text-xs text-slate-400 max-w-xl font-medium">
-              Run real-time parsing checks, look for missing industry keywords, and score your resume draft against target roles.
-            </p>
-          </div>
-          <a
-            href="/ats-checker"
-            className="flex items-center gap-2 px-5 py-3 bg-[#10B981] hover:bg-[#059669] text-white font-bold text-xs rounded-xl shadow-sm transition-all shrink-0 hover:translate-x-0.5"
-          >
-            Audit Resume
-            <ArrowRight className="w-4 h-4" />
-          </a>
         </div>
 
       </div>
