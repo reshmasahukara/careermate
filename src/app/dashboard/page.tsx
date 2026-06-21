@@ -14,9 +14,7 @@ import {
 import DashboardLayout from "@/components/DashboardLayout";
 import { getDashboardDataAction } from "@/app/actions/dashboard";
 import MetricCard from "@/components/dashboard/MetricCard";
-import ActivityTimeline from "@/components/dashboard/ActivityTimeline";
 import LearningRoadmap from "@/components/dashboard/LearningRoadmap";
-import SkillGapPreview from "@/components/dashboard/SkillGapPreview";
 import JobRecommendations from "@/components/dashboard/JobRecommendations";
 import CareerInsightsPreview from "@/components/dashboard/CareerInsightsPreview";
 
@@ -125,7 +123,7 @@ export default function DashboardPage() {
           </div>
 
           {/* ── METRIC CARDS ────────────────────────────────── */}
-          <div className="grid grid-cols-2 xl:grid-cols-4 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <MetricCard
               title="ATS Score"
               value={atsScore ? `${atsScore}` : "—"}
@@ -135,26 +133,6 @@ export default function DashboardPage() {
               accentColor="#10B981"
               isEmpty={!atsScore}
               emptyText="Upload your resume to unlock ATS insights."
-            />
-            <MetricCard
-              title="Job Match"
-              value={jobMatchPercentage}
-              subtitle={targetRole ? `vs. ${targetRole}` : "Set target role"}
-              icon={<Target className="w-5 h-5" />}
-              href="/ats-checker"
-              accentColor="#F59E0B"
-              isEmpty={!atsScore}
-              emptyText="Complete your first skill analysis to view recommendations."
-            />
-            <MetricCard
-              title="Skill Gaps"
-              value={missingSkillsCount}
-              subtitle="Keywords to add"
-              icon={<AlertCircle className="w-5 h-5" />}
-              href="/skill-gap"
-              accentColor="#EF4444"
-              isEmpty={!atsScore}
-              emptyText="Complete your first skill analysis to view recommendations."
             />
             <MetricCard
               title="Applications"
@@ -191,33 +169,7 @@ export default function DashboardPage() {
             </div>
           </div>
 
-          {/* ── MAIN GRID: ROW 2 (Recent Activity + Skill Gap Snapshot) ───────────────────── */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-stretch">
-            <div className="bg-[#FCFDFE] border border-[#E2E8F0] rounded-[16px] shadow-[0_2px_8px_rgba(15,23,42,0.06)] overflow-hidden flex flex-col h-full">
-              <div className="p-6 border-b border-[#E2E8F0]">
-                <h3 className="text-[18px] font-semibold text-[#0F172A] flex items-center gap-2">
-                  <Activity className="w-5 h-5 text-[#6366F1]" /> Recent Activity
-                </h3>
-              </div>
-              <div className="p-6 flex-1 bg-[#F8FAFC]">
-                <ActivityTimeline items={d?.activityItems ?? []} />
-              </div>
-            </div>
 
-            <div className="bg-[#FCFDFE] border border-[#E2E8F0] rounded-[16px] shadow-[0_2px_8px_rgba(15,23,42,0.06)] overflow-hidden flex flex-col h-full">
-              <div className="p-6 border-b border-[#E2E8F0]">
-                <h3 className="text-[18px] font-semibold text-[#0F172A] flex items-center gap-2">
-                  <AlertCircle className="w-5 h-5 text-[#F59E0B]" /> Skill Gap Snapshot
-                </h3>
-              </div>
-              <div className="p-6 flex-1 bg-[#F8FAFC]">
-                <SkillGapPreview
-                  missingKeywords={d?.ats?.keywordsMissing ?? []}
-                  atsScore={d?.ats?.latest}
-                />
-              </div>
-            </div>
-          </div>
 
           {/* ── MAIN GRID: ROW 3 (Learning Roadmap) ───────────────────── */}
           <div className="bg-[#FCFDFE] border border-[#E2E8F0] rounded-[16px] shadow-[0_2px_8px_rgba(15,23,42,0.06)] overflow-hidden">
