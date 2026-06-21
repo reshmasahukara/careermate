@@ -27,6 +27,7 @@ model User {
   payments      Payment[]
   learningResources LearningResource[]
   atsAnalyses   ATSAnalysis[]
+  passwordResetTokens PasswordResetToken[]
 
   // Extended Profile Settings
   jobTitle             String?
@@ -245,6 +246,19 @@ model Notification {
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@map("notifications")
+}
+
+model PasswordResetToken {
+  id        String   @id @default(cuid())
+  userId    String   @map("user_id")
+  token     String   @unique
+  expiresAt DateTime @map("expires_at")
+  used      Boolean  @default(false)
+  createdAt DateTime @default(now()) @map("created_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("password_reset_tokens")
 }
 
 model Subscription {
