@@ -91,11 +91,13 @@ model Resume {
   userId     String     @map("user_id")
   fileName   String     @map("file_name")
   fileUrl    String     @map("file_url")
-  fileType   String     @map("file_type")
-  parsedText String?    @map("parsed_text") @db.Text
-  version    Int        @default(1)
-  createdAt  DateTime   @default(now()) @map("created_at")
-  updatedAt  DateTime   @updatedAt @map("updated_at")
+  fileType            String     @map("file_type")
+  parsedText          String?    @map("parsed_text") @db.Text
+  targetRole          String?    @map("target_role")
+  qualitativeAnalysis Json?      @map("qualitative_analysis")
+  version             Int        @default(1)
+  createdAt           DateTime   @default(now()) @map("created_at")
+  updatedAt           DateTime   @updatedAt @map("updated_at")
 
   user      User       @relation(fields: [userId], references: [id], onDelete: Cascade)
   atsScores AtsScore[]
