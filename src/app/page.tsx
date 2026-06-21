@@ -80,12 +80,6 @@ export default function HomePage() {
       href: "/jobs"
     },
     {
-      title: "AI Interview Preparation",
-      description: "Practice smarter with AI interview guidance.",
-      icon: <Zap className="w-5 h-5 text-[#10B981]" />,
-      href: "/contact"
-    },
-    {
       title: "Skill Gap Analysis",
       description: "Identify skills needed for your target role.",
       icon: <Compass className="w-5 h-5 text-[#10B981]" />,
@@ -193,8 +187,8 @@ export default function HomePage() {
             </p>
           </div>
 
-          {/* 6 feature cards in one row on desktop */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-5 items-stretch">
+          {/* 5 feature cards in one row on desktop */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-5 items-stretch">
             {featureCards.map((card, index) => (
               <Link
                 key={`feature-${card.title}-${index}`}
