@@ -18,17 +18,16 @@ import ActivityTimeline from "@/components/dashboard/ActivityTimeline";
 import LearningRoadmap from "@/components/dashboard/LearningRoadmap";
 import SkillGapPreview from "@/components/dashboard/SkillGapPreview";
 import JobRecommendations from "@/components/dashboard/JobRecommendations";
-import NextStepsPanel from "@/components/dashboard/NextStepsPanel";
 import CareerInsightsPreview from "@/components/dashboard/CareerInsightsPreview";
 
 // ─── Skeleton loader ───────────────────────────────────────────────────────
 function Skeleton({ className = "" }: { className?: string }) {
-  return <div className={`animate-pulse bg-[#1F2937] rounded-xl ${className}`} />;
+  return <div className={`animate-pulse bg-[#E2E8F0] rounded-xl ${className}`} />;
 }
 
 function DashboardSkeleton() {
   return (
-    <div className="space-y-6 p-6 md:p-8 max-w-[1280px] mx-auto bg-[#FAFBFC] min-h-screen">
+    <div className="space-y-6 p-6 md:p-8 max-w-[1280px] mx-auto bg-[#F5F7FA] min-h-screen">
       <Skeleton className="h-10 w-72" />
       <Skeleton className="h-5 w-96" />
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-6">
@@ -37,12 +36,9 @@ function DashboardSkeleton() {
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
         <div className="lg:col-span-8 space-y-6">
           <Skeleton className="h-72" />
-          <Skeleton className="h-56" />
         </div>
         <div className="lg:col-span-4 space-y-6">
-          <Skeleton className="h-48" />
-          <Skeleton className="h-48" />
-          <Skeleton className="h-48" />
+          <Skeleton className="h-72" />
         </div>
       </div>
     </div>
@@ -73,7 +69,6 @@ export default function DashboardPage() {
     loadData();
   }, [loadData]);
 
-  // ── Auth loading ─────────────────────────────────────────
   if (status === "loading" || isLoading) {
     return (
       <DashboardLayout>
@@ -85,25 +80,23 @@ export default function DashboardPage() {
   const d = dashboardData;
   const userName = session?.user?.name?.split(" ")[0] || "there";
   
-  // Derived metrics
   const atsScore = d?.ats?.latest;
   const targetRole = d?.careerPath?.targetRole ?? null;
   const missingSkillsCount = d?.ats?.keywordsMissing?.length ?? 0;
   const hasResume = !!d?.stats?.resumes;
-  const activeApplications = d?.stats?.atsChecks ?? 0; // Using ATS checks as a proxy for active apps for now
+  const activeApplications = d?.stats?.atsChecks ?? 0;
   
-  // Job match percentage
   const jobMatchPercentage = atsScore ? `${atsScore}%` : "—";
 
   return (
     <DashboardLayout>
-      <div className="min-h-screen bg-[#FAFBFC] text-[#0F172A] pb-12">
+      <div className="min-h-screen bg-[#F5F7FA] text-[#0F172A] pb-12">
         <div className="max-w-[1280px] mx-auto space-y-6 p-6">
 
           {/* ── HEADER ──────────────────────────────────────── */}
           <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
             <div>
-              <h1 className="text-[32px] font-extrabold tracking-tight text-[#111827]">
+              <h1 className="text-[32px] font-extrabold tracking-tight text-[#0F172A]">
                 Welcome, {userName}
               </h1>
               <p className="text-[15px] text-[#64748B] mt-1">
@@ -116,14 +109,14 @@ export default function DashboardPage() {
               {!hasResume ? (
                 <Link
                   href="/resume-upload"
-                  className="flex items-center gap-2 bg-[#14B8A6] hover:bg-[#0d9488] text-white font-semibold px-5 py-2.5 rounded-xl text-[15px] transition-all"
+                  className="flex items-center gap-2 bg-[#10B981] hover:bg-[#059669] text-white font-semibold px-5 py-2.5 rounded-xl text-[15px] transition-all shadow-sm"
                 >
                   <Upload className="w-4 h-4" /> Upload Resume
                 </Link>
               ) : (
                 <Link
                   href="/ats-checker"
-                  className="flex items-center gap-2 bg-[#14B8A6] hover:bg-[#0d9488] text-white font-semibold px-5 py-2.5 rounded-xl text-[15px] transition-all"
+                  className="flex items-center gap-2 bg-[#10B981] hover:bg-[#059669] text-white font-semibold px-5 py-2.5 rounded-xl text-[15px] transition-all shadow-sm"
                 >
                   <FileSearch className="w-4 h-4" /> Analyze Resume
                 </Link>
@@ -139,9 +132,9 @@ export default function DashboardPage() {
               subtitle="Latest resume scan"
               icon={<FileSearch className="w-5 h-5" />}
               href="/ats-checker"
-              accentColor="#14B8A6"
+              accentColor="#10B981"
               isEmpty={!atsScore}
-              emptyText="No scan yet"
+              emptyText="Upload your resume to unlock ATS insights."
             />
             <MetricCard
               title="Job Match"
@@ -151,7 +144,7 @@ export default function DashboardPage() {
               href="/ats-checker"
               accentColor="#F59E0B"
               isEmpty={!atsScore}
-              emptyText="—"
+              emptyText="Complete your first skill analysis to view recommendations."
             />
             <MetricCard
               title="Skill Gaps"
@@ -161,7 +154,7 @@ export default function DashboardPage() {
               href="/skill-gap"
               accentColor="#EF4444"
               isEmpty={!atsScore}
-              emptyText="—"
+              emptyText="Complete your first skill analysis to view recommendations."
             />
             <MetricCard
               title="Applications"
@@ -173,76 +166,68 @@ export default function DashboardPage() {
             />
           </div>
 
-          {/* ── NEXT STEPS (Full Width) ─────────────────────── */}
-          <NextStepsPanel 
-            hasResume={hasResume}
-            atsScore={atsScore}
-            missingSkillsCount={missingSkillsCount}
-          />
-
-          {/* ── MAIN GRID (8 / 4 columns) ───────────────────── */}
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-
-            {/* LEFT — 8 Columns */}
-            <div className="lg:col-span-8 space-y-6">
-              
-              <div className="bg-white border border-[#E5E7EB] rounded-[16px] shadow-sm overflow-hidden">
-                <div className="p-6 border-b border-[#E5E7EB]">
-                  <h3 className="text-[18px] font-semibold text-[#111827] flex items-center gap-2">
-                    <Briefcase className="w-5 h-5 text-[#14B8A6]" /> Recommended Jobs
-                  </h3>
-                </div>
-                <div className="p-6">
-                  <JobRecommendations targetRole={targetRole} />
-                </div>
+          {/* ── MAIN GRID: ROW 1 (Recommended Jobs + Career Insights) ───────────────────── */}
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch">
+            <div className="lg:col-span-8 bg-[#FCFDFE] border border-[#E2E8F0] rounded-[16px] shadow-[0_2px_8px_rgba(15,23,42,0.06)] overflow-hidden flex flex-col h-full">
+              <div className="p-6 border-b border-[#E2E8F0]">
+                <h3 className="text-[18px] font-semibold text-[#0F172A] flex items-center gap-2">
+                  <Briefcase className="w-5 h-5 text-[#10B981]" /> Recommended Jobs
+                </h3>
               </div>
-
-              {/* Recent Activity & Skill Gap Snapshot (2 columns within the 8-col area) */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div className="bg-white border border-[#E5E7EB] rounded-[16px] shadow-sm overflow-hidden">
-                  <div className="p-6 border-b border-[#E5E7EB]">
-                    <h3 className="text-[18px] font-semibold text-[#111827] flex items-center gap-2">
-                      <Activity className="w-5 h-5 text-[#14B8A6]" /> Recent Activity
-                    </h3>
-                  </div>
-                  <div className="p-6">
-                    <ActivityTimeline items={d?.activityItems ?? []} />
-                  </div>
-                </div>
-
-                <div className="bg-white border border-[#E5E7EB] rounded-[16px] shadow-sm overflow-hidden">
-                  <div className="p-6 border-b border-[#E5E7EB]">
-                    <h3 className="text-[18px] font-semibold text-[#111827] flex items-center gap-2">
-                      <AlertCircle className="w-5 h-5 text-[#F59E0B]" /> Skill Gap Snapshot
-                    </h3>
-                  </div>
-                  <div className="p-6">
-                    <SkillGapPreview
-                      missingKeywords={d?.ats?.keywordsMissing ?? []}
-                      atsScore={d?.ats?.latest}
-                    />
-                  </div>
-                </div>
+              <div className="p-6 flex-1 bg-[#F8FAFC]">
+                <JobRecommendations targetRole={targetRole} />
               </div>
-
             </div>
 
-            {/* RIGHT — 4 Columns */}
-            <div className="lg:col-span-4 space-y-6">
-              
-              <div className="h-auto">
+            <div className="lg:col-span-4 bg-[#FCFDFE] border border-[#E2E8F0] rounded-[16px] shadow-[0_2px_8px_rgba(15,23,42,0.06)] overflow-hidden flex flex-col h-full">
+              <div className="p-6 border-b border-[#E2E8F0]">
+                <h3 className="text-[18px] font-semibold text-[#0F172A] flex items-center gap-2">
+                  <Target className="w-5 h-5 text-[#6366F1]" /> Career Insights
+                </h3>
+              </div>
+              <div className="p-6 flex-1 bg-[#F8FAFC]">
                 <CareerInsightsPreview targetRole={targetRole} />
               </div>
+            </div>
+          </div>
 
-              <div className="bg-white border border-[#E5E7EB] rounded-[16px] shadow-sm overflow-hidden">
-                <div className="p-6 border-b border-[#E5E7EB]">
-                  <h3 className="text-[18px] font-semibold text-[#111827]">Learning Roadmap</h3>
-                </div>
-                <div className="p-6">
-                  <LearningRoadmap careerPath={d?.careerPath} />
-                </div>
+          {/* ── MAIN GRID: ROW 2 (Recent Activity + Skill Gap Snapshot) ───────────────────── */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-stretch">
+            <div className="bg-[#FCFDFE] border border-[#E2E8F0] rounded-[16px] shadow-[0_2px_8px_rgba(15,23,42,0.06)] overflow-hidden flex flex-col h-full">
+              <div className="p-6 border-b border-[#E2E8F0]">
+                <h3 className="text-[18px] font-semibold text-[#0F172A] flex items-center gap-2">
+                  <Activity className="w-5 h-5 text-[#6366F1]" /> Recent Activity
+                </h3>
               </div>
+              <div className="p-6 flex-1 bg-[#F8FAFC]">
+                <ActivityTimeline items={d?.activityItems ?? []} />
+              </div>
+            </div>
 
+            <div className="bg-[#FCFDFE] border border-[#E2E8F0] rounded-[16px] shadow-[0_2px_8px_rgba(15,23,42,0.06)] overflow-hidden flex flex-col h-full">
+              <div className="p-6 border-b border-[#E2E8F0]">
+                <h3 className="text-[18px] font-semibold text-[#0F172A] flex items-center gap-2">
+                  <AlertCircle className="w-5 h-5 text-[#F59E0B]" /> Skill Gap Snapshot
+                </h3>
+              </div>
+              <div className="p-6 flex-1 bg-[#F8FAFC]">
+                <SkillGapPreview
+                  missingKeywords={d?.ats?.keywordsMissing ?? []}
+                  atsScore={d?.ats?.latest}
+                />
+              </div>
+            </div>
+          </div>
+
+          {/* ── MAIN GRID: ROW 3 (Learning Roadmap) ───────────────────── */}
+          <div className="bg-[#FCFDFE] border border-[#E2E8F0] rounded-[16px] shadow-[0_2px_8px_rgba(15,23,42,0.06)] overflow-hidden">
+            <div className="p-6 border-b border-[#E2E8F0]">
+              <h3 className="text-[18px] font-semibold text-[#0F172A] flex items-center gap-2">
+                <Target className="w-5 h-5 text-[#10B981]" /> Learning Roadmap
+              </h3>
+            </div>
+            <div className="p-6 bg-[#F8FAFC]">
+              <LearningRoadmap careerPath={d?.careerPath} />
             </div>
           </div>
 

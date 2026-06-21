@@ -26,14 +26,14 @@ export default function MetricCard({
 }: MetricCardProps) {
   const content = (
     <div
-      className="group bg-white border border-[#E5E7EB] rounded-[16px] p-6 shadow-sm hover:shadow-md transition-all duration-200 hover:-translate-y-0.5 cursor-pointer relative overflow-hidden"
+      className="group bg-[#FCFDFE] border border-[#E2E8F0] rounded-[16px] p-6 shadow-[0_2px_8px_rgba(15,23,42,0.06)] hover:shadow-md transition-all duration-200 hover:-translate-y-0.5 cursor-pointer relative overflow-hidden"
     >
       <div 
         className="absolute top-0 left-0 w-full h-1" 
         style={{ backgroundColor: accentColor }}
       />
       <div className="flex items-start justify-between mb-2">
-        <h3 className="text-[18px] font-semibold text-[#111827]">
+        <h3 className="text-[18px] font-semibold text-[#0F172A]">
           {title}
         </h3>
         <div
@@ -51,7 +51,7 @@ export default function MetricCard({
         </div>
       ) : (
         <div className="mt-2">
-          <p className="text-[28px] font-bold text-[#111827] tracking-tight">
+          <p className="text-[28px] font-bold text-[#0F172A] tracking-tight">
             {value}
           </p>
           <p className="text-[15px] text-[#64748B] mt-1 leading-snug">{subtitle}</p>
