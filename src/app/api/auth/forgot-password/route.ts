@@ -1,74 +1,79 @@
-import { NextResponse } from "next/server";
-import { prisma } from "@/lib/db";
-import crypto from "crypto";
-import { sendPasswordResetEmail } from "@/lib/email";
+import { NextRequest, NextResponse } from "next/server";
+import { prisma, isDbConfigured } from "@/lib/db";
+import { verifyTransporter, sendOtpEmail } from "@/lib/mailer";
+import bcrypt from "bcryptjs";
 
-// Rate limiting map (in-memory, ideally Redis in production)
-const rateLimit = new Map<string, { count: number; timestamp: number }>();
-
-export async function POST(req: Request) {
+export async function POST(req: NextRequest) {
   try {
     const { email } = await req.json();
 
-    if (!email || typeof email !== "string") {
-      return NextResponse.json({ error: "Invalid email address" }, { status: 400 });
+    if (!email) {
+      return NextResponse.json({ error: "Email is required." }, { status: 400 });
     }
-
-    // Rate Limiting (3 per hour)
-    const ip = req.headers.get("x-forwarded-for") || "unknown";
-    const now = Date.now();
-    const rateLimitData = rateLimit.get(ip);
     
-    if (rateLimitData) {
-      if (now - rateLimitData.timestamp < 3600000) { // 1 hour
-        if (rateLimitData.count >= 3) {
-          return NextResponse.json({ error: "Too many reset requests. Please try again later." }, { status: 429 });
-        }
-        rateLimitData.count += 1;
-      } else {
-        rateLimit.set(ip, { count: 1, timestamp: now });
-      }
-    } else {
-      rateLimit.set(ip, { count: 1, timestamp: now });
-    }
+    const formattedEmail = email.trim().toLowerCase();
+    isDbConfigured();
 
-    // Always return a generic success message
-    const successResponse = NextResponse.json(
-      { message: "If an account exists for this email, we've sent password reset instructions." },
-      { status: 200 }
-    );
-
-    const user = await prisma.user.findUnique({ where: { email: email.toLowerCase() } });
-    if (!user) {
-      // User doesn't exist, still return generic message to prevent enumeration
-      return successResponse;
-    }
-
-    // Generate a secure 32-byte hex token
-    const token = crypto.randomBytes(32).toString("hex");
-    const expiresAt = new Date(Date.now() + 15 * 60 * 1000); // 15 mins
-
-    // Invalidate old tokens
-    await prisma.passwordResetToken.updateMany({
-      where: { userId: user.id, used: false },
-      data: { used: true },
+    const existingUser = await prisma.user.findUnique({
+      where: { email: formattedEmail },
     });
 
-    // Store new token
-    await prisma.passwordResetToken.create({
+    if (!existingUser) {
+      // Return 200 even if user doesn't exist to prevent email enumeration
+      return NextResponse.json({ message: "If an account exists, a verification code was sent." }, { status: 200 });
+    }
+
+    // Check resend limits (60 seconds)
+    const existingOtp = await prisma.verificationOtp.findFirst({
+      where: { email: formattedEmail },
+      orderBy: { createdAt: "desc" },
+    });
+
+    if (existingOtp) {
+      const secondsSinceLastOtp = (Date.now() - existingOtp.createdAt.getTime()) / 1000;
+      if (secondsSinceLastOtp < 60) {
+        return NextResponse.json(
+          { error: `Please wait ${Math.ceil(60 - secondsSinceLastOtp)} seconds before requesting a new code.` },
+          { status: 429 }
+        );
+      }
+    }
+
+    const transporterCheck = await verifyTransporter();
+    if (!transporterCheck.success) {
+      return NextResponse.json({ error: transporterCheck.error }, { status: 500 });
+    }
+
+    await prisma.verificationOtp.deleteMany({
+      where: { email: formattedEmail },
+    });
+
+    const otp = Math.floor(100000 + Math.random() * 900000).toString();
+    const salt = await bcrypt.genSalt(10);
+    const otpHash = await bcrypt.hash(otp, salt);
+    const expiresAt = new Date(Date.now() + 10 * 60 * 1000);
+
+    await prisma.verificationOtp.create({
       data: {
-        userId: user.id,
-        token,
+        email: formattedEmail,
+        otpHash,
         expiresAt,
+        verified: false,
+        attempts: 0,
       },
     });
 
-    // Send email
-    await sendPasswordResetEmail(user.email, token, user.name);
+    const emailResult = await sendOtpEmail(formattedEmail, otp);
+    if (!emailResult.success) {
+      return NextResponse.json({ error: emailResult.error }, { status: 500 });
+    }
 
-    return successResponse;
-  } catch (error) {
-    console.error("Forgot Password Error:", error);
-    return NextResponse.json({ error: "An unexpected error occurred" }, { status: 500 });
+    return NextResponse.json(
+      { message: "If an account exists, a verification code was sent." },
+      { status: 200 }
+    );
+  } catch (error: any) {
+    console.error("[Forgot Password Error]:", error);
+    return NextResponse.json({ error: "Failed to process request." }, { status: 500 });
   }
 }
