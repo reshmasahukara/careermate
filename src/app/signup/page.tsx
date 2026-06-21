@@ -15,11 +15,7 @@ const signupSchema = z
   .object({
     name: z.string().min(2, { message: "Name must be at least 2 characters." }),
     email: z.string().trim().email({ message: "Please enter a valid email address." }),
-    password: z
-      .string()
-      .min(8, { message: "Password must be at least 8 characters." })
-      .regex(/[0-9]/, { message: "Password must contain at least 1 number." })
-      .regex(/[^A-Za-z0-9]/, { message: "Password must contain at least 1 special character." }),
+    password: z.string().min(6, { message: "Password must be at least 6 characters." }),
     confirmPassword: z.string(),
   })
   .refine((data) => data.password === data.confirmPassword, {
@@ -34,8 +30,6 @@ export default function SignupPage() {
   const { toast } = useToast();
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const [passwordStrength, setPasswordStrength] = useState(0);
-  const [strengthLabel, setStrengthLabel] = useState("Too Short");
 
   const {
     register,
@@ -52,35 +46,7 @@ export default function SignupPage() {
     },
   });
 
-  const passwordValue = watch("password");
 
-  // Calculate password strength
-  useEffect(() => {
-    if (!passwordValue) {
-      setPasswordStrength(0);
-      setStrengthLabel("Too Short");
-      return;
-    }
-
-    let score = 0;
-    if (passwordValue.length >= 6) score += 1;
-    if (passwordValue.length >= 10) score += 1;
-    if (/[A-Z]/.test(passwordValue)) score += 1;
-    if (/[0-9]/.test(passwordValue)) score += 1;
-    if (/[^A-Za-z0-9]/.test(passwordValue)) score += 1;
-
-    setPasswordStrength(score);
-
-    if (passwordValue.length < 6) {
-      setStrengthLabel("Too Short");
-    } else if (score <= 2) {
-      setStrengthLabel("Weak");
-    } else if (score <= 4) {
-      setStrengthLabel("Medium");
-    } else {
-      setStrengthLabel("Strong");
-    }
-  }, [passwordValue]);
 
   const onSubmit = async (data: SignupFormValues) => {
     setIsLoading(true);
@@ -127,12 +93,7 @@ export default function SignupPage() {
     signIn(provider, { callbackUrl: "/dashboard" });
   };
 
-  const getStrengthBarColor = () => {
-    if (passwordStrength === 0) return "bg-slate-200";
-    if (strengthLabel === "Weak") return "bg-rose-500";
-    if (strengthLabel === "Medium") return "bg-amber-500";
-    return "bg-emerald-500";
-  };
+
 
   return (
     <div className="flex-1 min-h-screen flex items-center justify-center py-16 px-4 bg-[#FAFBFC]">
@@ -226,26 +187,7 @@ export default function SignupPage() {
                 </p>
               )}
 
-              {/* Password Strength Indicator */}
-              {passwordValue && (
-                <div className="mt-2.5 space-y-1.5">
-                  <div className="flex justify-between items-center text-[10px] font-bold uppercase tracking-wider text-slate-500">
-                    <span>Password Strength</span>
-                    <span className={
-                      strengthLabel === "Weak" ? "text-rose-500" :
-                      strengthLabel === "Medium" ? "text-amber-500" :
-                      strengthLabel === "Strong" ? "text-emerald-500" : "text-[#64748B]"
-                    }>
-                      {strengthLabel}
-                    </span>
-                  </div>
-                  <div className="h-1.5 w-full bg-slate-100 rounded-full overflow-hidden flex gap-0.5">
-                    <div className={`h-full flex-1 transition-all duration-300 ${passwordStrength >= 1 ? getStrengthBarColor() : "bg-slate-200"}`} />
-                    <div className={`h-full flex-1 transition-all duration-300 ${passwordStrength >= 3 ? getStrengthBarColor() : "bg-slate-200"}`} />
-                    <div className={`h-full flex-1 transition-all duration-300 ${passwordStrength >= 5 ? getStrengthBarColor() : "bg-slate-200"}`} />
-                  </div>
-                </div>
-              )}
+
             </div>
 
             <div className="space-y-1">

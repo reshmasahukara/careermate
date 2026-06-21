@@ -11,8 +11,8 @@ export async function POST(req: NextRequest) {
     }
 
     // Password rules validation
-    if (newPassword.length < 8 || !/[0-9]/.test(newPassword) || !/[^A-Za-z0-9]/.test(newPassword)) {
-      return NextResponse.json({ error: "Password does not meet the security requirements." }, { status: 400 });
+    if (newPassword.length < 6) {
+      return NextResponse.json({ error: "Password must be at least 6 characters long." }, { status: 400 });
     }
 
     const formattedEmail = email.trim().toLowerCase();
