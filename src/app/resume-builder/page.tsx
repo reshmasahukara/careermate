@@ -11,8 +11,6 @@ import {
   Plus,
   Trash2,
   Check,
-  Eye,
-  Edit,
   User,
   Briefcase,
   GraduationCap,
@@ -60,7 +58,6 @@ export default function ResumeBuilderPage() {
   const { data: session } = useSession();
   const { toast } = useToast();
 
-  const [activeTab, setActiveTab] = useState<"edit" | "preview">("edit");
   const [selectedTemplateId, setSelectedTemplateId] = useState<string>("modern");
   const [isSaving, setIsSaving] = useState(false);
   const [isExporting, setIsExporting] = useState(false);
@@ -252,26 +249,8 @@ export default function ResumeBuilderPage() {
           
           {/* Left Panel: Form Editor */}
           <div className="xl:col-span-6 bg-white border border-[#E5E7EB] rounded-[20px] shadow-sm overflow-hidden print:hidden">
-            <div className="flex border-b border-[#E5E7EB]">
-              <button
-                onClick={() => setActiveTab("edit")}
-                className={`flex-1 py-4 text-center text-xs font-extrabold uppercase tracking-wider flex items-center justify-center gap-2 border-r border-[#E5E7EB] cursor-pointer ${
-                  activeTab === "edit" ? "bg-slate-50 text-[#0F172A]" : "text-slate-400 hover:text-slate-700"
-                }`}
-              >
-                <Edit className="w-4 h-4" /> Edit Content
-              </button>
-              <button
-                onClick={() => setActiveTab("preview")}
-                className={`flex-1 py-4 text-center text-xs font-extrabold uppercase tracking-wider flex items-center justify-center gap-2 cursor-pointer ${
-                  activeTab === "preview" ? "bg-slate-50 text-[#0F172A]" : "text-slate-400 hover:text-slate-700"
-                }`}
-              >
-                <Eye className="w-4 h-4" /> Live Preview
-              </button>
-            </div>
 
-            <div className={`p-6 space-y-6 ${activeTab === "edit" ? "block" : "hidden xl:block"}`}>
+            <div className="p-6 space-y-6">
               {/* Contact Info */}
               <div className="space-y-4">
                 <h3 className="text-xs font-extrabold text-[#0F172A] uppercase tracking-wider flex items-center gap-2 border-b pb-2">
@@ -447,7 +426,7 @@ export default function ResumeBuilderPage() {
           </div>
 
           {/* Right Panel: Live Preview Panel */}
-          <div className={`xl:col-span-6 bg-slate-100 p-6 rounded-[20px] border border-[#E5E7EB] print:col-span-12 print:border-none print:p-0 print:bg-white ${activeTab === "preview" ? "block" : "hidden xl:block"}`}>
+          <div className="xl:col-span-6 bg-slate-100 p-6 rounded-[20px] border border-[#E5E7EB] print:col-span-12 print:border-none print:p-0 print:bg-white">
             
             {/* Paper Sheet Preview container - strictly respects selectedTemplate constraints */}
             <div id="resume-preview-container" className={`w-full min-h-[750px] bg-white shadow-lg print:shadow-none p-8 sm:p-12 border border-slate-200/50 rounded-xl print:border-none print:rounded-none leading-relaxed text-slate-800 transition-all duration-300 ${selectedTemplate.font}`}>
