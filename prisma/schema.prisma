@@ -42,6 +42,8 @@ model User {
 
   // Security Settings
   twoFactorEnabled     Boolean @default(false)
+  failedLoginAttempts  Int     @default(0) @map("failed_login_attempts")
+  lockedUntil          DateTime? @map("locked_until")
 
   savedJobs            SavedJob[]
   jobRecommendations   JobRecommendation[]

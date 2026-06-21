@@ -40,6 +40,11 @@ export const authOptions: NextAuthOptions = {
             throw new Error("Invalid email or password.");
           }
 
+          if (user.lockedUntil && user.lockedUntil > new Date()) {
+            console.warn(`Auth failed: User ${credentials.email} is locked out.`);
+            throw new Error("Account locked due to too many failed attempts. Try again later.");
+          }
+
           if (!user.password) {
             console.warn(`Auth failed: User ${credentials.email} signed up with OAuth, no password exists.`);
             throw new Error("You previously signed up with a different provider (e.g. Google). Please use that to log in.");
@@ -54,8 +59,30 @@ export const authOptions: NextAuthOptions = {
           const isPasswordValid = await bcrypt.compare(credentials.password, user.password);
 
           if (!isPasswordValid) {
+            const newAttempts = user.failedLoginAttempts + 1;
+            let newLockedUntil = null;
+            if (newAttempts >= 5) {
+              newLockedUntil = new Date(Date.now() + 15 * 60 * 1000); // 15 mins
+            }
+            await prisma.user.update({
+              where: { id: user.id },
+              data: {
+                failedLoginAttempts: newAttempts,
+                lockedUntil: newLockedUntil,
+              },
+            });
             console.warn(`Auth failed: Incorrect password for email ${credentials.email}`);
             throw new Error("Invalid email or password.");
+          }
+
+          if (user.failedLoginAttempts > 0) {
+            await prisma.user.update({
+              where: { id: user.id },
+              data: {
+                failedLoginAttempts: 0,
+                lockedUntil: null,
+              },
+            });
           }
 
           return {
@@ -75,7 +102,8 @@ export const authOptions: NextAuthOptions = {
           if (
             error.message === "Invalid email or password." ||
             error.message === "Please verify your email before signing in." ||
-            error.message.includes("previously signed up")
+            error.message.includes("previously signed up") ||
+            error.message.includes("Account locked")
           ) {
             throw new Error(error.message);
           }

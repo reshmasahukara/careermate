@@ -82,7 +82,8 @@ export async function POST(req: NextRequest) {
     console.log(`[OTP Info]: Successfully verified OTP for ${email.toLowerCase()}`);
 
     // Hash the user's password
-    const salt = await bcrypt.genSalt(12);
+    const saltRounds = process.env.BCRYPT_ROUNDS ? parseInt(process.env.BCRYPT_ROUNDS) : 12;
+    const salt = await bcrypt.genSalt(saltRounds);
     const hashedPassword = await bcrypt.hash(password, salt);
 
     // Create the user
