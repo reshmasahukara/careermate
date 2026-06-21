@@ -152,14 +152,46 @@ export default function ResumeBuilderPage() {
     }, 1000);
   };
 
-  const handleExportPDF = () => {
+  const handleExportPDF = async () => {
     setIsExporting(true);
-    setTimeout(() => {
+    try {
+      const { default: html2canvas } = await import("html2canvas");
+      const { jsPDF } = await import("jspdf");
+
+      const element = document.getElementById("resume-preview-container");
+      if (!element) throw new Error("Resume container not found");
+
+      // Temporarily hide shadow and border for clean PDF
+      const originalShadow = element.style.boxShadow;
+      const originalBorder = element.style.border;
+      element.style.boxShadow = "none";
+      element.style.border = "none";
+
+      const canvas = await html2canvas(element, {
+        scale: 2,
+        useCORS: true,
+      });
+
+      // Restore original styles
+      element.style.boxShadow = originalShadow;
+      element.style.border = originalBorder;
+
+      const imgData = canvas.toDataURL("image/jpeg", 1.0);
+      const pdf = new jsPDF("p", "pt", "a4");
+
+      const pdfWidth = pdf.internal.pageSize.getWidth();
+      const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
+
+      pdf.addImage(imgData, "JPEG", 0, 0, pdfWidth, pdfHeight);
+      pdf.save(`${resumeData.fullName.replace(/\s+/g, '_')}_Resume.pdf`);
+
+      toast("PDF export successful! Your download has started.", "success");
+    } catch (error) {
+      console.error("PDF generation failed:", error);
+      toast("PDF generation failed. Please try again.", "error");
+    } finally {
       setIsExporting(false);
-      toast("PDF export ready! Your download has started.", "success");
-      // Trigger native print dialog which can be saved to PDF
-      window.print();
-    }, 1500);
+    }
   };
 
   return (
@@ -418,7 +450,7 @@ export default function ResumeBuilderPage() {
           <div className={`xl:col-span-6 bg-slate-100 p-6 rounded-[20px] border border-[#E5E7EB] print:col-span-12 print:border-none print:p-0 print:bg-white ${activeTab === "preview" ? "block" : "hidden xl:block"}`}>
             
             {/* Paper Sheet Preview container - strictly respects selectedTemplate constraints */}
-            <div className={`w-full min-h-[750px] bg-white shadow-lg print:shadow-none p-8 sm:p-12 border border-slate-200/50 rounded-xl print:border-none print:rounded-none leading-relaxed text-slate-800 transition-all duration-300 ${selectedTemplate.font}`}>
+            <div id="resume-preview-container" className={`w-full min-h-[750px] bg-white shadow-lg print:shadow-none p-8 sm:p-12 border border-slate-200/50 rounded-xl print:border-none print:rounded-none leading-relaxed text-slate-800 transition-all duration-300 ${selectedTemplate.font}`}>
               
               {/* Header block */}
               <div className={`${selectedTemplate.headerBg} ${selectedTemplate.headerBorder} pb-6 ${selectedTemplate.headerBg !== 'bg-transparent' ? 'p-6 -mt-12 -mx-12 rounded-t-xl mb-6' : ''}`}>
