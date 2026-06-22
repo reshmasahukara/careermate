@@ -149,27 +149,8 @@ model Job {
   sourcePlatform  String?  @map("source_platform")
   companyCareersUrl String? @map("company_careers_url")
   expiresAt       DateTime? @map("expires_at")
-  companyId       String?  @map("company_id")
-
-  companyRef      Company? @relation(fields: [companyId], references: [id], onDelete: SetNull)
 
   @@map("jobs_cache")
-}
-
-model Company {
-  id              String   @id @default(cuid())
-  name            String   @unique @map("company_name")
-  logoUrl         String?  @map("logo_url")
-  careersUrl      String   @map("careers_url")
-  industry        String?
-  companySize     String?  @map("company_size")
-  headquarters    String?
-  remoteFriendly  Boolean  @default(false) @map("remote_friendly")
-  createdAt       DateTime @default(now()) @map("created_at")
-
-  jobs            Job[]
-
-  @@map("companies")
 }
 
 model SavedJob {

@@ -20,9 +20,7 @@ import {
   AlertTriangle,
   Calendar,
   Banknote,
-  Star,
-  Building2,
-  ChevronRight
+  Star
 } from "lucide-react";
 import { useToast } from "@/components/Providers";
 
@@ -88,9 +86,6 @@ export default function JobListingsPage() {
   const [savedJobIds, setSavedJobIds] = useState<Set<string>>(new Set());
   const [selectedJob, setSelectedJob] = useState<any | null>(null);
 
-  // Companies State
-  const [companies, setCompanies] = useState<any[]>([]);
-
   // Search input debouncer (300ms)
   useEffect(() => {
     const delayDebounce = setTimeout(() => {
@@ -149,23 +144,9 @@ export default function JobListingsPage() {
     }
   };
 
-  // Fetch top companies
-  const fetchCompanies = async () => {
-    try {
-      const res = await fetch("/api/companies?limit=10");
-      if (res.ok) {
-        const data = await res.json();
-        setCompanies(data.companies || []);
-      }
-    } catch (e) {
-      console.error("Error fetching companies:", e);
-    }
-  };
-
   // Fetch jobs list on filter change
   useEffect(() => {
     fetchJobsFeed();
-    fetchCompanies();
   }, [filters, userId]);
 
   // Load Saved Jobs state for user
@@ -541,44 +522,7 @@ export default function JobListingsPage() {
                 </div>
               )}
 
-              {/* Top Hiring Companies Carousel */}
-              {companies.length > 0 && (
-                <div className="space-y-4">
-                  <div className="flex items-center gap-2 px-1">
-                    <Building2 className="w-5 h-5 text-indigo-500" />
-                    <h2 className="text-xl font-black text-[#0F172A]">Top Hiring Companies</h2>
-                  </div>
-                  <div className="flex overflow-x-auto gap-4 pb-4 snap-x hide-scrollbar">
-                    {companies.map((comp: any) => (
-                      <div 
-                        key={`comp-${comp.id}`} 
-                        onClick={() => router.push(`/companies/${comp.id}`)}
-                        className="min-w-[280px] max-w-[280px] snap-start bg-white border border-[#E2E8F0] rounded-[24px] p-5 flex flex-col justify-between shadow-sm hover:shadow-md hover:border-emerald-200 transition-all cursor-pointer group"
-                      >
-                        <div className="flex items-start gap-4 mb-4">
-                          {comp.logoUrl ? (
-                            <img src={comp.logoUrl} alt={comp.name} className="w-12 h-12 rounded-xl object-cover bg-slate-50 border border-slate-100 shrink-0" />
-                          ) : (
-                            <div className="w-12 h-12 rounded-xl bg-indigo-50 text-indigo-600 font-black text-xl flex items-center justify-center border border-indigo-100 shrink-0">
-                              {comp.name.charAt(0)}
-                            </div>
-                          )}
-                          <div>
-                            <h3 className="text-base font-black text-[#0F172A] group-hover:text-emerald-600 transition-colors truncate">{comp.name}</h3>
-                            <p className="text-xs font-semibold text-slate-500 truncate">{comp.industry || "Technology"}</p>
-                          </div>
-                        </div>
-                        <div className="flex items-center justify-between pt-3 border-t border-[#E2E8F0]">
-                          <span className="text-xs font-bold bg-emerald-50 text-emerald-700 px-2.5 py-1 rounded-md">
-                            {comp._count?.jobs || 0} Open Jobs
-                          </span>
-                          <ChevronRight className="w-4 h-4 text-slate-400 group-hover:text-emerald-500 transition-colors" />
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
+
 
               {/* All Opportunities */}
               <div className="space-y-6">
