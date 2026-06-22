@@ -12,17 +12,11 @@ export async function GET() {
     const userCount = await prisma.user.count();
 
     return NextResponse.json({
-      status: "ok",
-      env: {
-        GOOGLE_CLIENT_ID: hasClientId,
-        GOOGLE_CLIENT_SECRET: hasClientSecret,
-        NEXTAUTH_URL: hasNextAuthUrl,
-        NEXTAUTH_SECRET: hasNextAuthSecret,
-      },
-      database: {
-        connected: true,
-        userCount,
-      }
+      GOOGLE_CLIENT_ID: hasClientId,
+      GOOGLE_CLIENT_SECRET: hasClientSecret,
+      NEXTAUTH_SECRET: hasNextAuthSecret,
+      NEXTAUTH_URL: hasNextAuthUrl,
+      DATABASE_URL: !!process.env.DATABASE_URL
     }, { status: 200 });
   } catch (error: any) {
     return NextResponse.json({

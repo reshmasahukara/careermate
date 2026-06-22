@@ -14,8 +14,8 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
   session: { strategy: "jwt" },
   providers: [
     Google({
-      clientId: process.env.GOOGLE_CLIENT_ID || "mock-google-client-id",
-      clientSecret: process.env.GOOGLE_CLIENT_SECRET || "mock-google-client-secret",
+      clientId: process.env.GOOGLE_CLIENT_ID!,
+      clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
     }),
     Credentials({
       name: "Credentials",
