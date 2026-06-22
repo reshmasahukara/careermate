@@ -27,6 +27,7 @@ model User {
   payments      Payment[]
   learningResources LearningResource[]
   atsAnalyses   ATSAnalysis[]
+  passwordResetTokens PasswordResetToken[]
 
   // Extended Profile Settings
   jobTitle             String?
@@ -298,6 +299,22 @@ model VerificationOtp {
 
   @@index([email])
   @@map("verification_otps")
+}
+
+model PasswordResetToken {
+  id        String   @id @default(cuid())
+  userId    String   @map("user_id")
+  otpHash   String   @map("otp_hash")
+  attempts  Int      @default(0)
+  verified  Boolean  @default(false)
+  expiresAt DateTime @map("expires_at")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([expiresAt])
+  @@map("password_reset_tokens")
 }
 
 model ATSAnalysis {

@@ -1,72 +1,93 @@
-import { NextRequest, NextResponse } from "next/server";
-import { prisma, isDbConfigured } from "@/lib/db";
+import { NextResponse } from "next/server";
+import { prisma } from "@/lib/db";
 import bcrypt from "bcryptjs";
 
-export async function POST(req: NextRequest) {
+export async function POST(request: Request) {
   try {
-    const { email, otp, newPassword } = await req.json();
+    const { email, password } = await request.json();
 
-    if (!email || !otp || !newPassword) {
-      return NextResponse.json({ error: "All fields are required." }, { status: 400 });
+    if (!email || !password) {
+      return NextResponse.json(
+        { error: "Email and new password are required." },
+        { status: 400 }
+      );
     }
 
-    // Password rules validation
-    if (newPassword.length < 6) {
-      return NextResponse.json({ error: "Password must be at least 6 characters long." }, { status: 400 });
+    // Complexity validation
+    if (password.length < 8 || !/[A-Z]/.test(password) || !/[a-z]/.test(password) || !/[0-9]/.test(password) || !/[^A-Za-z0-9]/.test(password)) {
+      return NextResponse.json(
+        { error: "Password does not meet complexity requirements." },
+        { status: 400 }
+      );
     }
 
-    const formattedEmail = email.trim().toLowerCase();
-    isDbConfigured();
+    const emailLower = email.toLowerCase().trim();
 
-    const otpRecord = await prisma.verificationOtp.findFirst({
-      where: { email: formattedEmail },
+    const user = await prisma.user.findUnique({
+      where: { email: emailLower },
+    });
+
+    if (!user) {
+      return NextResponse.json(
+        { error: "Invalid request." },
+        { status: 400 }
+      );
+    }
+
+    // Check if new password is the same as current
+    const isSamePassword = await bcrypt.compare(password, user.password);
+    if (isSamePassword) {
+      return NextResponse.json(
+        { error: "New password cannot be the same as the current password." },
+        { status: 400 }
+      );
+    }
+
+    const resetToken = await prisma.passwordResetToken.findFirst({
+      where: { userId: user.id },
       orderBy: { createdAt: "desc" },
     });
 
-    if (!otpRecord) {
-      return NextResponse.json({ error: "Invalid or expired code." }, { status: 400 });
+    if (!resetToken || !resetToken.verified) {
+      return NextResponse.json(
+        { error: "Invalid or unverified password reset token." },
+        { status: 400 }
+      );
     }
 
-    if (otpRecord.attempts >= 5) {
-      await prisma.verificationOtp.deleteMany({ where: { email: formattedEmail } });
-      return NextResponse.json({ error: "Too many failed attempts. Please request a new code." }, { status: 429 });
+    if (new Date() > resetToken.expiresAt) {
+      return NextResponse.json(
+        { error: "Verification code expired. Request a new code." },
+        { status: 400 }
+      );
     }
 
-    if (new Date() > otpRecord.expiresAt) {
-      await prisma.verificationOtp.deleteMany({ where: { email: formattedEmail } });
-      return NextResponse.json({ error: "Code has expired. Please request a new code." }, { status: 400 });
-    }
-
-    const isValid = await bcrypt.compare(otp, otpRecord.otpHash);
-
-    if (!isValid) {
-      await prisma.verificationOtp.update({
-        where: { id: otpRecord.id },
-        data: { attempts: otpRecord.attempts + 1 },
-      });
-      return NextResponse.json({ error: "Invalid verification code." }, { status: 400 });
-    }
-
-    const saltRounds = process.env.BCRYPT_ROUNDS ? parseInt(process.env.BCRYPT_ROUNDS) : 12;
-    const salt = await bcrypt.genSalt(saltRounds);
-    const hashedPassword = await bcrypt.hash(newPassword, salt);
+    const salt = await bcrypt.genSalt(12);
+    const newPasswordHash = await bcrypt.hash(password, salt);
 
     await prisma.user.update({
-      where: { email: formattedEmail },
-      data: {
-        password: hashedPassword,
-        failedLoginAttempts: 0,
-        lockedUntil: null,
-      },
+      where: { id: user.id },
+      data: { password: newPasswordHash },
     });
 
-    await prisma.verificationOtp.deleteMany({
-      where: { email: formattedEmail },
+    // Invalidate reset tokens and sessions
+    await prisma.passwordResetToken.deleteMany({
+      where: { userId: user.id },
     });
 
-    return NextResponse.json({ message: "Password has been successfully reset." }, { status: 200 });
-  } catch (error: any) {
-    console.error("[Reset Password Error]:", error);
-    return NextResponse.json({ error: "Failed to process request." }, { status: 500 });
+    await prisma.session.deleteMany({
+      where: { userId: user.id },
+    });
+
+    return NextResponse.json(
+      { message: "Password updated successfully. Please sign in with your new password." },
+      { status: 200 }
+    );
+  } catch (error) {
+    console.error("Reset password error:", error);
+    return NextResponse.json(
+      { error: "An unexpected error occurred." },
+      { status: 500 }
+    );
   }
 }

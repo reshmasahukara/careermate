@@ -1,47 +1,19 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
-import { sendOtpEmail } from "@/lib/mailer";
 import bcrypt from "bcryptjs";
-
-// Basic in-memory rate limiting (use Redis in a real production environment)
-const rateLimitMap = new Map<string, { count: number; lastReset: number }>();
-const MAX_REQUESTS = 5;
-const WINDOW_MS = 60 * 60 * 1000; // 1 hour
 
 export async function POST(request: Request) {
   try {
-    const body = await request.json();
-    const { email } = body;
+    const { email } = await request.json();
 
-    if (!email || !/^\S+@\S+\.\S+$/.test(email)) {
+    if (!email) {
       return NextResponse.json(
-        { error: "Invalid email address." },
+        { error: "Email is required." },
         { status: 400 }
       );
     }
 
     const emailLower = email.toLowerCase().trim();
-
-    // Rate Limiting Check
-    const ip = request.headers.get("x-forwarded-for") || "unknown";
-    const rateKey = `${ip}_${emailLower}`;
-    const now = Date.now();
-    const rateData = rateLimitMap.get(rateKey) || { count: 0, lastReset: now };
-
-    if (now - rateData.lastReset > WINDOW_MS) {
-      rateData.count = 0;
-      rateData.lastReset = now;
-    }
-
-    if (rateData.count >= MAX_REQUESTS) {
-      return NextResponse.json(
-        { error: "Too many reset requests. Please try again later." },
-        { status: 429 }
-      );
-    }
-
-    rateData.count += 1;
-    rateLimitMap.set(rateKey, rateData);
 
     const user = await prisma.user.findUnique({
       where: { email: emailLower },
@@ -52,6 +24,21 @@ export async function POST(request: Request) {
         { error: "No account found with this email address." },
         { status: 404 }
       );
+    }
+
+    const latestToken = await prisma.passwordResetToken.findFirst({
+      where: { userId: user.id },
+      orderBy: { createdAt: "desc" },
+    });
+
+    if (latestToken) {
+      const secondsSinceLastOtp = (Date.now() - latestToken.createdAt.getTime()) / 1000;
+      if (secondsSinceLastOtp < 60) {
+        return NextResponse.json(
+          { error: `Please wait ${Math.ceil(60 - secondsSinceLastOtp)} seconds before requesting a new code.` },
+          { status: 429 }
+        );
+      }
     }
 
     await prisma.passwordResetToken.deleteMany({
@@ -71,7 +58,6 @@ export async function POST(request: Request) {
       },
     });
 
-    // Custom email for password reset
     const transporter = (await import("@/lib/mailer")).getTransporter();
     const mailOptions = {
       from: `"CareerMate" <${process.env.EMAIL_USER}>`,
@@ -86,7 +72,7 @@ export async function POST(request: Request) {
       { status: 200 }
     );
   } catch (error) {
-    console.error("Forgot password error:", error);
+    console.error("Resend OTP error:", error);
     return NextResponse.json(
       { error: "An unexpected error occurred." },
       { status: 500 }
