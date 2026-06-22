@@ -51,11 +51,9 @@ export async function syncJobsInternal() {
   const expiresAt = new Date();
   expiresAt.setDate(expiresAt.getDate() + 30); // 30 days expiry
 
-  // Target Roles to ensure volume
+  // Target Roles to ensure volume (Core 5 roles to keep fetch fast)
   const targetRoles = [
-    "Frontend Developer", "Backend Developer", "Full Stack Developer", 
-    "Data Analyst", "Data Scientist", "Machine Learning Engineer", 
-    "DevOps Engineer", "UI/UX Designer", "Software Engineer Intern"
+    "Frontend Developer", "Backend Developer", "Data Scientist", "UI/UX Designer", "Software Engineer"
   ];
 
   // Helper to process job
@@ -148,7 +146,7 @@ export async function syncJobsInternal() {
   // 3. JSearch (RapidAPI)
   const jsearchApiKey = process.env.JSEARCH_API_KEY;
   if (jsearchApiKey && jsearchApiKey !== "jsearch-api-key-here") {
-    for (const role of targetRoles) {
+    await Promise.all(targetRoles.map(async (role) => {
       try {
         const response = await fetch(`https://jsearch.p.rapidapi.com/search?query=${encodeURIComponent(role)}&num_pages=2`, {
           headers: {
@@ -182,14 +180,14 @@ export async function syncJobsInternal() {
       } catch (e: any) {
         errors.push(`JSearch API fetch failed for query ${role}: ${e.message}`);
       }
-    }
+    }));
   }
 
   // 4. Adzuna
   const adzunaAppId = process.env.ADZUNA_APP_ID;
   const adzunaAppKey = process.env.ADZUNA_APP_KEY;
   if (adzunaAppId && adzunaAppKey && adzunaAppId !== "adzuna-app-id-here") {
-    for (const role of targetRoles) {
+    await Promise.all(targetRoles.map(async (role) => {
       try {
         const response = await fetch(`https://api.adzuna.com/v1/api/jobs/us/search/1?app_id=${adzunaAppId}&app_key=${adzunaAppKey}&results_per_page=20&what=${encodeURIComponent(role)}`, { next: { revalidate: 0 } });
         if (response.ok) {
@@ -216,7 +214,7 @@ export async function syncJobsInternal() {
       } catch (e: any) {
         errors.push(`Adzuna API fetch failed for query ${role}: ${e.message}`);
       }
-    }
+    }));
   }
 
   // 5. Cleanup expired and dummy jobs

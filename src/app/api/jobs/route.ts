@@ -4,6 +4,7 @@ import { syncJobsInternal } from "@/lib/syncJobs";
 import { calculateMatchScore } from "@/lib/matching";
 
 export const dynamic = "force-dynamic";
+export const maxDuration = 60;
 
 function isValidUrl(urlStr: string) {
   try {
