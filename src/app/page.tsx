@@ -282,10 +282,10 @@ export default function HomePage() {
 
       {/* 10. CONTACT */}
       <section id="contact" className="w-full bg-[#FFFFFF] scroll-mt-24">
-        <div className="max-w-[1280px] px-6 mx-auto w-full py-[64px] md:py-[48px] flex flex-col items-center text-center space-y-6">
+        <div className="max-w-[1280px] px-6 mx-auto w-full py-[96px] md:py-[72px] py-[56px] space-y-12 flex flex-col items-center text-center">
           
-          <div className="text-center space-y-2">
-            <h2 className="text-xl sm:text-2xl font-black text-[#0F172A] tracking-tight">
+          <div className="text-center space-y-3">
+            <h2 className="text-2xl sm:text-3xl font-black text-[#0F172A] tracking-tight">
               Contact Us
             </h2>
             <p className="text-[#64748B] text-xs sm:text-sm font-semibold max-w-sm mx-auto">
@@ -296,12 +296,12 @@ export default function HomePage() {
           <a 
             href="mailto:careermate1920@gmail.com"
             aria-label="Email CareerMate support"
-            className="group flex flex-col sm:flex-row items-center gap-3 py-4 px-6 rounded-xl bg-[#FCFDFE] border border-[#E5EAF1] shadow-sm hover:shadow hover:border-[#10B981]/50 transition-all outline-none focus:ring-2 focus:ring-[#10B981] focus:ring-offset-2"
+            className="group flex flex-col sm:flex-row items-center gap-3 py-3 px-5 rounded-xl bg-[#FCFDFE] border border-[#E5EAF1] shadow-sm hover:shadow hover:border-[#10B981]/50 transition-all outline-none focus:ring-2 focus:ring-[#10B981] focus:ring-offset-2"
           >
             <div className="w-10 h-10 flex items-center justify-center rounded-full bg-[#10B981]/10 text-[#10B981] group-hover:scale-110 transition-transform">
-              <Mail className="w-5 h-5" />
+              <Mail className="w-4 h-4" />
             </div>
-            <span className="text-[#0F172A] font-bold text-base sm:text-lg break-all group-hover:text-[#10B981] transition-colors">
+            <span className="text-[#0F172A] font-bold text-sm sm:text-base break-all group-hover:text-[#10B981] transition-colors">
               careermate1920@gmail.com
             </span>
           </a>
