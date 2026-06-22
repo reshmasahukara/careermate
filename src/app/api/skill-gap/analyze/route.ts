@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getServerSession } from "next-auth/next";
-import { authOptions } from "@/lib/auth";
+import { auth } from "@/auth";
 import { prisma } from "@/lib/db";
 import { parseResume } from "@/lib/parser";
 const ROLE_DEFINITIONS: Record<string, { core: string[], tools: string[], experience: string }> = {
@@ -60,7 +59,7 @@ export const dynamic = "force-dynamic";
 
 export async function POST(req: NextRequest) {
   try {
-    const session = await getServerSession(authOptions);
+    const session = await auth();
     if (!session || !session.user) {
       return NextResponse.json({ error: "Unauthorized. Please log in first." }, { status: 401 });
     }

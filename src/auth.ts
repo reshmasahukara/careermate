@@ -1,23 +1,23 @@
-import { NextAuthOptions } from "next-auth";
-import CredentialsProvider from "next-auth/providers/credentials";
-import GoogleProvider from "next-auth/providers/google";
+import NextAuth from "next-auth";
+import Google from "next-auth/providers/google";
+import Credentials from "next-auth/providers/credentials";
+import { PrismaAdapter } from "@auth/prisma-adapter";
 import { prisma, isDbConfigured } from "@/lib/db";
+import bcrypt from "bcryptjs";
 
 if (!process.env.NEXTAUTH_SECRET) {
   throw new Error("NEXTAUTH_SECRET is missing");
 }
 
-export const authOptions: NextAuthOptions = {
-  session: {
-    strategy: "jwt",
-    maxAge: 30 * 24 * 60 * 60, // 30 days
-  },
+export const { handlers, auth, signIn, signOut } = NextAuth({
+  adapter: PrismaAdapter(prisma),
+  session: { strategy: "jwt" },
   providers: [
-    GoogleProvider({
+    Google({
       clientId: process.env.GOOGLE_CLIENT_ID || "mock-google-client-id",
       clientSecret: process.env.GOOGLE_CLIENT_SECRET || "mock-google-client-secret",
     }),
-    CredentialsProvider({
+    Credentials({
       name: "Credentials",
       credentials: {
         email: { label: "Email", type: "email", placeholder: "user@careermate.com" },
@@ -31,32 +31,34 @@ export const authOptions: NextAuthOptions = {
         isDbConfigured();
 
         try {
+          const emailStr = credentials.email as string;
+          const passwordStr = credentials.password as string;
+
           const user = await prisma.user.findUnique({
-            where: { email: credentials.email.toLowerCase() },
+            where: { email: emailStr.toLowerCase() },
           });
 
           if (!user) {
-            console.warn(`Auth failed: User not found for email ${credentials.email}`);
+            console.warn(`Auth failed: User not found for email ${emailStr}`);
             throw new Error("Invalid email or password.");
           }
 
           if (user.lockedUntil && user.lockedUntil > new Date()) {
-            console.warn(`Auth failed: User ${credentials.email} is locked out.`);
+            console.warn(`Auth failed: User ${emailStr} is locked out.`);
             throw new Error("Account locked due to too many failed attempts. Try again later.");
           }
 
           if (!user.password) {
-            console.warn(`Auth failed: User ${credentials.email} signed up with OAuth, no password exists.`);
+            console.warn(`Auth failed: User ${emailStr} signed up with OAuth, no password exists.`);
             throw new Error("You previously signed up with a different provider (e.g. Google). Please use that to log in.");
           }
 
           if (!user.emailVerified) {
-            console.warn(`Auth failed: User ${credentials.email} has not verified their email.`);
+            console.warn(`Auth failed: User ${emailStr} has not verified their email.`);
             throw new Error("Please verify your email before signing in.");
           }
 
-          const bcrypt = await import("bcryptjs");
-          const isPasswordValid = await bcrypt.compare(credentials.password, user.password);
+          const isPasswordValid = await bcrypt.compare(passwordStr, user.password);
 
           if (!isPasswordValid) {
             const newAttempts = user.failedLoginAttempts + 1;
@@ -71,7 +73,7 @@ export const authOptions: NextAuthOptions = {
                 lockedUntil: newLockedUntil,
               },
             });
-            console.warn(`Auth failed: Incorrect password for email ${credentials.email}`);
+            console.warn(`Auth failed: Incorrect password for email ${emailStr}`);
             throw new Error("Invalid email or password.");
           }
 
@@ -93,12 +95,9 @@ export const authOptions: NextAuthOptions = {
           };
         } catch (error: any) {
           console.error("Prisma authorize error:", error.message || error);
-          
           if (error.code === "P1001" || error.message?.includes("Can't reach database server")) {
             throw new Error("Unable to connect right now. Please try again later.");
           }
-
-          // If the error was one of our manually thrown user errors, pass it through.
           if (
             error.message === "Invalid email or password." ||
             error.message === "Please verify your email before signing in." ||
@@ -107,14 +106,13 @@ export const authOptions: NextAuthOptions = {
           ) {
             throw new Error(error.message);
           }
-
           throw new Error("Unable to sign in. Please try again.");
         }
       },
     }),
   ],
   callbacks: {
-    async jwt({ token, user, account }) {
+    async jwt({ token, user }) {
       if (user) {
         token.id = user.id;
       }
@@ -132,4 +130,4 @@ export const authOptions: NextAuthOptions = {
     signOut: "/",
   },
   secret: process.env.NEXTAUTH_SECRET,
-};
+});

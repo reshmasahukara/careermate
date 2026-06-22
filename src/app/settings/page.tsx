@@ -1,6 +1,5 @@
 import React from "react";
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/auth";
+import { auth } from "@/auth";
 import { redirect } from "next/navigation";
 import { prisma } from "@/lib/db";
 import DashboardLayout from "@/components/DashboardLayout";
@@ -12,7 +11,7 @@ export const metadata = {
 };
 
 export default async function SettingsPage() {
-  const session = await getServerSession(authOptions);
+  const session = await auth();
 
   if (!session?.user) {
     return (

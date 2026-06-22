@@ -90,6 +90,15 @@ model Session {
   @@map("sessions")
 }
 
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+  @@map("verification_tokens")
+}
+
 model Resume {
   id         String     @id @default(cuid())
   userId     String     @map("user_id")
