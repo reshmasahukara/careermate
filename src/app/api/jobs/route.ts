@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { prisma, isDbConfigured } from "@/lib/db";
 import { syncJobsInternal } from "@/lib/syncJobs";
+import { calculateMatchScore } from "@/lib/matching";
 
 export const dynamic = "force-dynamic";
 
@@ -35,6 +36,8 @@ export async function GET(request: Request) {
     const experience = searchParams.get("experience") || "";
     const jobType = searchParams.get("jobType") || "";
     const remote = searchParams.get("remote");
+    const salaryMinStr = searchParams.get("salaryMin") || "";
+    const datePosted = searchParams.get("datePosted") || "";
     const userId = searchParams.get("userId") || "";
 
     // 1. AUTO-SYNC CACHE CHECK (every 6 hours)
@@ -179,11 +182,29 @@ export async function GET(request: Request) {
       whereClause.remote = false;
     }
 
-    // 4. FETCH A LARGER BATCH TO ENFORCE DE-DUPLICATION, COMPLETENESS & LIMIT OF EXACTLY 5-6
+    if (salaryMinStr) {
+      const salaryMin = parseInt(salaryMinStr, 10);
+      if (!isNaN(salaryMin)) {
+        whereClause.salaryMin = { gte: salaryMin };
+      }
+    }
+
+    if (datePosted) {
+      const now = new Date();
+      if (datePosted === "24h") {
+        whereClause.createdAt = { gte: new Date(now.getTime() - 24 * 60 * 60 * 1000) };
+      } else if (datePosted === "7d") {
+        whereClause.createdAt = { gte: new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000) };
+      } else if (datePosted === "30d") {
+        whereClause.createdAt = { gte: new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000) };
+      }
+    }
+
+    // 4. FETCH A LARGER BATCH TO ENFORCE DE-DUPLICATION, COMPLETENESS & LIMIT OF 60
     const poolJobs = await prisma.job.findMany({
       where: whereClause,
       orderBy: { createdAt: "desc" },
-      take: 100 // Fetch recent pool to filter and score in JS memory
+      take: 200 // Fetch recent pool to filter and score in JS memory
     });
 
     // Enforce URL Validation & Deduplication (by title + company case-insensitive)
@@ -204,15 +225,38 @@ export async function GET(request: Request) {
       cleanedJobs.push(job);
     }
 
-    // Score jobs by completeness
-    const scoredJobs = cleanedJobs.map(job => ({
-      job,
-      score: getCompletenessScore(job),
-      timeAge: Date.now() - new Date(job.createdAt).getTime()
-    }));
+    // Load User Profile for Matching
+    let userProfile = null;
+    if (userId) {
+      const user = await prisma.user.findUnique({
+        where: { id: userId },
+        include: { userSkills: { include: { skill: true } }, resumes: { orderBy: { createdAt: 'desc' }, take: 1 } }
+      });
+      if (user) {
+        userProfile = {
+          experienceLevel: user.experienceLevel,
+          location: user.location,
+          skills: user.userSkills.map(us => us.skill.name),
+          resumeParsedText: user.resumes.length > 0 ? user.resumes[0].parsedText : ""
+        };
+      }
+    }
+
+    // Score jobs by completeness and personalization
+    const scoredJobs = cleanedJobs.map(job => {
+      let matchInfo = null;
+      if (userProfile) {
+        matchInfo = calculateMatchScore(job, userProfile);
+      }
+      return {
+        job: { ...job, matchInfo },
+        score: getCompletenessScore(job) + (matchInfo ? matchInfo.matchScore / 10 : 0),
+        timeAge: Date.now() - new Date(job.createdAt).getTime()
+      };
+    });
 
     // Prioritize recency & completeness
-    // Primary sort: completeness score (higher is better)
+    // Primary sort: completeness + match score
     // Secondary sort: time age (smaller is better/more recent)
     scoredJobs.sort((a, b) => {
       if (b.score !== a.score) {
@@ -221,8 +265,8 @@ export async function GET(request: Request) {
       return a.timeAge - b.timeAge;
     });
 
-    // Slice to exactly 6 jobs (or 5 if 6 aren't available, satisfying exactly 5-6 jobs per selected role)
-    const finalJobs = scoredJobs.map(sj => sj.job).slice(0, 6);
+    // Slice to exactly 60 jobs
+    const finalJobs = scoredJobs.map(sj => sj.job).slice(0, 60);
 
     return NextResponse.json({
       jobs: finalJobs,

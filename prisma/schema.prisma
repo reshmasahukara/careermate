@@ -47,6 +47,7 @@ model User {
 
   savedJobs            SavedJob[]
   jobRecommendations   JobRecommendation[]
+  applications         ApplicationTracker[]
   targetRoles          TargetRole[]
   skillGaps            SkillGap[]
   learningRoadmaps     LearningRoadmap[]
@@ -143,6 +144,7 @@ model Job {
 
   savedJobs SavedJob[]
   recommendations JobRecommendation[]
+  applications ApplicationTracker[]
 
   @@map("jobs")
 }
@@ -418,4 +420,20 @@ model UserPreferences {
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@map("user_preferences")
+}
+
+model ApplicationTracker {
+  id        String   @id @default(cuid())
+  userId    String   @map("user_id")
+  jobId     String   @map("job_id")
+  company   String
+  title     String
+  status    String   @default("Applied") // Applied, Interviewing, Rejected, Offer Received
+  appliedAt DateTime @default(now()) @map("applied_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  job  Job? @relation(fields: [jobId], references: [id], onDelete: SetNull)
+
+  @@map("application_tracker")
 }

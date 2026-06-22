@@ -105,55 +105,58 @@ export async function syncJobsInternal() {
   // 3. Fetch from JSearch (RapidAPI) if key exists
   const jsearchApiKey = process.env.JSEARCH_API_KEY;
   if (jsearchApiKey && jsearchApiKey !== "jsearch-api-key-here") {
-    try {
-      const response = await fetch("https://jsearch.p.rapidapi.com/search?query=Developer&num_pages=1", {
-        headers: {
-          "X-RapidAPI-Key": jsearchApiKey,
-          "X-RapidAPI-Host": "jsearch.p.rapidapi.com"
-        },
-        next: { revalidate: 0 }
-      });
-      if (response.ok) {
-        const data = await response.json();
-        const jobs = data.data || [];
-        for (const job of jobs) {
-          const externalId = `jsearch-${job.job_id}`;
-          const title = job.job_title || "Software Engineer";
-          const company = job.employer_name || "Partner Company";
-          const location = `${job.job_city || ""}${job.job_city && job.job_country ? ", " : ""}${job.job_country || ""}` || "Remote";
-          const description = job.job_description || "No description provided.";
-          const remote = job.job_is_remote || false;
-          const applyUrl = job.job_apply_link || "";
-          const skills = job.job_required_skills || [];
-          const employmentType = job.job_employment_type || "Full-time";
-          
-          if (!applyUrl || !isValidUrl(applyUrl)) {
-            continue; // Skip invalid application links
+    const queries = ["Software Engineer", "Data Analyst", "Product Manager"];
+    for (const query of queries) {
+      try {
+        const response = await fetch(`https://jsearch.p.rapidapi.com/search?query=${encodeURIComponent(query)}&num_pages=1`, {
+          headers: {
+            "X-RapidAPI-Key": jsearchApiKey,
+            "X-RapidAPI-Host": "jsearch.p.rapidapi.com"
+          },
+          next: { revalidate: 0 }
+        });
+        if (response.ok) {
+          const data = await response.json();
+          const jobs = data.data || [];
+          for (const job of jobs) {
+            const externalId = `jsearch-${job.job_id}`;
+            const title = job.job_title || "Software Engineer";
+            const company = job.employer_name || "Partner Company";
+            const location = `${job.job_city || ""}${job.job_city && job.job_country ? ", " : ""}${job.job_country || ""}` || "Remote";
+            const description = job.job_description || "No description provided.";
+            const remote = job.job_is_remote || false;
+            const applyUrl = job.job_apply_link || "";
+            const skills = job.job_required_skills || [];
+            const employmentType = job.job_employment_type || "Full-time";
+            
+            if (!applyUrl || !isValidUrl(applyUrl)) {
+              continue; // Skip invalid application links
+            }
+
+            let experienceLevel = "Mid Level";
+            const titleLower = title.toLowerCase();
+            if (titleLower.includes("intern") || titleLower.includes("apprentice")) experienceLevel = "Internship";
+            else if (titleLower.includes("junior") || titleLower.includes("entry") || titleLower.includes("associate")) experienceLevel = "Entry Level";
+            else if (titleLower.includes("senior") || titleLower.includes("sr.")) experienceLevel = "Senior";
+            else if (titleLower.includes("lead") || titleLower.includes("architect") || titleLower.includes("principal")) experienceLevel = "Lead";
+
+            const logoUrl = job.employer_logo || null;
+            const salaryMin = job.job_min_salary ? Number(job.job_min_salary) : null;
+            const salaryMax = job.job_max_salary ? Number(job.job_max_salary) : null;
+
+            await prisma.job.upsert({
+              where: { externalId },
+              update: { title, company, location, description, remote, applyUrl, skills, employmentType, experienceLevel, logoUrl, salaryMin, salaryMax },
+              create: { externalId, title, company, location, description, remote, applyUrl, skills, employmentType, experienceLevel, logoUrl, salaryMin, salaryMax }
+            });
+            upsertedCount++;
           }
-
-          let experienceLevel = "Mid Level";
-          const titleLower = title.toLowerCase();
-          if (titleLower.includes("intern") || titleLower.includes("apprentice")) experienceLevel = "Internship";
-          else if (titleLower.includes("junior") || titleLower.includes("entry") || titleLower.includes("associate")) experienceLevel = "Entry Level";
-          else if (titleLower.includes("senior") || titleLower.includes("sr.")) experienceLevel = "Senior";
-          else if (titleLower.includes("lead") || titleLower.includes("architect") || titleLower.includes("principal")) experienceLevel = "Lead";
-
-          const logoUrl = job.employer_logo || null;
-          const salaryMin = job.job_min_salary ? Number(job.job_min_salary) : null;
-          const salaryMax = job.job_max_salary ? Number(job.job_max_salary) : null;
-
-          await prisma.job.upsert({
-            where: { externalId },
-            update: { title, company, location, description, remote, applyUrl, skills, employmentType, experienceLevel, logoUrl, salaryMin, salaryMax },
-            create: { externalId, title, company, location, description, remote, applyUrl, skills, employmentType, experienceLevel, logoUrl, salaryMin, salaryMax }
-          });
-          upsertedCount++;
+        } else {
+          errors.push(`JSearch API returned status ${response.status} for query ${query}`);
         }
-      } else {
-        errors.push(`JSearch API returned status ${response.status}`);
+      } catch (e: any) {
+        errors.push(`JSearch API fetch failed for query ${query}: ${e.message}`);
       }
-    } catch (e: any) {
-      errors.push(`JSearch API fetch failed: ${e.message}`);
     }
   }
 

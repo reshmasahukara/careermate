@@ -17,7 +17,11 @@ import {
   RefreshCw,
   SlidersHorizontal,
   Briefcase,
-  AlertTriangle
+  AlertTriangle,
+  Calendar,
+  Banknote,
+  TrendingUp,
+  Star
 } from "lucide-react";
 import { useToast } from "@/components/Providers";
 
@@ -59,7 +63,9 @@ export default function JobListingsPage() {
     location: "",
     experience: "",
     jobType: "",
-    remoteOnly: false
+    remoteOnly: false,
+    salaryMin: "",
+    datePosted: ""
   });
 
   const [searchInput, setSearchInput] = useState("");
@@ -119,7 +125,9 @@ export default function JobListingsPage() {
         location: filters.location,
         experience: filters.experience,
         jobType: filters.jobType,
-        remote: filters.remoteOnly ? "true" : ""
+        remote: filters.remoteOnly ? "true" : "",
+        salaryMin: filters.salaryMin,
+        datePosted: filters.datePosted
       });
       if (userId) {
         queryParams.append("userId", userId);
@@ -165,7 +173,9 @@ export default function JobListingsPage() {
       location: "",
       experience: "",
       jobType: "",
-      remoteOnly: false
+      remoteOnly: false,
+      salaryMin: "",
+      datePosted: ""
     });
     setRoleSearchText("");
     setIsRoleDropdownOpen(false);
@@ -344,6 +354,35 @@ export default function JobListingsPage() {
         </button>
       </div>
 
+      {/* Salary Min */}
+      <div className="w-full md:w-36">
+        <select
+          value={filters.salaryMin}
+          onChange={(e) => setFilters(prev => ({ ...prev, salaryMin: e.target.value }))}
+          className="w-full bg-[#F8FAFC] border border-[#E2E8F0] rounded-xl py-2.5 px-4 text-xs focus:outline-none focus:border-emerald-500 transition-colors font-bold text-[#0F172A] appearance-none"
+        >
+          <option value="">Any Salary</option>
+          <option value="50000">$50k+</option>
+          <option value="80000">$80k+</option>
+          <option value="100000">$100k+</option>
+          <option value="150000">$150k+</option>
+        </select>
+      </div>
+
+      {/* Date Posted */}
+      <div className="w-full md:w-36">
+        <select
+          value={filters.datePosted}
+          onChange={(e) => setFilters(prev => ({ ...prev, datePosted: e.target.value }))}
+          className="w-full bg-[#F8FAFC] border border-[#E2E8F0] rounded-xl py-2.5 px-4 text-xs focus:outline-none focus:border-emerald-500 transition-colors font-bold text-[#0F172A] appearance-none"
+        >
+          <option value="">Any Time</option>
+          <option value="24h">Past 24 hours</option>
+          <option value="7d">Past week</option>
+          <option value="30d">Past month</option>
+        </select>
+      </div>
+
       {/* Clear Filters CTA */}
       <button
         onClick={resetAllFilters}
@@ -461,24 +500,69 @@ export default function JobListingsPage() {
               </button>
             </div>
           ) : (
-            // Unified Jobs Listings list (Exactly 5-6 jobs)
-            <div className="space-y-6">
-              <div className="flex justify-between items-center px-1">
-                <span className="text-xs font-extrabold text-slate-400 uppercase tracking-widest">
-                  Showing top {jobs.length} relevant match{jobs.length === 1 ? "" : "es"}
-                </span>
-              </div>
+            <div className="space-y-12">
               
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {jobs.map((job: any) => (
-                  <JobCard 
-                    key={`feed-${job.id}`} 
-                    job={job} 
-                    isSaved={savedJobIds.has(job.id)} 
-                    toggleSaveJob={toggleSaveJob}
-                    onClick={setSelectedJob}
-                  />
-                ))}
+              {/* Top Personalized Matches */}
+              {userId && jobs.filter(j => j.matchInfo && j.matchInfo.matchScore > 60).length > 0 && (
+                <div className="space-y-4">
+                  <div className="flex items-center gap-2 px-1">
+                    <Star className="w-5 h-5 text-amber-500 fill-amber-500" />
+                    <h2 className="text-xl font-black text-[#0F172A]">Top Personalized Matches</h2>
+                  </div>
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    {jobs.filter(j => j.matchInfo && j.matchInfo.matchScore > 60).slice(0, 3).map((job: any) => (
+                      <JobCard 
+                        key={`top-${job.id}`} 
+                        job={job} 
+                        isSaved={savedJobIds.has(job.id)} 
+                        toggleSaveJob={toggleSaveJob}
+                        onClick={setSelectedJob}
+                      />
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Trending Roles / Recently Posted Carousel */}
+              <div className="space-y-4">
+                <div className="flex items-center gap-2 px-1">
+                  <TrendingUp className="w-5 h-5 text-emerald-500" />
+                  <h2 className="text-xl font-black text-[#0F172A]">Featured Opportunities</h2>
+                </div>
+                <div className="flex overflow-x-auto gap-4 pb-4 snap-x hide-scrollbar">
+                  {jobs.slice(0, 10).map((job: any) => (
+                    <div key={`featured-${job.id}`} className="min-w-[320px] max-w-[320px] snap-start">
+                      <JobCard 
+                        job={job} 
+                        isSaved={savedJobIds.has(job.id)} 
+                        toggleSaveJob={toggleSaveJob}
+                        onClick={setSelectedJob}
+                      />
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* All Opportunities */}
+              <div className="space-y-6">
+                <div className="flex justify-between items-center px-1">
+                  <h2 className="text-xl font-black text-[#0F172A]">All Job Listings</h2>
+                  <span className="text-xs font-extrabold text-slate-400 uppercase tracking-widest">
+                    Showing {jobs.length} opportunities
+                  </span>
+                </div>
+                
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {jobs.map((job: any) => (
+                    <JobCard 
+                      key={`feed-${job.id}`} 
+                      job={job} 
+                      isSaved={savedJobIds.has(job.id)} 
+                      toggleSaveJob={toggleSaveJob}
+                      onClick={setSelectedJob}
+                    />
+                  ))}
+                </div>
               </div>
             </div>
           )}

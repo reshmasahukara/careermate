@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Bookmark, BookmarkCheck, ExternalLink, MapPin, Briefcase, DollarSign, Clock } from "lucide-react";
+import { Bookmark, BookmarkCheck, ExternalLink, MapPin, Briefcase, DollarSign, Clock, Share2 } from "lucide-react";
 import { useToast } from "@/components/Providers";
 
 const getSourceBadge = (externalId: string, applyUrl: string) => {
@@ -46,7 +46,7 @@ export default function JobCard({ job, isSaved, toggleSaveJob, onClick }: any) {
 
   const badge = getSourceBadge(job.externalId, job.applyUrl);
 
-  const handleApply = (e: React.MouseEvent) => {
+  const handleApply = async (e: React.MouseEvent) => {
     e.stopPropagation();
     e.preventDefault();
     if (!job.applyUrl) {
@@ -55,10 +55,47 @@ export default function JobCard({ job, isSaved, toggleSaveJob, onClick }: any) {
     }
     
     setIsApplying(true);
+    
+    // Auto-track application in background
+    try {
+      const sessionRes = await fetch("/api/auth/session");
+      const session = await sessionRes.json();
+      if (session?.user?.id) {
+        await fetch("/api/applications", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            userId: session.user.id,
+            jobId: job.id,
+            company: job.company,
+            title: job.title,
+            status: "Applied"
+          })
+        });
+      }
+    } catch (err) {
+      console.error("Failed to auto-track application:", err);
+    }
+
     setTimeout(() => {
       setIsApplying(false);
       window.open(job.applyUrl, "_blank", "noopener,noreferrer");
     }, 600);
+  };
+
+  const handleShare = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    e.preventDefault();
+    if (navigator.share) {
+      navigator.share({
+        title: `${job.title} at ${job.company}`,
+        text: `Check out this job: ${job.title} at ${job.company}`,
+        url: job.applyUrl,
+      }).catch(console.error);
+    } else {
+      navigator.clipboard.writeText(job.applyUrl);
+      toast("Link copied to clipboard!", "success");
+    }
   };
 
   return (
@@ -184,6 +221,15 @@ export default function JobCard({ job, isSaved, toggleSaveJob, onClick }: any) {
             title={isSaved ? "Saved" : "Save Job"}
           >
             {isSaved ? <BookmarkCheck className="w-4.5 h-4.5" /> : <Bookmark className="w-4.5 h-4.5" />}
+          </button>
+
+          <button 
+            type="button"
+            onClick={handleShare}
+            className="p-2.5 rounded-[12px] border bg-white border-[#E2E8F0] text-slate-400 hover:text-slate-600 hover:bg-slate-50 transition-all cursor-pointer"
+            title="Share Job"
+          >
+            <Share2 className="w-4.5 h-4.5" />
           </button>
 
           <button
