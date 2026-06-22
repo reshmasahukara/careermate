@@ -1,16 +1,12 @@
 "use client";
 
-import React, { useState } from "react";
+import React from "react";
 import Link from "next/link";
-import { Mail, ArrowRight, Heart } from "lucide-react";
-import { useToast } from "./Providers";
 import { usePathname } from "next/navigation";
 import { useSession } from "next-auth/react";
 import Logo from "@/components/Logo";
 
 export default function Footer() {
-  const [email, setEmail] = useState("");
-  const { toast } = useToast();
   const pathname = usePathname();
   const { data: session } = useSession();
 
@@ -31,20 +27,12 @@ export default function Footer() {
     return null;
   }
 
-  const handleSubscribe = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!email) return;
-
-    toast(`Thank you! We've registered ${email}.`, "success");
-    setEmail("");
-  };
-
   return (
     <footer className="bg-[#0F172A] text-slate-400 border-t border-slate-800">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 lg:py-16">
         
-        {/* Main 5-Column Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 gap-8 mb-12">
+        {/* Main 4-Column Grid */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-8 mb-12">
           
           {/* Column 1: Brand Info */}
           <div className="space-y-4 md:col-span-1">
@@ -88,8 +76,8 @@ export default function Footer() {
               <li><Link href="/#features" className="hover:text-white transition-colors">Features</Link></li>
               <li><Link href="/jobs" className="hover:text-white transition-colors">Jobs</Link></li>
               <li><Link href="/pricing" className="hover:text-white transition-colors">Pricing</Link></li>
-              <li><Link href="/about" className="hover:text-white transition-colors">About</Link></li>
-              <li><Link href="/contact" className="hover:text-white transition-colors">Contact</Link></li>
+              <li><Link href="/#how-it-works" className="hover:text-white transition-colors">How it works</Link></li>
+              <li><Link href="/#contact" className="hover:text-white transition-colors">Contact</Link></li>
             </ul>
           </div>
 
@@ -110,32 +98,8 @@ export default function Footer() {
             <ul className="space-y-2 text-xs font-semibold">
               <li><Link href="/privacy" className="hover:text-white transition-colors">Privacy Policy</Link></li>
               <li><Link href="/terms" className="hover:text-white transition-colors">Terms of Service</Link></li>
-              <li><Link href="/contact" className="hover:text-white transition-colors">Contact Us</Link></li>
+              <li><Link href="/#contact" className="hover:text-white transition-colors">Contact Us</Link></li>
             </ul>
-          </div>
-
-          {/* Column 5: Newsletter */}
-          <div className="space-y-3 md:col-span-1">
-            <h3 className="text-[10px] font-bold text-white uppercase tracking-widest">Newsletter</h3>
-            <p className="text-xs text-slate-400 leading-normal">
-              Subscribe to stay updated with the latest features.
-            </p>
-            <form onSubmit={handleSubscribe} className="flex flex-col gap-2 pt-1">
-              <input
-                type="email"
-                required
-                placeholder="you@example.com"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                className="w-full bg-slate-800 text-white text-xs px-3.5 py-2.5 rounded-lg border border-slate-700 focus:outline-none focus:border-primary font-semibold"
-              />
-              <button
-                type="submit"
-                className="w-full bg-primary hover:bg-emerald-800 text-white text-[11px] font-bold uppercase tracking-wider py-2.5 rounded-lg transition-colors cursor-pointer"
-              >
-                Subscribe
-              </button>
-            </form>
           </div>
 
         </div>
