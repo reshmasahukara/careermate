@@ -21,7 +21,8 @@ import {
   BookOpen,
   Check,
   ShieldCheck,
-  Target
+  Target,
+  Mail
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
@@ -281,14 +282,30 @@ export default function HomePage() {
 
       {/* 10. CONTACT */}
       <section id="contact" className="w-full bg-[#FFFFFF] scroll-mt-24">
-        <div className="max-w-[1280px] px-6 mx-auto w-full py-[96px] md:py-[72px] py-[56px] space-y-8 text-center">
-          <span className="text-[10px] font-bold text-[#1E293B] uppercase tracking-widest bg-slate-100 border border-[#E5E7EB] px-3 py-1 rounded-full">
-            Contact
-          </span>
+        <div className="max-w-[1280px] px-6 mx-auto w-full py-[96px] md:py-[72px] py-[56px] space-y-12 flex flex-col items-center text-center">
+          
+          <div className="text-center space-y-3">
+            <h2 className="text-2xl sm:text-3xl font-black text-[#0F172A] tracking-tight">
+              Contact Us
+            </h2>
+            <p className="text-[#64748B] text-xs sm:text-sm font-semibold max-w-sm mx-auto">
+              Have questions or need support? We're here to help.
+            </p>
+          </div>
 
-          <p className="text-slate-500 text-xs sm:text-sm font-semibold max-w-2xl mx-auto">
-            Have questions about your career roadmap or need help with your account? Our support team is here to help. Reach out to us anytime.
-          </p>
+          <a 
+            href="mailto:careermate1920@gmail.com"
+            aria-label="Email CareerMate support"
+            className="group flex flex-col sm:flex-row items-center gap-[16px] py-[24px] px-8 rounded-[20px] bg-[#FCFDFE] border border-[#E5EAF1] shadow-[0_8px_24px_rgba(15,23,42,0.05)] hover:shadow-md hover:border-[#10B981]/50 transition-all outline-none focus:ring-2 focus:ring-[#10B981] focus:ring-offset-2"
+          >
+            <div className="w-12 h-12 flex items-center justify-center rounded-full bg-[#10B981]/10 text-[#10B981] group-hover:scale-110 transition-transform">
+              <Mail className="w-6 h-6" />
+            </div>
+            <span className="text-[#0F172A] font-bold text-lg sm:text-xl break-all group-hover:text-[#10B981] transition-colors">
+              careermate1920@gmail.com
+            </span>
+          </a>
+
         </div>
       </section>
 
