@@ -146,7 +146,11 @@ model Job {
   recommendations JobRecommendation[]
   applications ApplicationTracker[]
 
-  @@map("jobs")
+  sourcePlatform  String?  @map("source_platform")
+  companyCareersUrl String? @map("company_careers_url")
+  expiresAt       DateTime? @map("expires_at")
+
+  @@map("jobs_cache")
 }
 
 model SavedJob {

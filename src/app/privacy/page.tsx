@@ -17,7 +17,7 @@ export default function PrivacyPage() {
         <div className="text-xs sm:text-sm text-slate-600 leading-relaxed font-semibold space-y-4">
           <p>Last updated: June 18, 2026</p>
           <p>
-            At CareerMate, accessible from http://localhost:3000, one of our main priorities is the privacy of our visitors. This Privacy Policy document contains types of information that is collected and recorded by CareerMate and how we use it.
+            At CareerMate, accessible from https://careermate.vercel.app, one of our main priorities is the privacy of our visitors. This Privacy Policy document contains types of information that is collected and recorded by CareerMate and how we use it.
           </p>
           <h3 className="font-extrabold text-slate-800 uppercase tracking-wide text-xs">Information We Collect</h3>
           <p>

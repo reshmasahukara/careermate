@@ -212,7 +212,8 @@ export async function GET(request: Request) {
     const cleanedJobs: typeof poolJobs = [];
 
     for (const job of poolJobs) {
-      if (!job.applyUrl || !isValidUrl(job.applyUrl)) {
+      const finalUrl = job.applyUrl || job.companyCareersUrl;
+      if (!finalUrl || !isValidUrl(finalUrl)) {
         continue; // Exclude listings without a valid URL
       }
 

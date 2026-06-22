@@ -1,17 +1,94 @@
 import { prisma } from "./db";
 
+const COMPANY_URL_MAP: Record<string, string> = {
+  "google": "https://careers.google.com",
+  "microsoft": "https://careers.microsoft.com",
+  "amazon": "https://www.amazon.jobs",
+  "apple": "https://jobs.apple.com",
+  "meta": "https://www.metacareers.com",
+  "netflix": "https://jobs.netflix.com",
+  "adobe": "https://careers.adobe.com",
+  "oracle": "https://careers.oracle.com",
+  "salesforce": "https://careers.salesforce.com",
+  "ibm": "https://www.ibm.com/careers",
+  "nvidia": "https://www.nvidia.com/en-us/about-nvidia/careers",
+  "accenture": "https://www.accenture.com/careers",
+  "tcs": "https://www.tcs.com/careers",
+  "infosys": "https://www.infosys.com/careers",
+  "wipro": "https://careers.wipro.com",
+  "cognizant": "https://careers.cognizant.com",
+  "capgemini": "https://www.capgemini.com/careers",
+};
+
 function isValidUrl(urlStr: string) {
+  if (!urlStr) return false;
   try {
     const url = new URL(urlStr);
-    return url.protocol === "http:" || url.protocol === "https:";
+    if (url.protocol !== "http:" && url.protocol !== "https:") return false;
+    const hostname = url.hostname.toLowerCase();
+    const badDomains = ["example.com", "dummy.com", "placeholder.com", "test.com", "localhost"];
+    if (badDomains.some(d => hostname === d || hostname.endsWith(`.${d}`))) {
+      return false;
+    }
+    return true;
   } catch (e) {
     return false;
   }
 }
 
+function getCompanyCareersUrl(companyName: string): string | null {
+  if (!companyName) return null;
+  const name = companyName.toLowerCase().replace(/[^a-z0-9]/g, "");
+  for (const [key, url] of Object.entries(COMPANY_URL_MAP)) {
+    if (name.includes(key)) return url;
+  }
+  return null;
+}
+
 export async function syncJobsInternal() {
   let upsertedCount = 0;
   const errors: string[] = [];
+  const expiresAt = new Date();
+  expiresAt.setDate(expiresAt.getDate() + 30); // 30 days expiry
+
+  // Target Roles to ensure volume
+  const targetRoles = [
+    "Frontend Developer", "Backend Developer", "Full Stack Developer", 
+    "Data Analyst", "Data Scientist", "Machine Learning Engineer", 
+    "DevOps Engineer", "UI/UX Designer", "Software Engineer Intern"
+  ];
+
+  // Helper to process job
+  const processJob = async (jobData: any) => {
+    let { externalId, title, company, location, description, remote, applyUrl, skills, employmentType, experienceLevel, logoUrl, salaryMin, salaryMax, sourcePlatform } = jobData;
+    
+    applyUrl = isValidUrl(applyUrl) ? applyUrl : null;
+    const companyCareersUrl = getCompanyCareersUrl(company);
+
+    if (!applyUrl && !companyCareersUrl) {
+      return; // Skip if no valid URLs
+    }
+
+    const titleLower = (title || "").toLowerCase();
+    if (!experienceLevel || experienceLevel === "Mid Level") {
+      if (titleLower.includes("intern") || titleLower.includes("apprentice")) experienceLevel = "Internship";
+      else if (titleLower.includes("junior") || titleLower.includes("entry") || titleLower.includes("associate")) experienceLevel = "Entry Level";
+      else if (titleLower.includes("senior") || titleLower.includes("sr.")) experienceLevel = "Senior";
+      else if (titleLower.includes("lead") || titleLower.includes("architect") || titleLower.includes("principal")) experienceLevel = "Lead";
+      else experienceLevel = "Mid Level";
+    }
+
+    try {
+      await prisma.job.upsert({
+        where: { externalId },
+        update: { title, company, location, description, remote, applyUrl: applyUrl || "", companyCareersUrl, skills, employmentType, experienceLevel, logoUrl, salaryMin, salaryMax, sourcePlatform, expiresAt },
+        create: { externalId, title, company, location, description, remote, applyUrl: applyUrl || "", companyCareersUrl, skills, employmentType, experienceLevel, logoUrl, salaryMin, salaryMax, sourcePlatform, expiresAt }
+      });
+      upsertedCount++;
+    } catch (upsertError) {
+      console.error(`Failed to upsert job ${externalId}:`, upsertError);
+    }
+  };
 
   // 1. Fetch from Arbeitnow
   try {
@@ -20,36 +97,19 @@ export async function syncJobsInternal() {
       const data = await response.json();
       const jobs = data.data || [];
       for (const job of jobs) {
-        const externalId = job.slug || `arbeitnow-${job.id || Math.random()}`;
-        const title = job.title || "Software Engineer";
-        const company = job.company_name || "Arbeitnow Partner";
-        const location = job.location || "Remote";
-        const description = job.description || "No description provided.";
-        const remote = job.remote || false;
-        const applyUrl = job.url || "";
-        const skills = job.tags || [];
-        const employmentType = (job.job_types && job.job_types.length > 0) ? job.job_types[0] : "Full-time";
-        
-        if (!applyUrl || !isValidUrl(applyUrl)) {
-          continue; // Skip invalid application links
-        }
-
-        let experienceLevel = "Mid Level";
-        const titleLower = title.toLowerCase();
-        if (titleLower.includes("intern") || titleLower.includes("apprentice")) experienceLevel = "Internship";
-        else if (titleLower.includes("junior") || titleLower.includes("entry") || titleLower.includes("associate")) experienceLevel = "Entry Level";
-        else if (titleLower.includes("senior") || titleLower.includes("sr.")) experienceLevel = "Senior";
-        else if (titleLower.includes("lead") || titleLower.includes("architect") || titleLower.includes("principal")) experienceLevel = "Lead";
-
-        const cleanCompanyName = company.toLowerCase().replace(/[^a-z0-9]/g, "");
-        const logoUrl = `https://logo.clearbit.com/${cleanCompanyName}.com` || null;
-
-        await prisma.job.upsert({
-          where: { externalId },
-          update: { title, company, location, description, remote, applyUrl, skills, employmentType, experienceLevel, logoUrl },
-          create: { externalId, title, company, location, description, remote, applyUrl, skills, employmentType, experienceLevel, logoUrl }
+        await processJob({
+          externalId: job.slug || `arbeitnow-${job.id || Math.random()}`,
+          title: job.title || "Software Engineer",
+          company: job.company_name || "Arbeitnow Partner",
+          location: job.location || "Remote",
+          description: job.description || "No description provided.",
+          remote: job.remote || false,
+          applyUrl: job.url || "",
+          skills: job.tags || [],
+          employmentType: (job.job_types && job.job_types.length > 0) ? job.job_types[0] : "Full-time",
+          logoUrl: null,
+          sourcePlatform: "Arbeitnow"
         });
-        upsertedCount++;
       }
     } else {
       errors.push(`Arbeitnow API returned status ${response.status}`);
@@ -58,42 +118,25 @@ export async function syncJobsInternal() {
     errors.push(`Arbeitnow API fetch failed: ${e.message}`);
   }
 
-  // 2. Fetch from Remotive
+  // 2. Fetch from Remotive (limit to ensure variety)
   try {
-    const response = await fetch("https://remotive.com/api/remote-jobs?limit=50", { next: { revalidate: 0 } });
+    const response = await fetch("https://remotive.com/api/remote-jobs?limit=150", { next: { revalidate: 0 } });
     if (response.ok) {
       const data = await response.json();
-      const jobs = data.jobs || [];
-      for (const job of jobs) {
-        const externalId = `remotive-${job.id}`;
-        const title = job.title || "Software Engineer";
-        const company = job.company_name || "Remotive Partner";
-        const location = job.candidate_required_location || "Remote";
-        const description = job.description || "No description provided.";
-        const remote = true;
-        const applyUrl = job.url || "";
-        const skills = job.tags || [];
-        const employmentType = job.job_type || "Full-time";
-        
-        if (!applyUrl || !isValidUrl(applyUrl)) {
-          continue; // Skip invalid application links
-        }
-
-        let experienceLevel = "Mid Level";
-        const titleLower = title.toLowerCase();
-        if (titleLower.includes("intern") || titleLower.includes("apprentice")) experienceLevel = "Internship";
-        else if (titleLower.includes("junior") || titleLower.includes("entry") || titleLower.includes("associate")) experienceLevel = "Entry Level";
-        else if (titleLower.includes("senior") || titleLower.includes("sr.")) experienceLevel = "Senior";
-        else if (titleLower.includes("lead") || titleLower.includes("architect") || titleLower.includes("principal")) experienceLevel = "Lead";
-
-        const logoUrl = job.company_logo || null;
-
-        await prisma.job.upsert({
-          where: { externalId },
-          update: { title, company, location, description, remote, applyUrl, skills, employmentType, experienceLevel, logoUrl },
-          create: { externalId, title, company, location, description, remote, applyUrl, skills, employmentType, experienceLevel, logoUrl }
+      for (const job of (data.jobs || [])) {
+        await processJob({
+          externalId: `remotive-${job.id}`,
+          title: job.title || "Software Engineer",
+          company: job.company_name || "Remotive Partner",
+          location: job.candidate_required_location || "Remote",
+          description: job.description || "No description provided.",
+          remote: true,
+          applyUrl: job.url || "",
+          skills: job.tags || [],
+          employmentType: job.job_type || "Full-time",
+          logoUrl: job.company_logo || null,
+          sourcePlatform: "Remotive"
         });
-        upsertedCount++;
       }
     } else {
       errors.push(`Remotive API returned status ${response.status}`);
@@ -102,13 +145,12 @@ export async function syncJobsInternal() {
     errors.push(`Remotive API fetch failed: ${e.message}`);
   }
 
-  // 3. Fetch from JSearch (RapidAPI) if key exists
+  // 3. JSearch (RapidAPI)
   const jsearchApiKey = process.env.JSEARCH_API_KEY;
   if (jsearchApiKey && jsearchApiKey !== "jsearch-api-key-here") {
-    const queries = ["Software Engineer", "Data Analyst", "Product Manager"];
-    for (const query of queries) {
+    for (const role of targetRoles) {
       try {
-        const response = await fetch(`https://jsearch.p.rapidapi.com/search?query=${encodeURIComponent(query)}&num_pages=1`, {
+        const response = await fetch(`https://jsearch.p.rapidapi.com/search?query=${encodeURIComponent(role)}&num_pages=2`, {
           headers: {
             "X-RapidAPI-Key": jsearchApiKey,
             "X-RapidAPI-Host": "jsearch.p.rapidapi.com"
@@ -117,111 +159,80 @@ export async function syncJobsInternal() {
         });
         if (response.ok) {
           const data = await response.json();
-          const jobs = data.data || [];
-          for (const job of jobs) {
-            const externalId = `jsearch-${job.job_id}`;
-            const title = job.job_title || "Software Engineer";
-            const company = job.employer_name || "Partner Company";
-            const location = `${job.job_city || ""}${job.job_city && job.job_country ? ", " : ""}${job.job_country || ""}` || "Remote";
-            const description = job.job_description || "No description provided.";
-            const remote = job.job_is_remote || false;
-            const applyUrl = job.job_apply_link || "";
-            const skills = job.job_required_skills || [];
-            const employmentType = job.job_employment_type || "Full-time";
-            
-            if (!applyUrl || !isValidUrl(applyUrl)) {
-              continue; // Skip invalid application links
-            }
-
-            let experienceLevel = "Mid Level";
-            const titleLower = title.toLowerCase();
-            if (titleLower.includes("intern") || titleLower.includes("apprentice")) experienceLevel = "Internship";
-            else if (titleLower.includes("junior") || titleLower.includes("entry") || titleLower.includes("associate")) experienceLevel = "Entry Level";
-            else if (titleLower.includes("senior") || titleLower.includes("sr.")) experienceLevel = "Senior";
-            else if (titleLower.includes("lead") || titleLower.includes("architect") || titleLower.includes("principal")) experienceLevel = "Lead";
-
-            const logoUrl = job.employer_logo || null;
-            const salaryMin = job.job_min_salary ? Number(job.job_min_salary) : null;
-            const salaryMax = job.job_max_salary ? Number(job.job_max_salary) : null;
-
-            await prisma.job.upsert({
-              where: { externalId },
-              update: { title, company, location, description, remote, applyUrl, skills, employmentType, experienceLevel, logoUrl, salaryMin, salaryMax },
-              create: { externalId, title, company, location, description, remote, applyUrl, skills, employmentType, experienceLevel, logoUrl, salaryMin, salaryMax }
+          for (const job of (data.data || [])) {
+            await processJob({
+              externalId: `jsearch-${job.job_id}`,
+              title: job.job_title || role,
+              company: job.employer_name || "Partner Company",
+              location: `${job.job_city || ""}${job.job_city && job.job_country ? ", " : ""}${job.job_country || ""}` || "Remote",
+              description: job.job_description || "No description provided.",
+              remote: job.job_is_remote || false,
+              applyUrl: job.job_apply_link || "",
+              skills: job.job_required_skills || [],
+              employmentType: job.job_employment_type || "Full-time",
+              logoUrl: job.employer_logo || null,
+              salaryMin: job.job_min_salary ? Number(job.job_min_salary) : null,
+              salaryMax: job.job_max_salary ? Number(job.job_max_salary) : null,
+              sourcePlatform: "JSearch"
             });
-            upsertedCount++;
           }
         } else {
-          errors.push(`JSearch API returned status ${response.status} for query ${query}`);
+          errors.push(`JSearch API returned status ${response.status} for query ${role}`);
         }
       } catch (e: any) {
-        errors.push(`JSearch API fetch failed for query ${query}: ${e.message}`);
+        errors.push(`JSearch API fetch failed for query ${role}: ${e.message}`);
       }
     }
   }
 
-  // 4. Fetch from Adzuna if credentials exist
+  // 4. Adzuna
   const adzunaAppId = process.env.ADZUNA_APP_ID;
   const adzunaAppKey = process.env.ADZUNA_APP_KEY;
   if (adzunaAppId && adzunaAppKey && adzunaAppId !== "adzuna-app-id-here") {
-    try {
-      const response = await fetch(`https://api.adzuna.com/v1/api/jobs/us/search/1?app_id=${adzunaAppId}&app_key=${adzunaAppKey}&results_per_page=30&what=developer`, { next: { revalidate: 0 } });
-      if (response.ok) {
-        const data = await response.json();
-        const results = data.results || [];
-        for (const item of results) {
-          const externalId = `adzuna-${item.id}`;
-          const title = item.title || "Software Engineer";
-          const company = item.company?.display_name || "Partner Company";
-          const location = item.location?.display_name || "Remote";
-          const description = item.description || "No description provided.";
-          const remote = item.title.toLowerCase().includes("remote") || item.description.toLowerCase().includes("remote");
-          const applyUrl = item.redirect_url || "";
-          const skills = item.category?.tag ? [item.category.tag] : [];
-          const employmentType = item.contract_time === "full_time" ? "Full-time" : "Part-time";
-
-          if (!applyUrl || !isValidUrl(applyUrl)) {
-            continue; // Skip invalid application links
+    for (const role of targetRoles) {
+      try {
+        const response = await fetch(`https://api.adzuna.com/v1/api/jobs/us/search/1?app_id=${adzunaAppId}&app_key=${adzunaAppKey}&results_per_page=20&what=${encodeURIComponent(role)}`, { next: { revalidate: 0 } });
+        if (response.ok) {
+          const data = await response.json();
+          for (const item of (data.results || [])) {
+            await processJob({
+              externalId: `adzuna-${item.id}`,
+              title: item.title || role,
+              company: item.company?.display_name || "Partner Company",
+              location: item.location?.display_name || "Remote",
+              description: item.description || "No description provided.",
+              remote: item.title.toLowerCase().includes("remote") || item.description.toLowerCase().includes("remote"),
+              applyUrl: item.redirect_url || "",
+              skills: item.category?.tag ? [item.category.tag] : [],
+              employmentType: item.contract_time === "full_time" ? "Full-time" : "Part-time",
+              sourcePlatform: "Adzuna",
+              salaryMin: item.salary_min ? Math.round(Number(item.salary_min)) : null,
+              salaryMax: item.salary_max ? Math.round(Number(item.salary_max)) : null,
+            });
           }
-
-          let experienceLevel = "Mid Level";
-          const titleLower = title.toLowerCase();
-          if (titleLower.includes("intern") || titleLower.includes("apprentice")) experienceLevel = "Internship";
-          else if (titleLower.includes("junior") || titleLower.includes("entry") || titleLower.includes("associate")) experienceLevel = "Entry Level";
-          else if (titleLower.includes("senior") || titleLower.includes("sr.")) experienceLevel = "Senior";
-          else if (titleLower.includes("lead") || titleLower.includes("architect") || titleLower.includes("principal")) experienceLevel = "Lead";
-
-          const logoUrl = null;
-          const salaryMin = item.salary_min ? Math.round(Number(item.salary_min)) : null;
-          const salaryMax = item.salary_max ? Math.round(Number(item.salary_max)) : null;
-
-          await prisma.job.upsert({
-            where: { externalId },
-            update: { title, company, location, description, remote, applyUrl, skills, employmentType, experienceLevel, logoUrl, salaryMin, salaryMax },
-            create: { externalId, title, company, location, description, remote, applyUrl, skills, employmentType, experienceLevel, logoUrl, salaryMin, salaryMax }
-          });
-          upsertedCount++;
+        } else {
+          errors.push(`Adzuna API returned status ${response.status} for query ${role}`);
         }
-      } else {
-        errors.push(`Adzuna API returned status ${response.status}`);
+      } catch (e: any) {
+        errors.push(`Adzuna API fetch failed for query ${role}: ${e.message}`);
       }
-    } catch (e: any) {
-      errors.push(`Adzuna API fetch failed: ${e.message}`);
     }
   }
 
-  // 5. Cleanup expired jobs (older than 30 days)
+  // 5. Cleanup expired and dummy jobs
   try {
-    const thirtyDaysAgo = new Date();
-    thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
     const deleteRes = await prisma.job.deleteMany({
       where: {
-        createdAt: {
-          lt: thirtyDaysAgo
-        }
+        OR: [
+          { expiresAt: { lt: new Date() } },
+          { applyUrl: { contains: "example.com" } },
+          { applyUrl: { contains: "dummy.com" } },
+          { applyUrl: { contains: "localhost" } },
+          { applyUrl: { contains: "test.com" } }
+        ]
       }
     });
-    console.log(`Deleted ${deleteRes.count} expired jobs older than 30 days.`);
+    console.log(`Deleted ${deleteRes.count} expired/dummy jobs.`);
   } catch (cleanErr: any) {
     errors.push(`Expired job cleanup failed: ${cleanErr.message}`);
   }

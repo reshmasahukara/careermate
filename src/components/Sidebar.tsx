@@ -220,7 +220,7 @@ export default function Sidebar({ session, isCollapsed, setIsCollapsed }: Sideba
                   {session?.user?.name || "Alex Morgan"}
                 </p>
                 <p className="text-[10px] text-[#64748B] truncate leading-tight mt-0.5">
-                  {session?.user?.email || "alex@example.com"}
+                  {session?.user?.email || "user@careermate.com"}
                 </p>
               </div>
             )}

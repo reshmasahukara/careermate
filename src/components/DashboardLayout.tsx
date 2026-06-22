@@ -249,7 +249,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
                   </div>
                   <div className="min-w-0">
                     <p className="text-xs font-bold text-[#0F172A] truncate leading-none">{session?.user?.name || "Alex Morgan"}</p>
-                    <p className="text-[10px] text-[#64748B] truncate mt-1 leading-none">{session?.user?.email || "alex@example.com"}</p>
+                    <p className="text-[10px] text-[#64748B] truncate mt-1 leading-none">{session?.user?.email || "user@careermate.com"}</p>
                   </div>
                 </div>
                 <button

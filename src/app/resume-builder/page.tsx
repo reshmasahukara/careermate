@@ -68,7 +68,7 @@ export default function ResumeBuilderPage() {
   const [resumeData, setResumeData] = useState({
     fullName: session?.user?.name || "Alex Morgan",
     jobTitle: "Senior Frontend Engineer",
-    email: session?.user?.email || "alex@example.com",
+    email: session?.user?.email || "user@careermate.com",
     phone: "+1 (555) 019-2834",
     location: "San Francisco, CA",
     summary: "Strategic, impact-driven Frontend Engineer with 5+ years of experience leading UI/UX architectures, engineering high-performance React applications, and optimizing bundle performance. Passionate about AI integrations, clean code systems, and collaborative development frameworks.",

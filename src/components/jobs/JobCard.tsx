@@ -44,12 +44,14 @@ export default function JobCard({ job, isSaved, toggleSaveJob, onClick }: any) {
     return Math.floor(seconds) + "s ago";
   };
 
-  const badge = getSourceBadge(job.externalId, job.applyUrl);
+  const badge = getSourceBadge(job.externalId, job.applyUrl || job.companyCareersUrl);
+
+  const finalUrl = job.applyUrl || job.companyCareersUrl;
 
   const handleApply = async (e: React.MouseEvent) => {
     e.stopPropagation();
     e.preventDefault();
-    if (!job.applyUrl) {
+    if (!finalUrl) {
       toast("Application link is missing or broken", "error");
       return;
     }
@@ -79,7 +81,7 @@ export default function JobCard({ job, isSaved, toggleSaveJob, onClick }: any) {
 
     setTimeout(() => {
       setIsApplying(false);
-      window.open(job.applyUrl, "_blank", "noopener,noreferrer");
+      window.open(finalUrl, "_blank", "noopener,noreferrer");
     }, 600);
   };
 
@@ -90,10 +92,10 @@ export default function JobCard({ job, isSaved, toggleSaveJob, onClick }: any) {
       navigator.share({
         title: `${job.title} at ${job.company}`,
         text: `Check out this job: ${job.title} at ${job.company}`,
-        url: job.applyUrl,
+        url: finalUrl,
       }).catch(console.error);
     } else {
-      navigator.clipboard.writeText(job.applyUrl);
+      navigator.clipboard.writeText(finalUrl);
       toast("Link copied to clipboard!", "success");
     }
   };

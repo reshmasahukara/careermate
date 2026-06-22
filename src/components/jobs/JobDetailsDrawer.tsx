@@ -41,10 +41,11 @@ export default function JobDetailsDrawer({ job, isOpen, onClose, isSaved, toggle
 
   if (!isOpen || !job) return null;
 
-  const badge = getSourceBadge(job.externalId, job.applyUrl);
+  const finalUrl = job.applyUrl || job.companyCareersUrl;
+  const badge = getSourceBadge(job.externalId, finalUrl);
 
   const handleApply = () => {
-    if (!job.applyUrl) {
+    if (!finalUrl) {
       toast("Application link is missing or broken", "error");
       return;
     }
@@ -52,7 +53,7 @@ export default function JobDetailsDrawer({ job, isOpen, onClose, isSaved, toggle
     setIsApplying(true);
     setTimeout(() => {
       setIsApplying(false);
-      window.open(job.applyUrl, "_blank", "noopener,noreferrer");
+      window.open(finalUrl, "_blank", "noopener,noreferrer");
     }, 600);
   };
 
@@ -252,9 +253,9 @@ export default function JobDetailsDrawer({ job, isOpen, onClose, isSaved, toggle
               <div className="pt-2 border-t border-[#E2E8F0]/60 flex justify-between items-center">
                 <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Source Link:</span>
                 <a 
-                  href={job.applyUrl} 
+                  href={finalUrl} 
                   target="_blank" 
-                  rel="noreferrer"
+                  rel="noopener noreferrer"
                   className="text-xs font-bold text-[#10B981] hover:text-[#059669] flex items-center gap-1 hover:underline"
                 >
                   {badge.name} Posting
