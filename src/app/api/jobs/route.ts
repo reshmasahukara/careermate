@@ -203,6 +203,7 @@ export async function GET(request: Request) {
     // 4. FETCH A LARGER BATCH TO ENFORCE DE-DUPLICATION, COMPLETENESS & LIMIT OF 60
     const poolJobs = await prisma.job.findMany({
       where: whereClause,
+      include: { companyRef: true },
       orderBy: { createdAt: "desc" },
       take: 200 // Fetch recent pool to filter and score in JS memory
     });

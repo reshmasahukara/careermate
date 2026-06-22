@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Bookmark, BookmarkCheck, ExternalLink, MapPin, Briefcase, DollarSign, Clock, Share2 } from "lucide-react";
+import { Bookmark, BookmarkCheck, ExternalLink, MapPin, Briefcase, DollarSign, Clock, Share2, Building2 } from "lucide-react";
 import { useToast } from "@/components/Providers";
 
 const getSourceBadge = (externalId: string, applyUrl: string) => {
@@ -23,6 +23,8 @@ const getSourceBadge = (externalId: string, applyUrl: string) => {
     return { name: "Direct Apply", color: "bg-slate-50 text-slate-700 border-slate-200" };
   }
 };
+
+import Link from "next/link";
 
 export default function JobCard({ job, isSaved, toggleSaveJob, onClick }: any) {
   const { toast } = useToast();
@@ -144,7 +146,21 @@ export default function JobCard({ job, isSaved, toggleSaveJob, onClick }: any) {
               </span>
             </div>
             
-            <p className="text-sm font-bold text-[#64748B] flex items-center gap-1.5">{job.company}</p>
+            {job.companyId ? (
+              <Link 
+                href={`/companies/${job.companyId}`} 
+                onClick={(e) => e.stopPropagation()}
+                className="flex items-center gap-1 text-sm font-bold text-[#64748B] hover:text-[#10B981] transition-colors"
+              >
+                <Building2 className="w-4 h-4 shrink-0" />
+                <span className="truncate">{job.company}</span>
+              </Link>
+            ) : (
+              <div className="flex items-center gap-1 text-sm font-bold text-[#64748B]">
+                <Building2 className="w-4 h-4 shrink-0" />
+                <span className="truncate">{job.company}</span>
+              </div>
+            )}
             
             <div className="flex flex-wrap items-center gap-x-4 gap-y-2 mt-4 text-xs font-semibold text-slate-500">
               <span className="flex items-center gap-1.5 truncate max-w-[160px]">

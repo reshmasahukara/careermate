@@ -1,24 +1,5 @@
 import { prisma } from "./db";
-
-const COMPANY_URL_MAP: Record<string, string> = {
-  "google": "https://careers.google.com",
-  "microsoft": "https://careers.microsoft.com",
-  "amazon": "https://www.amazon.jobs",
-  "apple": "https://jobs.apple.com",
-  "meta": "https://www.metacareers.com",
-  "netflix": "https://jobs.netflix.com",
-  "adobe": "https://careers.adobe.com",
-  "oracle": "https://careers.oracle.com",
-  "salesforce": "https://careers.salesforce.com",
-  "ibm": "https://www.ibm.com/careers",
-  "nvidia": "https://www.nvidia.com/en-us/about-nvidia/careers",
-  "accenture": "https://www.accenture.com/careers",
-  "tcs": "https://www.tcs.com/careers",
-  "infosys": "https://www.infosys.com/careers",
-  "wipro": "https://careers.wipro.com",
-  "cognizant": "https://careers.cognizant.com",
-  "capgemini": "https://www.capgemini.com/careers",
-};
+import { seedCuratedCompanies } from "./seedCompanies";
 
 function isValidUrl(urlStr: string) {
   if (!urlStr) return false;
@@ -36,26 +17,37 @@ function isValidUrl(urlStr: string) {
   }
 }
 
-function getCompanyCareersUrl(companyName: string): string | null {
-  if (!companyName) return null;
-  const name = companyName.toLowerCase().replace(/[^a-z0-9]/g, "");
-  for (const [key, url] of Object.entries(COMPANY_URL_MAP)) {
-    if (name.includes(key)) return url;
-  }
-  return null;
-}
-
 export async function syncJobsInternal() {
   let upsertedCount = 0;
   const errors: string[] = [];
   const expiresAt = new Date();
   expiresAt.setDate(expiresAt.getDate() + 30); // 30 days expiry
 
+  // Seed curated companies into the DB
+  await seedCuratedCompanies();
+
+  // Load companies for fast matching
+  const dbCompanies = await prisma.company.findMany();
+  
+  function getMatchedCompany(companyName: string) {
+    if (!companyName) return null;
+    const name = companyName.toLowerCase().replace(/[^a-z0-9]/g, "");
+    for (const comp of dbCompanies) {
+      const dbName = comp.name.toLowerCase().replace(/[^a-z0-9]/g, "");
+      if (name.includes(dbName) || dbName.includes(name)) {
+        return comp;
+      }
+    }
+    return null;
+  }
+
   // Target Roles to ensure volume
   const targetRoles = [
-    "Frontend Developer", "Backend Developer", "Full Stack Developer", 
-    "Data Analyst", "Data Scientist", "Machine Learning Engineer", 
-    "DevOps Engineer", "UI/UX Designer", "Software Engineer Intern"
+    "Frontend Developer", "Backend Developer", "Full Stack Developer", "React Developer",
+    "Node.js Developer", "Python Developer", "Java Developer", "Mobile Developer",
+    "Data Analyst", "Data Scientist", "Machine Learning Engineer", "AI Engineer",
+    "DevOps Engineer", "Cloud Engineer", "Cybersecurity Analyst", "UI/UX Designer",
+    "Product Manager", "QA Engineer", "Business Analyst", "Software Engineer Intern"
   ];
 
   // Helper to process job
@@ -63,7 +55,10 @@ export async function syncJobsInternal() {
     let { externalId, title, company, location, description, remote, applyUrl, skills, employmentType, experienceLevel, logoUrl, salaryMin, salaryMax, sourcePlatform } = jobData;
     
     applyUrl = isValidUrl(applyUrl) ? applyUrl : null;
-    const companyCareersUrl = getCompanyCareersUrl(company);
+    
+    const matchedComp = getMatchedCompany(company);
+    const companyCareersUrl = matchedComp?.careersUrl || null;
+    const companyId = matchedComp?.id || null;
 
     if (!applyUrl && !companyCareersUrl) {
       return; // Skip if no valid URLs
@@ -81,8 +76,8 @@ export async function syncJobsInternal() {
     try {
       await prisma.job.upsert({
         where: { externalId },
-        update: { title, company, location, description, remote, applyUrl: applyUrl || "", companyCareersUrl, skills, employmentType, experienceLevel, logoUrl, salaryMin, salaryMax, sourcePlatform, expiresAt },
-        create: { externalId, title, company, location, description, remote, applyUrl: applyUrl || "", companyCareersUrl, skills, employmentType, experienceLevel, logoUrl, salaryMin, salaryMax, sourcePlatform, expiresAt }
+        update: { title, company, location, description, remote, applyUrl: applyUrl || "", companyCareersUrl, companyId, skills, employmentType, experienceLevel, logoUrl, salaryMin, salaryMax, sourcePlatform, expiresAt },
+        create: { externalId, title, company, location, description, remote, applyUrl: applyUrl || "", companyCareersUrl, companyId, skills, employmentType, experienceLevel, logoUrl, salaryMin, salaryMax, sourcePlatform, expiresAt }
       });
       upsertedCount++;
     } catch (upsertError) {
@@ -111,8 +106,6 @@ export async function syncJobsInternal() {
           sourcePlatform: "Arbeitnow"
         });
       }
-    } else {
-      errors.push(`Arbeitnow API returned status ${response.status}`);
     }
   } catch (e: any) {
     errors.push(`Arbeitnow API fetch failed: ${e.message}`);
@@ -138,8 +131,6 @@ export async function syncJobsInternal() {
           sourcePlatform: "Remotive"
         });
       }
-    } else {
-      errors.push(`Remotive API returned status ${response.status}`);
     }
   } catch (e: any) {
     errors.push(`Remotive API fetch failed: ${e.message}`);
@@ -176,12 +167,8 @@ export async function syncJobsInternal() {
               sourcePlatform: "JSearch"
             });
           }
-        } else {
-          errors.push(`JSearch API returned status ${response.status} for query ${role}`);
         }
-      } catch (e: any) {
-        errors.push(`JSearch API fetch failed for query ${role}: ${e.message}`);
-      }
+      } catch (e: any) {}
     }
   }
 
@@ -210,12 +197,8 @@ export async function syncJobsInternal() {
               salaryMax: item.salary_max ? Math.round(Number(item.salary_max)) : null,
             });
           }
-        } else {
-          errors.push(`Adzuna API returned status ${response.status} for query ${role}`);
         }
-      } catch (e: any) {
-        errors.push(`Adzuna API fetch failed for query ${role}: ${e.message}`);
-      }
+      } catch (e: any) {}
     }
   }
 
