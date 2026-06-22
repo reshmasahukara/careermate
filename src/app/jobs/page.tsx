@@ -20,7 +20,6 @@ import {
   AlertTriangle,
   Calendar,
   Banknote,
-  TrendingUp,
   Star
 } from "lucide-react";
 import { useToast } from "@/components/Providers";
@@ -523,25 +522,7 @@ export default function JobListingsPage() {
                 </div>
               )}
 
-              {/* Trending Roles / Recently Posted Carousel */}
-              <div className="space-y-4">
-                <div className="flex items-center gap-2 px-1">
-                  <TrendingUp className="w-5 h-5 text-emerald-500" />
-                  <h2 className="text-xl font-black text-[#0F172A]">Featured Opportunities</h2>
-                </div>
-                <div className="flex overflow-x-auto gap-4 pb-4 snap-x hide-scrollbar">
-                  {jobs.slice(0, 10).map((job: any) => (
-                    <div key={`featured-${job.id}`} className="min-w-[320px] max-w-[320px] snap-start">
-                      <JobCard 
-                        job={job} 
-                        isSaved={savedJobIds.has(job.id)} 
-                        toggleSaveJob={toggleSaveJob}
-                        onClick={setSelectedJob}
-                      />
-                    </div>
-                  ))}
-                </div>
-              </div>
+
 
               {/* All Opportunities */}
               <div className="space-y-6">
